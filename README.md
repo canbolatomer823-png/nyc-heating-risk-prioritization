@@ -71,7 +71,7 @@ portfolio_assets/    Presentation, brochure and one-page summary PDFs
 Start here:
 
 1. Open `portfolio_assets/NYC_Heating_Risk_Baslangic_Rehberi_Omer_Canbolat.pdf`.
-2. Open `portfolio_assets/NYC_Heating_Risk_Final_Sunum_QR_Omer_Canbolat.pdf`.
+2. Open `portfolio_assets/NYC_Heating_Risk_Final_Sunum_Public_Omer_Canbolat.pdf`.
 3. Open `portfolio_assets/NYC_Heating_Risk_Brosur_Omer_Canbolat.pdf`.
 4. For technical proof, review `reports/final_project_audit.md`, `reports/model_card.md` and `reports/data_card.md`.
 
