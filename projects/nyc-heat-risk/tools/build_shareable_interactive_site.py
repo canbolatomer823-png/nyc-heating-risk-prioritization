@@ -251,14 +251,14 @@ HTML_TEMPLATE = """<!doctype html>
     .progress-dock b{display:block;color:var(--forest);font-size:.9rem}.progress-track{height:10px;border-radius:999px;background:#eadcc8;overflow:hidden;margin:9px 0}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--forest),var(--brick));transition:.25s}.progress-dock small{color:var(--muted)}
     .mission-board{display:grid;grid-template-columns:.9fr 1.1fr;gap:18px;margin-top:18px}.mission-choices{display:grid;gap:12px}.choice-card{border:1px solid var(--line);border-left:8px solid var(--gold);border-radius:24px;background:#fffaf1;padding:16px;text-align:left;cursor:pointer;transition:.18s}.choice-card:hover{transform:translateY(-3px);box-shadow:0 16px 32px rgba(24,35,29,.12)}.choice-card.correct{border-left-color:var(--forest);background:#edf7f2}.choice-card.wrong{border-left-color:var(--brick);background:#fff0ea}.mission-result{min-height:220px}.score-ring{width:154px;height:154px;border-radius:50%;display:grid;place-items:center;margin:10px auto 16px;background:conic-gradient(var(--brick) 0deg,var(--brick) var(--risk-deg),#eadcc8 var(--risk-deg),#eadcc8 360deg)}.score-ring span{width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:#fffaf1;font-size:1.7rem;font-weight:950;color:var(--forest)}
     .compare-layout{display:grid;grid-template-columns:300px 1fr;gap:18px}.compare-controls{display:grid;gap:12px}.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.compare-card{border:1px solid var(--line);border-radius:26px;background:#fffaf1;padding:18px}.compare-meter{height:16px;border-radius:999px;background:#eadcc8;overflow:hidden;margin:8px 0 14px}.compare-meter div{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--brick))}
-    .nyc-map-layout{display:grid;grid-template-columns:1.25fr .75fr;gap:18px;margin-top:18px}.nyc-map-card{border:1px solid var(--line);border-radius:32px;background:radial-gradient(circle at 45% 24%,rgba(216,95,66,.18),transparent 25%),linear-gradient(150deg,#0b1d1a,#143d34 58%,#1c594c);min-height:620px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),var(--shadow);position:relative}.nyc-map-card:before{content:"";position:absolute;left:0;right:0;bottom:0;height:86px;background:linear-gradient(to top,rgba(0,0,0,.28),transparent);pointer-events:none}.map-brief{min-height:620px}.borough-shape{fill:rgba(255,248,235,.11);stroke:rgba(255,248,235,.34);stroke-width:2}.borough-label{fill:#d8ece3;font-weight:900;font-size:22px;letter-spacing:.06em}.map-line{stroke:rgba(255,248,235,.16);stroke-width:2}.waterline{fill:none;stroke:rgba(216,236,227,.22);stroke-width:22;stroke-linecap:round}.bridge-line{stroke:rgba(255,248,235,.30);stroke-width:3;stroke-dasharray:5 8}.risk-dot{cursor:pointer;transition:.18s}.risk-dot circle:first-child{fill:rgba(216,95,66,.2);animation:mapPulse 2.6s ease-in-out infinite}.risk-dot circle:last-child{fill:var(--brick);stroke:#fff8eb;stroke-width:2}.risk-dot:hover circle:last-child,.risk-dot.active circle:last-child{fill:var(--gold);r:10}.risk-dot text{fill:#fff8eb;font-size:11px;font-weight:900;paint-order:stroke;stroke:#10211c;stroke-width:3}.map-legend{fill:#bfd6ce;font-size:14px}.subway-line{fill:none;stroke-width:5;stroke-linecap:round;opacity:.55;stroke-dasharray:10 10;animation:dash 8s linear infinite}.map-badge{fill:rgba(255,248,235,.9);stroke:rgba(255,248,235,.22)}.map-badge-text{fill:#123d34;font-size:13px;font-weight:900}.selected-link{stroke:#fff8eb;stroke-width:2.5;stroke-dasharray:7 7;animation:dash 7s linear infinite}.selected-callout{fill:rgba(255,248,235,.94);stroke:rgba(255,248,235,.28)}.selected-callout-text{fill:#123d34;font-size:13px;font-weight:900}.map-glow{fill:rgba(216,95,66,.15);animation:mapPulse 2.2s ease-in-out infinite}
+    .map-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:18px 0 8px}.map-chip{border:1px solid var(--line);border-radius:999px;background:#fffaf1;color:var(--muted);padding:10px 13px;font-weight:950;cursor:pointer;transition:.18s}.map-chip:hover,.map-chip.active{background:var(--forest);color:white;transform:translateY(-2px);box-shadow:0 12px 24px rgba(24,35,29,.12)}.map-toolbar .control{min-width:190px;margin-left:auto}.nyc-map-layout{display:grid;grid-template-columns:1.18fr .82fr;gap:18px;margin-top:14px}.nyc-map-card{border:1px solid var(--line);border-radius:34px;background:radial-gradient(circle at 18% 20%,rgba(255,248,235,.16),transparent 25%),radial-gradient(circle at 72% 42%,rgba(216,95,66,.18),transparent 29%),linear-gradient(150deg,#071916,#123d34 56%,#1c594c);min-height:640px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),var(--shadow);position:relative}.nyc-map-card:before{content:"";position:absolute;left:0;right:0;bottom:0;height:110px;background:linear-gradient(to top,rgba(0,0,0,.34),transparent);pointer-events:none}.nyc-map-card:after{content:"Resmi 311 koordinatlarından yaklaşık şehir görünümü";position:absolute;left:22px;bottom:18px;color:#d8ece3;font-weight:850;font-size:.86rem;letter-spacing:.02em}.map-brief{min-height:640px;display:flex;flex-direction:column;gap:12px}.map-side-top{display:grid;grid-template-columns:1fr 150px;gap:12px;align-items:start}.map-side-top .score-ring{margin:0 auto}.borough-shape{fill:rgba(255,248,235,.09);stroke:rgba(255,248,235,.30);stroke-width:2}.borough-label{fill:rgba(216,236,227,.78);font-weight:950;font-size:20px;letter-spacing:.06em}.map-line{stroke:rgba(255,248,235,.08);stroke-width:1.5}.waterline{fill:none;stroke:rgba(216,236,227,.18);stroke-width:18;stroke-linecap:round}.bridge-line{stroke:rgba(255,248,235,.22);stroke-width:2.5;stroke-dasharray:5 9}.risk-dot{cursor:pointer;transition:.18s}.risk-dot circle:first-child{fill:rgba(216,95,66,.16);animation:mapPulse 2.8s ease-in-out infinite}.risk-dot circle:last-child{fill:var(--brick);stroke:#fff8eb;stroke-width:2;filter:drop-shadow(0 4px 8px rgba(0,0,0,.32))}.risk-dot.muted circle:first-child{fill:rgba(255,248,235,.06);animation:none}.risk-dot.muted circle:last-child{fill:#d6a33d;opacity:.64}.risk-dot:hover circle:last-child,.risk-dot.active circle:last-child{fill:var(--gold);r:10;opacity:1}.risk-dot text{fill:#fff8eb;font-size:10px;font-weight:950;paint-order:stroke;stroke:#10211c;stroke-width:3}.map-legend{fill:#bfd6ce;font-size:14px}.subway-line{fill:none;stroke-width:3.2;stroke-linecap:round;opacity:.24;stroke-dasharray:12 14;animation:dash 10s linear infinite}.map-badge{fill:rgba(255,248,235,.92);stroke:rgba(255,248,235,.22)}.map-badge-text{fill:#123d34;font-size:13px;font-weight:950}.selected-link{stroke:#fff8eb;stroke-width:2.5;stroke-dasharray:7 7;animation:dash 7s linear infinite}.selected-callout{fill:rgba(255,248,235,.96);stroke:rgba(255,248,235,.32)}.selected-callout-text{fill:#123d34;font-size:13px;font-weight:950}.map-glow{fill:rgba(216,95,66,.14);animation:mapPulse 2.2s ease-in-out infinite}.map-priority-list{display:grid;gap:8px;max-height:210px;overflow:auto;padding-right:4px}.map-mini-row{border:1px solid var(--line);border-radius:16px;background:#fffdf6;padding:10px;text-align:left;cursor:pointer;transition:.18s;font:inherit}.map-mini-row:hover,.map-mini-row.active{background:#edf7f2;border-color:rgba(18,61,52,.36);transform:translateY(-2px)}.map-mini-row b{display:flex;justify-content:space-between;gap:8px;color:var(--forest);font-size:.9rem}.map-mini-row b span{color:var(--forest);font-size:.9rem;margin-top:0}.map-mini-row>span{display:block;color:var(--muted);font-size:.78rem;margin-top:4px}.map-note{border-left:6px solid var(--gold);border-radius:16px;background:#fff4d8;padding:12px;color:var(--muted);font-size:.86rem}
     .tech-layout{display:grid;grid-template-columns:1.12fr .88fr;gap:18px;margin-top:18px}.tech-visual{background:linear-gradient(145deg,#10211c,#153f35 56%,#0d1714);color:white;min-height:620px}.tech-visual p{color:#c8dcd4}.tech-map{width:100%;height:auto;min-height:390px}.tech-node{fill:rgba(255,248,235,.1);stroke:rgba(255,248,235,.42);stroke-width:2}.tech-node.active{fill:rgba(216,95,66,.42);stroke:#fff8eb}.tech-node-label{fill:#fff8eb;font-weight:900;font-size:15px;text-anchor:middle}.tech-node-sub{fill:#bfd6ce;font-weight:800;font-size:11px;text-anchor:middle}.tech-flow{fill:none;stroke:rgba(255,248,235,.30);stroke-width:4;stroke-linecap:round;stroke-dasharray:12 12;animation:dash 9s linear infinite}.tech-packet{fill:#d85f42;filter:drop-shadow(0 0 8px rgba(216,95,66,.85))}.tech-card-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}.tech-card{text-align:left;border:1px solid var(--line);border-radius:22px;background:#fffaf1;padding:16px;cursor:pointer;transition:.18s}.tech-card:hover,.tech-card.active{transform:translateY(-3px);border-color:rgba(216,95,66,.55);box-shadow:0 18px 34px rgba(24,35,29,.12)}.tech-card b{display:block;color:var(--forest);font-size:1.05rem}.tech-card span{display:block;color:var(--muted);font-size:.86rem;margin-top:5px}.tech-detail{min-height:620px}.tech-bullets{display:grid;gap:10px;margin-top:14px}.tech-bullet{border-left:6px solid var(--brick);border-radius:16px;background:#fffdf6;padding:13px}.tech-bullet b{display:block;color:var(--forest);margin-bottom:4px}.tech-bullet p{font-size:.9rem}.stack-ribbon{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.stack-ribbon .metric{background:#10211c;color:white}.cost-note{border-left:7px solid var(--gold);background:#fff4d8}
     .insight-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.insight{border-radius:22px;padding:16px;background:#10211c;color:white;min-height:126px}.insight span{display:block;color:#bfd6ce;font-size:.75rem;text-transform:uppercase;font-weight:900;letter-spacing:.06em}.insight b{display:block;font-size:1.65rem;margin-top:8px}.sparkline{height:46px;margin-top:10px}
     .toast{position:fixed;left:50%;bottom:24px;z-index:60;transform:translate(-50%,20px);opacity:0;max-width:min(92vw,420px);border-radius:999px;background:#10211c;color:white;padding:12px 16px;box-shadow:0 18px 42px rgba(24,35,29,.24);font-weight:900;transition:.25s}.toast.show{transform:translate(-50%,0);opacity:1}
     .safe-note{border-left:7px solid var(--forest);background:#edf7f2}.mobile-hint{display:none;margin-top:10px;color:var(--muted)}
     @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{50%{transform:scale(1.16);opacity:.55}}@keyframes pop{50%{transform:scale(1.25)}}@keyframes mapPulse{50%{transform:scale(1.75);opacity:.08}}@keyframes dash{to{stroke-dashoffset:-120}}
     @media(max-width:980px){.hero,.cols-2,.explorer,.policy-board,.evidence-grid,.mission-board,.compare-layout,.nyc-map-layout,.stats-lab,.anova-grid,.tech-layout,.tour-layout{grid-template-columns:1fr}.flow,.cols-3,.cols-4,.insight-strip,.hypothesis-grid{grid-template-columns:repeat(2,1fr)}.results,.compare-grid{grid-template-columns:1fr}.detail{position:static}.topbar{border-radius:24px;align-items:flex-start;flex-direction:column}.nav button{padding:9px}.progress-dock{position:static;margin:14px 0}.mobile-hint{display:block}.nyc-map-card,.map-brief,.tech-visual,.tech-detail{min-height:auto}}
-    @media(max-width:620px){.shell{width:min(100% - 22px,1220px);padding-top:12px}.hero-copy,.section{padding:20px}.panel{border-radius:24px}h1{font-size:2.9rem}.lead{font-size:1.02rem}.topbar{position:relative;top:auto}.nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;width:100%;padding-bottom:4px}.nav button{white-space:nowrap}.flow,.cols-3,.cols-4,.hero-metrics,.insight-strip,.hypothesis-grid,.sim-controls,.stat-output,.stat-mini-grid,.tech-card-grid,.stack-ribbon,.tour-route{grid-template-columns:1fr}.phone{min-height:360px}.bar-chart{gap:6px;overflow-x:auto}.bar{min-width:42px}.bar span{font-size:.68rem}.bar label{font-size:.68rem}.choice-card,.card{border-radius:20px}.toast{bottom:12px;border-radius:20px}}
+    @media(max-width:620px){.shell{width:min(100% - 22px,1220px);padding-top:12px}.hero-copy,.section{padding:20px}.panel{border-radius:24px}h1{font-size:2.9rem}.lead{font-size:1.02rem}.topbar{position:relative;top:auto}.nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;width:100%;padding-bottom:4px}.nav button{white-space:nowrap}.flow,.cols-3,.cols-4,.hero-metrics,.insight-strip,.hypothesis-grid,.sim-controls,.stat-output,.stat-mini-grid,.tech-card-grid,.stack-ribbon,.tour-route,.map-side-top{grid-template-columns:1fr}.map-toolbar .control{margin-left:0;width:100%}.nyc-map-card{min-height:420px}.nyc-map-card:after{font-size:.74rem;left:16px}.phone{min-height:360px}.bar-chart{gap:6px;overflow-x:auto}.bar{min-width:42px}.bar span{font-size:.68rem}.bar label{font-size:.68rem}.choice-card,.card{border-radius:20px}.toast{bottom:12px;border-radius:20px}}
   </style>
 </head>
 <body>
@@ -384,18 +384,32 @@ HTML_TEMPLATE = """<!doctype html>
 
   <section id="map" class="panel section">
     <h2>NYC risk haritası: seçilen bina şehirde nereye düşüyor?</h2>
-    <p class="section-lead">Noktalar Top-50 öncelik listesindeki binaları gösterir. Konumlar NYC 311 kayıtlarındaki BBL eşleşmeli latitude/longitude bilgisinden türetilmiştir; bu yüzden harita “yaklaşık resmi koordinatlı risk görünümü” olarak okunmalı.</p>
+    <p class="section-lead">Harita artık kalabalık bir nokta bulutu yerine öncelik odaklı çalışır: önce Top-10 temiz görünür, istersen Top-25 veya Top-50'ye geçebilirsin. Konumlar NYC 311 kayıtlarındaki BBL eşleşmeli latitude/longitude bilgisinden türetilmiştir; bu yüzden “yaklaşık resmi koordinatlı risk görünümü” olarak okunmalı.</p>
+    <div class="map-toolbar" aria-label="Harita görünüm seçenekleri">
+      <button class="map-chip active" data-map-limit="10">Top-10 net görünüm</button>
+      <button class="map-chip" data-map-limit="25">Top-25</button>
+      <button class="map-chip" data-map-limit="50">Top-50</button>
+      <label class="control">İlçe filtresi
+        <select id="mapBoroughFilter"><option value="Tümü">Tümü</option></select>
+      </label>
+    </div>
     <div class="nyc-map-layout">
       <div class="nyc-map-card">
         <svg id="nycRiskMap" viewBox="0 0 760 640" role="img" aria-label="Top-50 NYC heating risk map"></svg>
       </div>
       <aside class="card map-brief">
-        <h3 id="mapTitle">Bir risk noktasına dokun</h3>
-        <p id="mapMeta" class="small">Nokta seçilince adres, ilçe, risk ve istatistiksel gerekçe burada görünür.</p>
-        <div class="score-ring" id="mapRing" style="--risk-deg:0deg"><span id="mapRisk">?</span></div>
+        <div class="map-side-top">
+          <div>
+            <h3 id="mapTitle">Bir risk noktasına dokun</h3>
+            <p id="mapMeta" class="small">Nokta seçilince adres, ilçe, risk ve istatistiksel gerekçe burada görünür.</p>
+          </div>
+          <div class="score-ring" id="mapRing" style="--risk-deg:0deg"><span id="mapRisk">?</span></div>
+        </div>
         <p id="mapWhy" class="small"></p>
         <div id="mapStats" class="grid cols-2"></div>
-        <p class="small"><b>Harita dürüstlüğü:</b> Bu bir Google Maps yerine geçen kesin parsel haritası değildir; proje sunumu için resmi 311 koordinatlarıyla hazırlanmış şehir bağlamı görselleştirmesidir.</p>
+        <h3 style="margin-top:4px">Haritada görünen öncelikler</h3>
+        <div id="mapPriorityList" class="map-priority-list"></div>
+        <p class="map-note"><b>Harita dürüstlüğü:</b> Bu bir Google Maps yerine geçen kesin parsel haritası değildir; proje sunumu için resmi 311 koordinatlarıyla hazırlanmış şehir bağlamı görselleştirmesidir.</p>
       </aside>
     </div>
   </section>
@@ -963,7 +977,37 @@ function polygon(points){
     return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
   }).join(' ');
 }
+let activeMapLimit = 10;
+let activeMapBorough = 'Tümü';
+let activeMapBuildingId = null;
 function initMap(){
+  const boroughSelect = $('#mapBoroughFilter');
+  if (boroughSelect) {
+    const boroughs = ['Tümü', ...new Set(data.priorityRows.map(row => row.borough).filter(Boolean).sort())];
+    boroughSelect.innerHTML = boroughs.map(b => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join('');
+    boroughSelect.addEventListener('change', () => {
+      activeMapBorough = boroughSelect.value;
+      activeMapBuildingId = null;
+      drawMap();
+    });
+  }
+  $$('[data-map-limit]').forEach(btn => btn.addEventListener('click', () => {
+    $$('[data-map-limit]').forEach(item => item.classList.remove('active'));
+    btn.classList.add('active');
+    activeMapLimit = Number(btn.dataset.mapLimit || 10);
+    activeMapBuildingId = null;
+    drawMap();
+  }));
+  drawMap();
+}
+function mapVisibleRows(){
+  return data.priorityRows
+    .filter(row => row.latitude && row.longitude)
+    .filter(row => activeMapBorough === 'Tümü' || row.borough === activeMapBorough)
+    .sort((a,b) => Number(a.inspection_priority_rank || 9999) - Number(b.inspection_priority_rank || 9999))
+    .slice(0, activeMapLimit);
+}
+function drawMap(){
   const svg = $('#nycRiskMap');
   if (!svg) return;
   const shapes = [
@@ -996,20 +1040,24 @@ function initMap(){
     {name:'BROOKLYN', longitude:-73.94, latitude:40.63},
     {name:'STATEN', longitude:-74.14, latitude:40.57}
   ];
-  const dots = data.priorityRows
-    .filter(row => row.latitude && row.longitude)
+  const visibleRows = mapVisibleRows();
+  const dots = visibleRows
     .map(row => {
       const p = projectNyc(row);
-      const r = 4 + Number(row.model_probability || 0) * 5;
-      return `<g class="risk-dot" data-map-id="${escapeHtml(row.building_id)}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})">
+      const rank = Number(row.inspection_priority_rank || 999);
+      const r = 4.5 + Number(row.model_probability || 0) * 4;
+      const muted = rank > 10 ? ' muted' : '';
+      const label = rank <= 10 ? `<text x="11" y="-9">#${rank}</text>` : '';
+      return `<g class="risk-dot${muted}" data-map-id="${escapeHtml(row.building_id)}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})">
         <circle r="${(r*3.1).toFixed(1)}"></circle>
         <circle r="${r.toFixed(1)}"></circle>
-        <text x="11" y="-9">#${row.inspection_priority_rank}</text>
+        ${label}
       </g>`;
     }).join('');
+  const guideLines = Array.from({length:7},(_,i)=>`<line class="map-line" x1="${i*118}" y1="0" x2="${i*118-190}" y2="640"></line>`).join('');
   svg.innerHTML = `
     <rect x="0" y="0" width="760" height="640" fill="transparent"></rect>
-    ${Array.from({length:12},(_,i)=>`<line class="map-line" x1="${i*70}" y1="0" x2="${i*70-180}" y2="640"></line>`).join('')}
+    ${guideLines}
     ${water.map(line => `<polyline class="waterline" points="${polygon(line)}"></polyline>`).join('')}
     ${shapes.map(s => `<polygon class="borough-shape" points="${polygon(s.pts)}"></polygon>`).join('')}
     ${bridges.map(line => `<polyline class="bridge-line" points="${polygon(line)}"></polyline>`).join('')}
@@ -1017,17 +1065,42 @@ function initMap(){
     ${labels.map(label => { const p = projectNyc(label); return `<text class="borough-label" x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}">${label.name}</text>`; }).join('')}
     ${dots}
     <g id="activeMapLayer"></g>
-    <rect class="map-badge" x="22" y="22" rx="17" ry="17" width="258" height="42"></rect>
-    <text class="map-badge-text" x="42" y="49">NYC heating priority field view</text>
-    <text class="map-legend" x="22" y="594">Top-50 risk noktaları · resmi 311 koordinatlarından yaklaşık şehir bağlamı</text>
+    <rect class="map-badge" x="22" y="22" rx="17" ry="17" width="320" height="42"></rect>
+    <text class="map-badge-text" x="42" y="49">${visibleRows.length} bina · ${escapeHtml(activeMapBorough)} · Top-${activeMapLimit}</text>
+    <text class="map-legend" x="22" y="594">Nokta boyutu risk olasılığına göre artar · etiketler sadece en kritik binalarda gösterilir</text>
   `;
   $$('.risk-dot').forEach(dot => dot.addEventListener('click', () => selectMapBuilding(dot.dataset.mapId)));
-  if (data.priorityRows[0]) selectMapBuilding(data.priorityRows[0].building_id);
+  renderMapPriorityList(visibleRows);
+  const selected = visibleRows.find(row => String(row.building_id) === String(activeMapBuildingId)) || visibleRows[0];
+  if (selected) {
+    selectMapBuilding(selected.building_id);
+  } else {
+    $('#mapTitle').textContent = 'Bu filtrede harita noktası yok';
+    $('#mapMeta').textContent = 'Farklı ilçe veya daha geniş Top-N görünümü seç.';
+    $('#mapRisk').textContent = '?';
+    $('#mapRing').style.setProperty('--risk-deg', '0deg');
+    $('#mapWhy').textContent = '';
+    $('#mapStats').innerHTML = '';
+    $('#mapPriorityList').innerHTML = '';
+  }
+}
+function renderMapPriorityList(rows){
+  const list = $('#mapPriorityList');
+  if (!list) return;
+  list.innerHTML = rows.slice(0, 10).map(row => `
+    <button class="map-mini-row" data-map-list-id="${escapeHtml(row.building_id)}">
+      <b><span>#${row.inspection_priority_rank} · ${escapeHtml(row.borough)}</span><span>${pct(row.model_probability,0)}</span></b>
+      <span>${escapeHtml(row.incident_address || row.building_id)}</span>
+    </button>
+  `).join('');
+  $$('[data-map-list-id]').forEach(btn => btn.addEventListener('click', () => selectMapBuilding(btn.dataset.mapListId)));
 }
 function selectMapBuilding(id){
   const row = data.priorityRows.find(item => String(item.building_id) === String(id));
   if (!row || !$('#mapTitle')) return;
+  activeMapBuildingId = row.building_id;
   $$('.risk-dot').forEach(dot => dot.classList.toggle('active', String(dot.dataset.mapId) === String(id)));
+  $$('[data-map-list-id]').forEach(btn => btn.classList.toggle('active', String(btn.dataset.mapListId) === String(id)));
   const layer = $('#activeMapLayer');
   if (layer && row.latitude && row.longitude) {
     const p = projectNyc(row);
