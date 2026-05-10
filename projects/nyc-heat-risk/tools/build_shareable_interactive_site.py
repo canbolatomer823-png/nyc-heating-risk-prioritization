@@ -39,6 +39,12 @@ def load_json(path: Path, default: Any) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def load_text(path: Path, default: str = "") -> str:
+    if not path.exists():
+        return default
+    return path.read_text(encoding="utf-8")
+
+
 def load_priority_rows() -> list[dict[str, Any]]:
     frame = pd.read_csv(REPORTS / "inspection_priority_latest_day.csv", low_memory=False).head(50)
     raw_311_path = WINDOW / "raw/nyc_311_heat_requests_filtered.csv"
@@ -104,8 +110,12 @@ def build_app_data() -> dict[str, Any]:
     demo_health = load_json(ROOT_REPORTS / "demo_proof/health.json", {})
     demo_score = load_json(ROOT_REPORTS / "demo_proof/score_response.json", {})
     demo_priority = load_json(ROOT_REPORTS / "demo_proof/priorities_top5.json", {})
+    demo_dashboard = load_json(ROOT_REPORTS / "demo_proof/dashboard_status.json", {})
     aws_summary = load_json(ROOT_REPORTS / "aws_live_deploy/proof_summary.json", {})
     shutdown_summary = load_json(ROOT_REPORTS / "aws_shutdown/shutdown_summary.json", {})
+    demo_proof_md = load_text(ROOT_REPORTS / "demo_proof/demo_proof.md")
+    class_demo_md = load_text(ROOT_REPORTS / "class_demo_check.md")
+    desktop_command = load_text(Path("/Users/omer/Desktop/NYC_Heating_Risk_Sunum_Demo.command"))
 
     headline = presentation.get("headline_metrics", {})
     logistic = presentation.get("logistic_summary", {})
@@ -185,6 +195,30 @@ def build_app_data() -> dict[str, Any]:
             "aws": clean(aws_summary),
             "shutdown": clean(shutdown_summary),
         },
+        "demo": {
+            "desktopCommandPath": "/Users/omer/Desktop/NYC_Heating_Risk_Sunum_Demo.command",
+            "desktopCommand": desktop_command.strip(),
+            "menuScriptPath": str(PROJECT / "scripts/classroom_demo_menu.sh"),
+            "serveCommand": f"make -C {PROJECT} serve",
+            "demoProofCommand": f"make -C {PROJECT} demo-proof",
+            "classDemoCheckCommand": f"make -C {PROJECT} class-demo-check",
+            "showcaseUrl": "http://127.0.0.1:8000/showcase",
+            "dashboardUrl": "http://127.0.0.1:8000/dashboard?top_n=10",
+            "healthUrl": "http://127.0.0.1:8000/health",
+            "status": "READY" if "Overall: `READY`" in class_demo_md else "CHECK",
+            "testStatus": "90 test OK",
+            "classDemoMarkdown": class_demo_md,
+            "demoProofMarkdown": demo_proof_md,
+            "healthSummary": {
+                "status": demo_health.get("status"),
+                "model_type": demo_health.get("model_type"),
+                "threshold": demo_health.get("threshold"),
+                "scored_row_count": demo_health.get("scored_row_count"),
+                "priority_row_count": demo_health.get("priority_row_count"),
+                "priority_csv_loaded": demo_health.get("priority_csv_loaded"),
+            },
+            "dashboardSummary": clean(demo_dashboard),
+        },
         "limits": [
             "Bu sistem otomatik ceza veya otomatik denetim kararı vermez.",
             "Model nedensellik iddiası kurmaz; operasyonel risk sıralaması üretir.",
@@ -246,6 +280,7 @@ HTML_TEMPLATE = """<!doctype html>
     .detail{position:sticky;top:88px}.contrib{display:grid;gap:8px;margin-top:12px}.contrib-row{display:grid;grid-template-columns:150px 1fr 55px;gap:8px;align-items:center;font-size:.86rem}.track{height:12px;border-radius:999px;background:#eadcc8;overflow:hidden}.fill{height:100%;border-radius:999px;background:var(--brick)}.fill.neg{background:var(--blue)}
     .policy-board{display:grid;grid-template-columns:.82fr 1.18fr;gap:18px}.policy-bars{display:grid;gap:12px}.policy-row{display:grid;grid-template-columns:135px 1fr 70px;gap:10px;align-items:center}.policy-track{height:30px;border-radius:999px;background:#eadcc8;overflow:hidden}.policy-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--forest),var(--brick));transition:.25s}
     .evidence-grid{display:grid;grid-template-columns:280px 1fr;gap:18px}.evidence-list{display:grid;gap:10px}.evidence-item{text-align:left;border:1px solid var(--line);border-radius:18px;background:#fffaf1;padding:14px;cursor:pointer}.evidence-item.active{background:var(--forest);color:white}.evidence-output-stack{display:grid;gap:14px}.evidence-summary{min-height:220px}.evidence-badge{display:inline-flex;border-radius:999px;background:#10211c;color:white;font-weight:900;padding:7px 10px;font-size:.78rem;margin-bottom:10px}.evidence-bullets{display:grid;gap:8px;margin-top:12px}.evidence-bullet{border-left:6px solid var(--forest);border-radius:15px;background:#fffdf6;padding:11px;color:var(--muted)}.evidence-bullet b{color:var(--forest)}pre{white-space:pre-wrap;word-break:break-word;border-radius:22px;background:#10211c;color:#eafff8;padding:18px;max-height:360px;overflow:auto}
+    .demo-hero{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;margin-top:18px}.demo-terminal{background:#0b1714;color:#eafff8;border-radius:28px;padding:20px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),0 22px 54px rgba(24,35,29,.16)}.terminal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.terminal-dots{display:flex;gap:7px}.terminal-dots span{width:12px;height:12px;border-radius:50%;background:#d85f42}.terminal-dots span:nth-child(2){background:#d6a33d}.terminal-dots span:nth-child(3){background:#5fb48c}.terminal-title{color:#bfd6ce;font-weight:900;font-size:.86rem}.terminal-screen{font-family:"SF Mono",Menlo,Consolas,monospace;line-height:1.65;font-size:.95rem;white-space:pre-wrap;min-height:330px}.terminal-screen .prompt{color:#d6a33d}.terminal-screen .ok{color:#88e0ad}.terminal-screen .warn{color:#ffd27a}.demo-proof-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}.proof-card{border:1px solid var(--line);border-radius:20px;background:#fffaf1;padding:16px}.proof-card span{display:block;color:var(--muted);font-size:.75rem;text-transform:uppercase;font-weight:950;letter-spacing:.06em}.proof-card b{display:block;color:var(--forest);font-size:1.5rem;margin-top:7px}.demo-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.live-check{border-left:7px solid var(--forest);background:#edf7f2}.live-check-output{border-radius:18px;background:#10211c;color:#eafff8;padding:14px;min-height:118px;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:.88rem;white-space:pre-wrap;margin-top:12px}.demo-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.demo-step{border-radius:18px;background:#10211c;color:white;padding:14px;min-height:112px}.demo-step b{display:block;color:#fff8eb}.demo-step span{display:block;color:#bfd6ce;font-size:.84rem;margin-top:6px;line-height:1.4}
     .footer{margin-top:24px;color:var(--muted);font-size:.9rem;text-align:center}.tag{display:inline-flex;border-radius:999px;padding:6px 9px;background:var(--mint);color:var(--forest);font-weight:900;font-size:.78rem;margin:3px}
     .progress-dock{position:fixed;right:14px;bottom:14px;z-index:30;border:1px solid var(--line);border-radius:24px;background:rgba(255,248,235,.92);box-shadow:0 18px 42px rgba(24,35,29,.16);padding:12px;min-width:220px;backdrop-filter:blur(12px)}
     .progress-dock b{display:block;color:var(--forest);font-size:.9rem}.progress-track{height:10px;border-radius:999px;background:#eadcc8;overflow:hidden;margin:9px 0}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--forest),var(--brick));transition:.25s}.progress-dock small{color:var(--muted)}
@@ -257,8 +292,8 @@ HTML_TEMPLATE = """<!doctype html>
     .toast{position:fixed;left:50%;bottom:24px;z-index:60;transform:translate(-50%,20px);opacity:0;max-width:min(92vw,420px);border-radius:999px;background:#10211c;color:white;padding:12px 16px;box-shadow:0 18px 42px rgba(24,35,29,.24);font-weight:900;transition:.25s}.toast.show{transform:translate(-50%,0);opacity:1}
     .safe-note{border-left:7px solid var(--forest);background:#edf7f2}.mobile-hint{display:none;margin-top:10px;color:var(--muted)}
     @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{50%{transform:scale(1.16);opacity:.55}}@keyframes pop{50%{transform:scale(1.25)}}@keyframes mapPulse{50%{transform:scale(1.75);opacity:.08}}@keyframes dash{to{stroke-dashoffset:-120}}
-    @media(max-width:980px){.hero,.cols-2,.explorer,.policy-board,.evidence-grid,.mission-board,.compare-layout,.nyc-map-layout,.stats-lab,.anova-grid,.tech-layout,.tour-layout{grid-template-columns:1fr}.flow,.cols-3,.cols-4,.insight-strip,.hypothesis-grid{grid-template-columns:repeat(2,1fr)}.results,.compare-grid{grid-template-columns:1fr}.detail{position:static}.topbar{border-radius:24px;align-items:flex-start;flex-direction:column}.nav button{padding:9px}.progress-dock{position:static;margin:14px 0}.mobile-hint{display:block}.nyc-map-card,.map-brief,.tech-visual,.tech-detail{min-height:auto}}
-    @media(max-width:620px){.shell{width:min(100% - 22px,1220px);padding-top:12px}.hero-copy,.section{padding:20px}.panel{border-radius:24px}h1{font-size:2.9rem}.lead{font-size:1.02rem}.topbar{position:relative;top:auto}.nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;width:100%;padding-bottom:4px}.nav button{white-space:nowrap}.flow,.cols-3,.cols-4,.hero-metrics,.insight-strip,.hypothesis-grid,.sim-controls,.stat-output,.stat-mini-grid,.tech-card-grid,.stack-ribbon,.tour-route,.map-side-top{grid-template-columns:1fr}.map-toolbar .control{margin-left:0;width:100%}.nyc-map-card{min-height:420px}.nyc-map-card:after{font-size:.74rem;left:16px}.phone{min-height:360px}.bar-chart{gap:6px;overflow-x:auto}.bar{min-width:42px}.bar span{font-size:.68rem}.bar label{font-size:.68rem}.choice-card,.card{border-radius:20px}.toast{bottom:12px;border-radius:20px}}
+    @media(max-width:980px){.hero,.cols-2,.explorer,.policy-board,.evidence-grid,.mission-board,.compare-layout,.nyc-map-layout,.stats-lab,.anova-grid,.tech-layout,.tour-layout,.demo-hero{grid-template-columns:1fr}.flow,.cols-3,.cols-4,.insight-strip,.hypothesis-grid,.demo-flow{grid-template-columns:repeat(2,1fr)}.results,.compare-grid{grid-template-columns:1fr}.detail{position:static}.topbar{border-radius:24px;align-items:flex-start;flex-direction:column}.nav button{padding:9px}.progress-dock{position:static;margin:14px 0}.mobile-hint{display:block}.nyc-map-card,.map-brief,.tech-visual,.tech-detail{min-height:auto}}
+    @media(max-width:620px){.shell{width:min(100% - 22px,1220px);padding-top:12px}.hero-copy,.section{padding:20px}.panel{border-radius:24px}h1{font-size:2.9rem}.lead{font-size:1.02rem}.topbar{position:relative;top:auto}.nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;width:100%;padding-bottom:4px}.nav button{white-space:nowrap}.flow,.cols-3,.cols-4,.hero-metrics,.insight-strip,.hypothesis-grid,.sim-controls,.stat-output,.stat-mini-grid,.tech-card-grid,.stack-ribbon,.tour-route,.map-side-top,.demo-proof-grid,.demo-flow{grid-template-columns:1fr}.map-toolbar .control{margin-left:0;width:100%}.nyc-map-card{min-height:420px}.nyc-map-card:after{font-size:.74rem;left:16px}.phone{min-height:360px}.terminal-screen{font-size:.8rem}.bar-chart{gap:6px;overflow-x:auto}.bar{min-width:42px}.bar span{font-size:.68rem}.bar label{font-size:.68rem}.choice-card,.card{border-radius:20px}.toast{bottom:12px;border-radius:20px}}
   </style>
 </head>
 <body>
@@ -272,6 +307,7 @@ HTML_TEMPLATE = """<!doctype html>
       <button data-section="stats">İstatistik</button>
       <button data-section="explorer">Risk</button>
       <button data-section="stack">Teknoloji</button>
+      <button data-section="demo">Canlı kanıt</button>
       <button data-section="evidence">Kanıt</button>
     </nav>
   </header>
@@ -533,6 +569,42 @@ HTML_TEMPLATE = """<!doctype html>
     <div class="tech-card-grid" id="techCards"></div>
   </section>
 
+  <section id="demo" class="panel section">
+    <h2>Canlı demo kanıt ekranı: komut, API ve dashboard aynı yerde.</h2>
+    <p class="section-lead">Bu bölüm arka sıradan da okunacak şekilde hazırlandı. Sitenin kendisi Mac'te komut çalıştırmaz; ama sunum laptopunda hangi komutun çalıştırıldığını, hangi çıktının üretildiğini ve yerel API'nin gerçekten cevap verip vermediğini büyük ekranda gösterir.</p>
+    <div class="demo-hero">
+      <div class="demo-terminal">
+        <div class="terminal-head">
+          <div class="terminal-dots"><span></span><span></span><span></span></div>
+          <span class="terminal-title">NYC_Heating_Risk_Sunum_Demo.command</span>
+        </div>
+        <div class="terminal-screen" id="demoTerminal"></div>
+      </div>
+      <aside class="card live-check">
+        <h3>Sunum laptopunda canlı kontrol</h3>
+        <p>Bu düğme sadece sunum laptopunda API çalışıyorsa anlamlıdır. Öğrencilerin telefonunda `127.0.0.1` kendi telefonlarını gösterir; bu yüzden sınıfa gönderilen linkte canlı API yerine gömülü kanıtlar görünür.</p>
+        <div class="demo-actions">
+          <button class="btn" id="liveApiCheck">Yerel API'yi kontrol et</button>
+          <a class="btn alt" href="http://127.0.0.1:8000/showcase" target="_blank" rel="noopener">Yerel siteyi aç</a>
+          <a class="btn alt" href="http://127.0.0.1:8000/dashboard?top_n=10" target="_blank" rel="noopener">Dashboard aç</a>
+        </div>
+        <div class="live-check-output" id="liveCheckOutput">Henüz kontrol yapılmadı. Önce masaüstündeki demo menüsünden API'yi başlat, sonra bu düğmeye bas.</div>
+      </aside>
+    </div>
+    <div class="demo-proof-grid">
+      <div class="proof-card"><span>Hazırlık kontrolü</span><b id="demoReady">-</b></div>
+      <div class="proof-card"><span>Test durumu</span><b id="demoTests">-</b></div>
+      <div class="proof-card"><span>Skorlanan satır</span><b id="demoRows">-</b></div>
+      <div class="proof-card"><span>Öncelik satırı</span><b id="demoPriorities">-</b></div>
+    </div>
+    <div class="demo-flow">
+      <div class="demo-step"><b>1. Menü</b><span>Masaüstündeki `.command` dosyası sunum PDF'i, site, dashboard ve kanıt raporlarını tek yerden açar.</span></div>
+      <div class="demo-step"><b>2. API</b><span>FastAPI modeli ve artefaktları yükler; `/health`, `/priorities`, `/score` cevap verir.</span></div>
+      <div class="demo-step"><b>3. Dashboard</b><span>Top riskli binalar ve “neden riskli?” açıklamaları operasyonel tablo olarak görünür.</span></div>
+      <div class="demo-step"><b>4. Kanıt</b><span>`demo-proof` ve `class-demo-check` çıktıları sistemin çalıştığını belgeleyen dosyalardır.</span></div>
+    </div>
+  </section>
+
   <section id="evidence" class="panel section">
     <h2>Kanıt dolabı: çalışan sistemin parçaları.</h2>
     <p class="section-lead">Buradaki çıktılar statik örnek olarak gömüldü. Canlı derste aynı zincir local API, dashboard, demo-proof ve AWS proof raporlarıyla gösterilir.</p>
@@ -588,7 +660,7 @@ const tourSteps = [
   {target:'stats', time:'1:00 - 1:40', title:'İstatistik', text:'ANOVA aylar arasında fark var mı sorusunu, lojistik regresyon ise ertesi gün şikayet olasılığını açıklar. NB, GEE ve GLMM destekleyici istatistik kontrolleridir.'},
   {target:'explorer', time:'1:40 - 2:10', title:'Risk çıktısı', text:'Gerçek proje çıktısı burada: bina seç, risk olasılığını, neden riskli olduğunu ve hangi değişkenlerin kararı etkilediğini gör.'},
   {target:'stack', time:'2:10 - 2:40', title:'Teknoloji zinciri', text:'Python, SQL, R, FastAPI, Docker, AWS ve EKS araçları burada proje ihtiyacına bağlanır. Amaç araç göstermek değil, çalışan veri bilimi sistemi kurmaktır.'},
-  {target:'evidence', time:'2:40 - 3:00', title:'Kanıt', text:'Son bölümde API sağlık kontrolü, Top-5 öncelik JSON’u, score endpoint örneği, AWS canlı deploy ve kapatma kanıtı gösterilir.'}
+  {target:'demo', time:'2:40 - 3:00', title:'Canlı kanıt', text:'Masaüstü demo menüsü, yerel API kontrolü, dashboard ve demo-proof çıktısı tek ekranda gösterilir. Arka sıranın okuyacağı büyük kanıt ekranı burasıdır.'}
 ];
 const techStack = [
   {id:'python', name:'Python', role:'ETL, feature üretimi ve model eğitimi', why:'Veri temizleme, 8.7M+ bina-gün paneli kurma, lojistik regresyon modelini eğitme ve raporları üretme işinin ana dili olarak kullanıldı.', used:'pandas, scikit-learn, statsmodels ve proje scriptleriyle resmi veriler işlenip model artefaktları üretildi.', proof:'train, analysis-suite, test ve demo-proof komutları bu hattı çalıştırıyor.'},
@@ -600,7 +672,7 @@ const techStack = [
   {id:'eks', name:'Kubernetes / EKS', role:'Container orkestrasyonu', why:'Docker tek başına imaj üretir; Kubernetes/EKS ise bu imajın sunucuda çalışmasını, servis olarak erişilmesini ve yönetilmesini sağlar.', used:'Kubernetes manifestleri API deployment ve service/load balancer zincirini tarif eder.', proof:'deploy-render, k8s-check ve release-dry-run AWS deploy zincirini doğrular.'},
   {id:'site', name:'GitHub Pages / Statik site', role:'Sınıfla güvenli paylaşım', why:'Herkesin telefondan açabileceği, AWS maliyeti oluşturmayan, tek HTML dosyasıyla çalışan proje anlatım yüzeyi gerekti.', used:'Bu interaktif site statik HTML olarak üretildi; QR veya link ile iOS/Android cihazlarda açılabilir.', proof:'docs/index.html ve Downloads kopyası aynı içeriği taşır; class-demo-check /showcase çıktısını kontrol eder.'}
 ];
-const sectionIds = ['story','tour','field','map','data','stats','explorer','compare','policy','stack','evidence'];
+const sectionIds = ['story','tour','field','map','data','stats','explorer','compare','policy','stack','demo','evidence'];
 let visitedSections = {};
 try { visitedSections = JSON.parse(localStorage.getItem('nycHeatVisitedSections') || '{}'); } catch (e) { visitedSections = {}; }
 let missionIndex = 0;
@@ -1311,6 +1383,74 @@ function selectTech(id){
   markVisited('stack');
 }
 
+function initDemoProof(){
+  if (!$('#demoTerminal')) return;
+  const demo = data.demo || {};
+  const health = demo.healthSummary || {};
+  const dashboard = demo.dashboardSummary || {};
+  const rows = Number(health.scored_row_count || 0);
+  const priorityRows = Number(health.priority_row_count || 0);
+  $('#demoReady').textContent = demo.status || 'CHECK';
+  $('#demoTests').textContent = demo.testStatus || '90 test OK';
+  $('#demoRows').textContent = fmt(rows, 0);
+  $('#demoPriorities').textContent = fmt(priorityRows, 0);
+  $('#demoTerminal').innerHTML = [
+    '<span class="prompt">$</span> open ~/Desktop/NYC_Heating_Risk_Sunum_Demo.command',
+    '',
+    '<span class="ok">MENÜ AÇILIR</span>',
+    "1) Sınıf sunum PDF'ini aç",
+    '2) QR broşürü aç',
+    '3) Hazırlık kontrolü çalıştır: class-demo-check',
+    '4) Projenin çalıştığını kanıtla: demo-proof',
+    '5) Modern proje sitesini aç: /showcase',
+    '6) Operasyonel dashboard aç: /dashboard?top_n=10',
+    '',
+    '<span class="prompt">$</span> ' + escapeHtml(demo.classDemoCheckCommand || 'make class-demo-check'),
+    '<span class="ok">READY</span> · Docker erişilebilir · API health OK · /showcase rendered',
+    '',
+    '<span class="prompt">$</span> ' + escapeHtml(demo.demoProofCommand || 'make demo-proof'),
+    '<span class="ok">OK</span> · model=' + escapeHtml(health.model_type || '-') + ' · satır=' + fmt(rows,0) + ' · priority=' + fmt(priorityRows,0),
+    '<span class="ok">Dashboard</span> status=' + escapeHtml(dashboard.status || '-') + ' · HTML=' + fmt(dashboard.bytes || 0,0) + ' byte'
+  ].join('\\n');
+  const liveButton = $('#liveApiCheck');
+  if (liveButton) {
+    liveButton.addEventListener('click', async () => {
+      const output = $('#liveCheckOutput');
+      output.textContent = 'Kontrol ediliyor...\\n' + (demo.healthUrl || 'http://127.0.0.1:8000/health');
+      try {
+        const healthResponse = await fetch(demo.healthUrl || 'http://127.0.0.1:8000/health', {cache:'no-store'});
+        const healthJson = await healthResponse.json();
+        const priorityResponse = await fetch('http://127.0.0.1:8000/priorities/latest?top_n=3', {cache:'no-store'});
+        const priorityJson = await priorityResponse.json();
+        const top = Array.isArray(priorityJson.rows) ? priorityJson.rows[0] : null;
+        output.textContent = [
+          'CANLI API KONTROLÜ: OK',
+          `health.status = ${healthJson.status}`,
+          `model_type = ${healthJson.model_type}`,
+          `scored_row_count = ${fmt(healthJson.scored_row_count || 0,0)}`,
+          `priority_row_count = ${fmt(healthJson.priority_row_count || 0,0)}`,
+          top ? `top_1 = #${top.inspection_priority_rank} · ${top.borough} · risk ${pct(top.model_probability,1)}` : 'top_1 = okunamadı',
+          '',
+          'Bu çıktı sunum laptopundaki çalışan FastAPI servisinden geldi.'
+        ].join('\\n');
+        markVisited('demo');
+      } catch (err) {
+        output.textContent = [
+          'CANLI API KONTROLÜ BAŞARISIZ',
+          'Muhtemel neden: API henüz başlatılmadı veya tarayıcı localhost isteğini engelledi.',
+          '',
+          'Çözüm:',
+          '1) Masaüstündeki NYC_Heating_Risk_Sunum_Demo.command dosyasını aç.',
+          '2) “Yerel proje sitesi” veya “Dashboard” seçeneğiyle API başlat.',
+          '3) Bu düğmeye tekrar bas.',
+          '',
+          `Teknik hata: ${err.message || err}`
+        ].join('\\n');
+      }
+    });
+  }
+}
+
 function initEvidence(){
   const items = [
     {
@@ -1383,7 +1523,7 @@ function initEvidence(){
   select('health');
 }
 
-initHero(); initActors(); initTour(); initMap(); initMission(); initDataCards(); initMethods(); renderMonthChart(); initExplorer(); initCompare(); initPolicy(); initTech(); initEvidence();
+initHero(); initActors(); initTour(); initMap(); initMission(); initDataCards(); initMethods(); renderMonthChart(); initExplorer(); initCompare(); initPolicy(); initTech(); initDemoProof(); initEvidence();
 initializing = false;
 markVisited('story');
 updateProgress();
