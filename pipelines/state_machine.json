@@ -1,0 +1,61 @@
+{
+  "Comment": "Serverless analytics pipeline",
+  "StartAt": "Ingest",
+  "States": {
+    "Ingest": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${IngestLambdaArn}",
+        "Payload.$": "$"
+      },
+      "ResultPath": "$.ingest",
+      "Next": "Clean"
+    },
+    "Clean": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::glue:startJobRun.sync",
+      "Parameters": {
+        "JobName": "${GlueJobName}",
+        "Arguments": {
+          "--OUTPUT_PATH": "${ProcessedPrefix}"
+        }
+      },
+      "ResultPath": "$.clean",
+      "Next": "Train"
+    },
+    "Train": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sagemaker:createAutoMLJob",
+      "Parameters": {
+        "AutoMLJobName": "${AutoMLJobName}",
+        "InputDataConfig": [
+          {
+            "DataSource": {
+              "S3DataSource": {
+                "S3DataType": "S3Prefix",
+                "S3Uri": "${ProcessedPrefix}"
+              }
+            },
+            "TargetAttributeName": "success"
+          }
+        ],
+        "OutputDataConfig": {
+          "S3OutputPath": "${AnalyticsPrefix}models/"
+        },
+        "ProblemType": "BinaryClassification"
+      },
+      "ResultPath": "$.train",
+      "Next": "Notify"
+    },
+    "Notify": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sns:publish",
+      "Parameters": {
+        "TopicArn": "${SnsTopicArn}",
+        "Message": "Pipeline run completed"
+      },
+      "End": true
+    }
+  }
+}

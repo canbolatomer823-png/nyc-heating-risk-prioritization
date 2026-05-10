@@ -1,0 +1,38 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": "allow",
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 10000
+  },
+  "watcher": {
+    "ignore": [
+      ".venv/**",
+      "venv/**",
+      "tmp/**",
+      "logs/**",
+      "*.csv",
+      "*.parquet",
+      "*.sqlite",
+      "*.zip",
+      "*.gz",
+      "*.png",
+      "*.jpg",
+      "*.pptx",
+      "*.docx",
+      "*.pdf",
+      ".terraform/**",
+      "*.tfstate*",
+      "deploy/rendered/**",
+      "deploy/generated-kubeconfig.yaml",
+      "data/windows/**",
+      "__pycache__/**",
+      "*.pyc"
+    ]
+  },
+  "instructions": [
+    "AGENTS.md",
+    "projects/nyc-heat-risk/README.md"
+  ]
+}

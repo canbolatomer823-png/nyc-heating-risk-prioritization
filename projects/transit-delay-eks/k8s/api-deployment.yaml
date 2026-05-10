@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: td-api
+  namespace: transit-delay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: td-api
+  template:
+    metadata:
+      labels:
+        app: td-api
+    spec:
+      containers:
+        - name: api
+          image: REPLACE_WITH_ECR/td-api:0.1
+          imagePullPolicy: IfNotPresent
+          workingDir: /app
+          command: ["sh", "-c"]
+          args:
+            - uvicorn main:app --host 0.0.0.0 --port 8000
+          env:
+            - name: AWS_REGION
+              value: eu-central-1
+            - name: MODEL_BUCKET
+              value: replace-me-model-bucket
+            - name: MODEL_KEY
+              value: models/latest/model.joblib
+            - name: FEATURE_KEY
+              value: models/latest/features.json
+            - name: LATE_THRESHOLD
+              value: "120"
+          ports:
+            - name: http
+              containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

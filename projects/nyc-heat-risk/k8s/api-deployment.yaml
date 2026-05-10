@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nhr-api
+  namespace: nyc-heat-risk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nhr-api
+  template:
+    metadata:
+      labels:
+        app: nhr-api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/health"
+    spec:
+      serviceAccountName: nhr-api
+      containers:
+        - name: api
+          image: REPLACE_WITH_ECR/nyc-heat-risk-api:0.1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: AWS_REGION
+              value: us-east-1
+            - name: NYC_HEAT_S3_BUCKET
+              value: replace-me-artifact-bucket
+            - name: NYC_HEAT_S3_PREFIX
+              value: nyc-heat-risk/latest
+            - name: NYC_HEAT_LOCAL_CACHE_DIR
+              value: /tmp/nyc-heat-risk
+          ports:
+            - name: http
+              containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi

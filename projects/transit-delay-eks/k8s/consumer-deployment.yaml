@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: td-consumer
+  namespace: transit-delay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: td-consumer
+  template:
+    metadata:
+      labels:
+        app: td-consumer
+    spec:
+      containers:
+        - name: consumer
+          image: REPLACE_WITH_ECR/td-ingest:0.1
+          imagePullPolicy: IfNotPresent
+          workingDir: /app
+          command: ["sh", "-c"]
+          args:
+            - >
+              python consumer.py
+              --kinesis-stream ${KINESIS_STREAM}
+              --s3-bucket ${RAW_BUCKET}
+              --kinesis-limit 200
+          env:
+            - name: AWS_REGION
+              value: eu-central-1
+            - name: RAW_BUCKET
+              value: replace-me-raw-bucket
+            - name: KINESIS_STREAM
+              value: replace-me-kinesis
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi

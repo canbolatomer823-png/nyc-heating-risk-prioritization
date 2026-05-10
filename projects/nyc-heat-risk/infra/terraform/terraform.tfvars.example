@@ -1,0 +1,7 @@
+region                  = "us-east-1"
+artifact_bucket         = "omer-nyc-heat-risk-artifacts"
+artifact_prefix         = "nyc-heat-risk/latest"
+ecr_repository          = "nyc-heat-risk-api"
+irsa_role_name          = "nyc-heat-risk-irsa"
+cluster_oidc_provider_arn = "arn:aws:iam::123456789012:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/EXAMPLE"
+cluster_oidc_issuer_url   = "https://oidc.eks.us-east-1.amazonaws.com/id/EXAMPLE"

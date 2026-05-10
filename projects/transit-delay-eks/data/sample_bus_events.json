@@ -1,0 +1,32 @@
+[
+  {
+    "trip_id": "GTFS_1001",
+    "route_id": "M15",
+    "stop_id": "STOP_100",
+    "timestamp": 1717000100,
+    "latitude": 40.7302,
+    "longitude": -73.9957,
+    "delay_seconds": 220,
+    "scheduled_arrival_ts": 1717000000
+  },
+  {
+    "trip_id": "GTFS_1002",
+    "route_id": "Q10",
+    "stop_id": "STOP_220",
+    "timestamp": 1717000400,
+    "latitude": 40.6572,
+    "longitude": -73.8365,
+    "delay_seconds": 40,
+    "scheduled_arrival_ts": 1717000340
+  },
+  {
+    "trip_id": "GTFS_1003",
+    "route_id": "BX12",
+    "stop_id": "STOP_320",
+    "timestamp": 1717000700,
+    "latitude": 40.8651,
+    "longitude": -73.8895,
+    "delay_seconds": 310,
+    "scheduled_arrival_ts": 1717000440
+  }
+]
