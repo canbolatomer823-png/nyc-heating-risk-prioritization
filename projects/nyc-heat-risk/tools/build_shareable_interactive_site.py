@@ -228,7 +228,6 @@ HTML_TEMPLATE = """<!doctype html>
     .kicker{display:inline-flex;width:max-content;gap:8px;align-items:center;border:1px solid rgba(18,61,52,.18);border-radius:999px;padding:9px 13px;background:#fffaf1;color:var(--forest);font-size:.78rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
     h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif} h1{margin:24px 0 18px;font-size:clamp(3rem,6.8vw,6.8rem);line-height:.88;letter-spacing:-.075em;max-width:820px}
     .lead{font-size:1.18rem;line-height:1.58;color:var(--muted);max-width:730px}.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.btn{border:0;border-radius:999px;padding:13px 17px;background:var(--forest);color:white;font-weight:900;cursor:pointer;box-shadow:0 16px 26px rgba(18,61,52,.2)}.btn.alt{background:#fffaf1;color:var(--forest);border:1px solid var(--line);box-shadow:none}
-    .share-strip{margin-top:22px;border:1px solid rgba(18,61,52,.18);border-radius:24px;background:linear-gradient(135deg,#fffdf5,#eaf6f0);padding:15px;display:grid;gap:8px;position:relative;z-index:2}.share-strip b{color:var(--forest)}.share-link{display:block;color:var(--brick);font-weight:950;word-break:break-all}.share-strip small{color:var(--muted);line-height:1.45}
     .stage{padding:24px;display:grid;gap:16px;grid-template-rows:auto 1fr}.phone{border-radius:32px;background:#10211c;color:white;padding:18px;min-height:430px;position:relative;overflow:hidden}.phone:before{content:"";position:absolute;inset:12px;border:1px solid rgba(255,255,255,.16);border-radius:25px}.pulse{position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(216,95,66,.28);filter:blur(4px);right:-30px;top:-30px;animation:pulse 3.2s ease-in-out infinite}
     .phone-inner{position:relative;z-index:2;display:grid;gap:14px}.mini-map{height:155px;border-radius:22px;background:linear-gradient(145deg,#193f35,#245f50);position:relative;overflow:hidden}.mini-map svg{position:absolute;inset:0;width:100%;height:100%;opacity:.95}.pin{position:absolute;width:13px;height:13px;border-radius:50%;background:var(--brick);box-shadow:0 0 0 7px rgba(216,95,66,.2);animation:pop 2s ease-in-out infinite}.pin.p2{left:60%;top:34%;animation-delay:.3s}.pin.p3{left:34%;top:58%;animation-delay:.8s}.pin.p1{left:48%;top:48%}
     .hero-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.metric{border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:14px;background:rgba(255,255,255,.08)}.metric span{display:block;color:#bfd6ce;font-size:.76rem;text-transform:uppercase;font-weight:900;letter-spacing:.07em}.metric b{display:block;margin-top:8px;font-size:1.45rem}
@@ -288,11 +287,6 @@ HTML_TEMPLATE = """<!doctype html>
           <button class="btn alt" data-jump="map">Haritayı aç</button>
           <button class="btn alt" data-jump="stats">İstatistik masası</button>
           <button class="btn alt" data-jump="evidence">Kanıtı göster</button>
-        </div>
-        <div class="share-strip">
-          <b>Sınıf grubuna atılacak link</b>
-          <a class="share-link" href="https://canbolatomer823-png.github.io/nyc-heating-risk-prioritization/" target="_blank" rel="noreferrer">https://canbolatomer823-png.github.io/nyc-heating-risk-prioritization/</a>
-          <small><b>Not:</b> <code>file:///Users/...</code> sadece senin bilgisayarında çalışır. Sınıfa, hocaya veya staj başvurusuna her zaman yukarıdaki <b>https</b> linki gönder.</small>
         </div>
       </div>
       <p class="small"><b>Sınır:</b> Bu otomatik ceza sistemi değildir. Karar destek prototipidir; denetçiye önce nereye bakılabileceğini önerir.</p>
