@@ -59,7 +59,8 @@
     .progress-dock{position:fixed;right:14px;bottom:14px;z-index:30;border:1px solid var(--line);border-radius:24px;background:rgba(255,248,235,.92);box-shadow:0 18px 42px rgba(24,35,29,.16);padding:12px;min-width:220px;backdrop-filter:blur(12px)}
     .progress-dock b{display:block;color:var(--forest);font-size:.9rem}.progress-track{height:10px;border-radius:999px;background:#eadcc8;overflow:hidden;margin:9px 0}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--forest),var(--brick));transition:.25s}.progress-dock small{color:var(--muted)}
     .mission-board{display:grid;grid-template-columns:.9fr 1.1fr;gap:18px;margin-top:18px}.mission-choices{display:grid;gap:12px}.choice-card{border:1px solid var(--line);border-left:8px solid var(--gold);border-radius:24px;background:#fffaf1;padding:16px;text-align:left;cursor:pointer;transition:.18s}.choice-card:hover{transform:translateY(-3px);box-shadow:0 16px 32px rgba(24,35,29,.12)}.choice-card.correct{border-left-color:var(--forest);background:#edf7f2}.choice-card.wrong{border-left-color:var(--brick);background:#fff0ea}.mission-result{min-height:220px}.score-ring{width:154px;height:154px;border-radius:50%;display:grid;place-items:center;margin:10px auto 16px;background:conic-gradient(var(--brick) 0deg,var(--brick) var(--risk-deg),#eadcc8 var(--risk-deg),#eadcc8 360deg)}.score-ring span{width:116px;height:116px;border-radius:50%;display:grid;place-items:center;background:#fffaf1;font-size:1.7rem;font-weight:950;color:var(--forest)}
-    .compare-layout{display:grid;grid-template-columns:300px 1fr;gap:18px}.compare-controls{display:grid;gap:12px}.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.compare-card{border:1px solid var(--line);border-radius:26px;background:#fffaf1;padding:18px}.compare-meter{height:16px;border-radius:999px;background:#eadcc8;overflow:hidden;margin:8px 0 14px}.compare-meter div{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--brick))}
+    .compare-layout{display:grid;grid-template-columns:300px 1fr;gap:18px}.compare-controls{display:grid;gap:12px}.compare-output{display:grid;gap:14px}.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.compare-card{border:1px solid var(--line);border-radius:26px;background:#fffaf1;padding:18px}.compare-meter{height:16px;border-radius:999px;background:#eadcc8;overflow:hidden;margin:8px 0 14px}.compare-meter div{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--brick))}
+    .compare-explain{display:grid;gap:12px}.compare-explain-card{border:1px solid var(--line);border-radius:28px;background:linear-gradient(145deg,#10211c,#173f35);color:white;padding:18px;box-shadow:var(--shadow)}.compare-explain-card p{color:#c8dcd4}.compare-explain-card h3{color:#fff8eb}.compare-delta-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}.compare-delta{border:1px solid rgba(255,255,255,.14);border-radius:18px;background:rgba(255,255,255,.07);padding:12px;min-height:98px}.compare-delta span{display:block;color:#bfd6ce;font-size:.72rem;font-weight:950;text-transform:uppercase;letter-spacing:.05em}.compare-delta b{display:block;color:#fff8eb;font-size:1.18rem;margin-top:8px;line-height:1.2}.compare-delta em{display:block;color:#c8dcd4;font-size:.76rem;font-style:normal;margin-top:6px;line-height:1.3}.compare-formula{border-radius:18px;background:rgba(255,248,235,.10);border:1px solid rgba(255,255,255,.14);padding:12px;font-family:"SF Mono",Menlo,Consolas,monospace;color:#fff8eb;margin-top:12px}.compare-driver-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.compare-driver{border-left:6px solid var(--gold);border-radius:16px;background:#fffdf6;color:var(--muted);padding:12px}.compare-driver b{display:block;color:var(--forest);margin-bottom:4px}.compare-driver strong{color:var(--brick)}
     .map-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:18px 0 8px}.map-chip{border:1px solid var(--line);border-radius:999px;background:#fffaf1;color:var(--muted);padding:10px 13px;font-weight:950;cursor:pointer;transition:.18s}.map-chip:hover,.map-chip.active{background:var(--forest);color:white;transform:translateY(-2px);box-shadow:0 12px 24px rgba(24,35,29,.12)}.map-toolbar .control{min-width:190px;margin-left:auto}.nyc-map-layout{display:grid;grid-template-columns:1.18fr .82fr;gap:18px;margin-top:14px}.nyc-map-card{border:1px solid var(--line);border-radius:34px;background:radial-gradient(circle at 18% 20%,rgba(255,248,235,.16),transparent 25%),radial-gradient(circle at 72% 42%,rgba(216,95,66,.18),transparent 29%),linear-gradient(150deg,#071916,#123d34 56%,#1c594c);min-height:640px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),var(--shadow);position:relative}.nyc-map-card:before{content:"";position:absolute;left:0;right:0;bottom:0;height:110px;background:linear-gradient(to top,rgba(0,0,0,.34),transparent);pointer-events:none}.nyc-map-card:after{content:"Resmi 311 koordinatlarından yaklaşık şehir görünümü";position:absolute;left:22px;bottom:18px;color:#d8ece3;font-weight:850;font-size:.86rem;letter-spacing:.02em}.map-brief{min-height:640px;display:flex;flex-direction:column;gap:12px}.map-side-top{display:grid;grid-template-columns:1fr 150px;gap:12px;align-items:start}.map-side-top .score-ring{margin:0 auto}.borough-shape{fill:rgba(255,248,235,.09);stroke:rgba(255,248,235,.30);stroke-width:2}.borough-label{fill:rgba(216,236,227,.78);font-weight:950;font-size:20px;letter-spacing:.06em}.map-line{stroke:rgba(255,248,235,.08);stroke-width:1.5}.waterline{fill:none;stroke:rgba(216,236,227,.18);stroke-width:18;stroke-linecap:round}.bridge-line{stroke:rgba(255,248,235,.22);stroke-width:2.5;stroke-dasharray:5 9}.risk-dot{cursor:pointer;transition:.18s}.risk-dot circle:first-child{fill:rgba(216,95,66,.16);animation:mapPulse 2.8s ease-in-out infinite}.risk-dot circle:last-child{fill:var(--brick);stroke:#fff8eb;stroke-width:2;filter:drop-shadow(0 4px 8px rgba(0,0,0,.32))}.risk-dot.muted circle:first-child{fill:rgba(255,248,235,.06);animation:none}.risk-dot.muted circle:last-child{fill:#d6a33d;opacity:.64}.risk-dot:hover circle:last-child,.risk-dot.active circle:last-child{fill:var(--gold);r:10;opacity:1}.risk-dot text{fill:#fff8eb;font-size:10px;font-weight:950;paint-order:stroke;stroke:#10211c;stroke-width:3}.map-legend{fill:#bfd6ce;font-size:14px}.subway-line{fill:none;stroke-width:3.2;stroke-linecap:round;opacity:.24;stroke-dasharray:12 14;animation:dash 10s linear infinite}.map-badge{fill:rgba(255,248,235,.92);stroke:rgba(255,248,235,.22)}.map-badge-text{fill:#123d34;font-size:13px;font-weight:950}.selected-link{stroke:#fff8eb;stroke-width:2.5;stroke-dasharray:7 7;animation:dash 7s linear infinite}.selected-callout{fill:rgba(255,248,235,.96);stroke:rgba(255,248,235,.32)}.selected-callout-text{fill:#123d34;font-size:13px;font-weight:950}.map-glow{fill:rgba(216,95,66,.14);animation:mapPulse 2.2s ease-in-out infinite}.map-priority-list{display:grid;gap:8px;max-height:210px;overflow:auto;padding-right:4px}.map-mini-row{border:1px solid var(--line);border-radius:16px;background:#fffdf6;padding:10px;text-align:left;cursor:pointer;transition:.18s;font:inherit}.map-mini-row:hover,.map-mini-row.active{background:#edf7f2;border-color:rgba(18,61,52,.36);transform:translateY(-2px)}.map-mini-row b{display:flex;justify-content:space-between;gap:8px;color:var(--forest);font-size:.9rem}.map-mini-row b span{color:var(--forest);font-size:.9rem;margin-top:0}.map-mini-row>span{display:block;color:var(--muted);font-size:.78rem;margin-top:4px}.map-note{border-left:6px solid var(--gold);border-radius:16px;background:#fff4d8;padding:12px;color:var(--muted);font-size:.86rem}
     .map-layer-switch{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0 16px}.map-layer{text-align:left;border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,#fffaf1,#f1e2ca);padding:14px;color:var(--ink);cursor:pointer;transition:.18s}.map-layer:hover,.map-layer.active{transform:translateY(-3px);box-shadow:0 16px 30px rgba(24,35,29,.12);border-color:rgba(216,95,66,.48)}.map-layer.active{background:linear-gradient(145deg,#10211c,#173f35);color:white}.map-layer b{display:block;color:inherit;font-size:.95rem}.map-layer span{display:block;color:var(--muted);font-size:.78rem;line-height:1.32;margin-top:6px}.map-layer.active span{color:#c8dcd4}.risk-dot.complaints circle:last-child{fill:#d6a33d}.risk-dot.equity circle:last-child{fill:#4f9ddf}.risk-dot.route circle:last-child{fill:#88e0ad}.route-line{fill:none;stroke:#fff8eb;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:12 12;animation:dash 9s linear infinite;filter:drop-shadow(0 6px 12px rgba(0,0,0,.32))}.map-halo{fill:rgba(216,95,66,.10);stroke:rgba(255,248,235,.18);stroke-width:1.5;animation:mapPulse 4s ease-in-out infinite}.map-halo.equity{fill:rgba(79,157,223,.12)}.map-halo.complaints{fill:rgba(214,163,61,.13)}.map-scene-panel{border-left:7px solid var(--forest);border-radius:18px;background:#edf7f2;padding:13px}.map-scene-panel span{display:block;color:var(--forest);font-size:.72rem;font-weight:950;letter-spacing:.06em;text-transform:uppercase}.map-scene-panel b{display:block;color:var(--forest);font-size:1.03rem;margin-top:5px}.map-scene-panel p{font-size:.86rem;margin-top:5px}.map-borough-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.borough-stat{border:1px solid var(--line);border-radius:16px;background:#fffdf6;padding:10px;text-align:left;cursor:pointer;transition:.18s}.borough-stat:hover{transform:translateY(-2px);border-color:rgba(18,61,52,.34);background:#edf7f2}.borough-stat b{display:flex;justify-content:space-between;gap:8px;color:var(--forest);font-size:.85rem}.borough-stat span{display:block;color:var(--muted);font-size:.75rem;margin-top:4px}
     .route-plan-list{display:grid;gap:8px;max-height:190px;overflow:auto;padding-right:4px}.route-plan-row{border:1px solid var(--line);border-radius:17px;background:linear-gradient(145deg,#fffdf6,#f3e4cd);padding:11px;text-align:left;cursor:pointer;transition:.18s}.route-plan-row:hover,.route-plan-row.active{transform:translateY(-2px);border-color:rgba(216,95,66,.52);box-shadow:0 12px 24px rgba(24,35,29,.10)}.route-plan-row b{display:flex;justify-content:space-between;gap:8px;color:var(--forest);font-size:.88rem}.route-plan-row span{display:block;color:var(--muted);font-size:.76rem;line-height:1.32;margin-top:4px}.feature-atlas{margin-top:14px;border-top:1px solid var(--line);padding-top:13px}.feature-atlas-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}.feature-chip{text-align:left;border:1px solid var(--line);border-radius:17px;background:#fffdf6;padding:11px;transition:.18s}.feature-chip:hover{transform:translateY(-2px);border-color:rgba(18,61,52,.35);background:#edf7f2}.feature-chip b{display:flex;justify-content:space-between;gap:8px;color:var(--forest);font-size:.82rem}.feature-chip span{display:block;color:var(--muted);font-size:.74rem;line-height:1.32;margin-top:4px}
@@ -70,8 +71,8 @@
     .toast{position:fixed;left:50%;bottom:24px;z-index:60;transform:translate(-50%,20px);opacity:0;max-width:min(92vw,420px);border-radius:999px;background:#10211c;color:white;padding:12px 16px;box-shadow:0 18px 42px rgba(24,35,29,.24);font-weight:900;transition:.25s}.toast.show{transform:translate(-50%,0);opacity:1}
     .safe-note{border-left:7px solid var(--forest);background:#edf7f2}.mobile-hint{display:none;margin-top:10px;color:var(--muted)}
     @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{50%{transform:scale(1.16);opacity:.55}}@keyframes pop{50%{transform:scale(1.25)}}@keyframes mapPulse{50%{transform:scale(1.75);opacity:.08}}@keyframes dash{to{stroke-dashoffset:-120}}
-    @media(max-width:980px){.hero,.cols-2,.explorer,.policy-board,.evidence-grid,.mission-board,.compare-layout,.nyc-map-layout,.stats-lab,.anova-grid,.tech-layout,.tour-layout,.demo-hero,.anova-burst,.risk-lab,.stat-decision-board,.innovation-lab,.tour-mission-grid,.risk-cockpit{grid-template-columns:1fr}.flow,.cols-3,.cols-4,.insight-strip,.metric-dictionary,.hypothesis-grid,.demo-flow,.quick-start,.stat-mission-grid,.stat-storyline,.method-bridge,.risk-decision-flow,.risk-signal-grid,.tech-stage-grid,.logit-path,.anova-ss,.innovation-detail-list,.tour-mode-grid,.tour-badge-grid,.map-layer-switch,.map-borough-grid,.risk-lens-grid,.risk-priority-tape{grid-template-columns:repeat(2,1fr)}.results,.compare-grid{grid-template-columns:1fr}.detail{position:static}.topbar{border-radius:24px;align-items:flex-start;flex-direction:column}.nav button{padding:9px}.progress-dock{position:static;margin:14px 0}.mobile-hint{display:block}.nyc-map-card,.map-brief,.tech-visual,.tech-detail{min-height:auto}}
-    @media(max-width:620px){.shell{width:min(100% - 22px,1220px);padding-top:12px}.hero-copy,.section{padding:20px}.panel{border-radius:24px}h1{font-size:2.9rem}.lead{font-size:1.02rem}.topbar{position:relative;top:auto}.nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;width:100%;padding-bottom:4px}.nav button{white-space:nowrap}.flow,.cols-3,.cols-4,.hero-metrics,.insight-strip,.metric-dictionary,.hypothesis-grid,.sim-controls,.stat-output,.stat-mini-grid,.tech-card-grid,.stack-ribbon,.tour-route,.map-side-top,.demo-proof-grid,.demo-flow,.quick-start,.stat-mission-grid,.stat-storyline,.method-bridge,.risk-decision-flow,.risk-signal-grid,.tech-stage-grid,.stat-lens-grid,.plain-row,.logit-path,.anova-ss,.innovation-grid,.innovation-detail-list,.tour-mode-grid,.tour-badge-grid,.map-layer-switch,.map-borough-grid,.risk-lens-grid,.risk-priority-tape{grid-template-columns:1fr}.map-toolbar .control{margin-left:0;width:100%}.nyc-map-card{min-height:420px}.nyc-map-card:after{font-size:.74rem;left:16px}.risk-orb{margin:auto}.phone{min-height:360px}.terminal-screen{font-size:.8rem}.bar-chart{gap:6px;overflow-x:auto}.bar{min-width:42px}.bar span{font-size:.68rem}.bar label{font-size:.68rem}.choice-card,.card{border-radius:20px}.anova-dial{width:150px;height:150px}.toast{bottom:12px;border-radius:20px}}
+    @media(max-width:980px){.hero,.cols-2,.explorer,.policy-board,.evidence-grid,.mission-board,.compare-layout,.nyc-map-layout,.stats-lab,.anova-grid,.tech-layout,.tour-layout,.demo-hero,.anova-burst,.risk-lab,.stat-decision-board,.innovation-lab,.tour-mission-grid,.risk-cockpit{grid-template-columns:1fr}.flow,.cols-3,.cols-4,.insight-strip,.metric-dictionary,.hypothesis-grid,.demo-flow,.quick-start,.stat-mission-grid,.stat-storyline,.method-bridge,.risk-decision-flow,.risk-signal-grid,.tech-stage-grid,.logit-path,.anova-ss,.innovation-detail-list,.tour-mode-grid,.tour-badge-grid,.map-layer-switch,.map-borough-grid,.risk-lens-grid,.risk-priority-tape,.compare-delta-grid,.compare-driver-list{grid-template-columns:repeat(2,1fr)}.results,.compare-grid{grid-template-columns:1fr}.detail{position:static}.topbar{border-radius:24px;align-items:flex-start;flex-direction:column}.nav button{padding:9px}.progress-dock{position:static;margin:14px 0}.mobile-hint{display:block}.nyc-map-card,.map-brief,.tech-visual,.tech-detail{min-height:auto}}
+    @media(max-width:620px){.shell{width:min(100% - 22px,1220px);padding-top:12px}.hero-copy,.section{padding:20px}.panel{border-radius:24px}h1{font-size:2.9rem}.lead{font-size:1.02rem}.topbar{position:relative;top:auto}.nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;width:100%;padding-bottom:4px}.nav button{white-space:nowrap}.flow,.cols-3,.cols-4,.hero-metrics,.insight-strip,.metric-dictionary,.hypothesis-grid,.sim-controls,.stat-output,.stat-mini-grid,.tech-card-grid,.stack-ribbon,.tour-route,.map-side-top,.demo-proof-grid,.demo-flow,.quick-start,.stat-mission-grid,.stat-storyline,.method-bridge,.risk-decision-flow,.risk-signal-grid,.tech-stage-grid,.stat-lens-grid,.plain-row,.logit-path,.anova-ss,.innovation-grid,.innovation-detail-list,.tour-mode-grid,.tour-badge-grid,.map-layer-switch,.map-borough-grid,.risk-lens-grid,.risk-priority-tape,.compare-delta-grid,.compare-driver-list{grid-template-columns:1fr}.map-toolbar .control{margin-left:0;width:100%}.nyc-map-card{min-height:420px}.nyc-map-card:after{font-size:.74rem;left:16px}.risk-orb{margin:auto}.phone{min-height:360px}.terminal-screen{font-size:.8rem}.bar-chart{gap:6px;overflow-x:auto}.bar{min-width:42px}.bar span{font-size:.68rem}.bar label{font-size:.68rem}.choice-card,.card{border-radius:20px}.anova-dial{width:150px;height:150px}.toast{bottom:12px;border-radius:20px}}
   </style>
 </head>
 <body>
@@ -386,7 +387,10 @@
         <button class="btn" id="swapCompare">Yer değiştir</button>
         <p class="small">Öneri: yüksek riskli Bronx binası ile Manhattan binasını karşılaştır; riskin sadece ilçe değil geçmiş şikayet ve bina sinyalleriyle değiştiğini göreceksin.</p>
       </div>
-      <div class="compare-grid" id="compareGrid"></div>
+      <div class="compare-output">
+        <div class="compare-grid" id="compareGrid"></div>
+        <div class="compare-explain" id="compareExplanation"></div>
+      </div>
     </div>
   </section>
 
@@ -543,6 +547,19 @@ function humanFeature(value){
     ['current_day_complaints', 'aynı gün şikayeti'],
     ['open_linked_violation_count', 'açık ihlal sayısı'],
     ['cre_vulnerability_index', 'mahalle kırılganlığı'],
+    ['cumulative complaint history', 'toplam geçmiş şikayet'],
+    ['prior complaint days', 'şikayet görülen geçmiş gün'],
+    ['7-day complaint history', 'son 7 gün şikayeti'],
+    ['same-day complaints', 'aynı gün şikayeti'],
+    ['cold weather load', 'soğukluk yükü'],
+    ['average temperature', 'ortalama sıcaklık'],
+    ['maximum temperature', 'en yüksek sıcaklık'],
+    ['minimum temperature', 'en düşük sıcaklık'],
+    ['weather severity', 'hava sertliği'],
+    ['cumulative request count prior', 'geçmiş toplam talep'],
+    ['prior max daily complaints', 'önceki en yüksek günlük şikayet'],
+    ['heat sensor program flag', 'ısı sensörü programı'],
+    ['unit count proxy', 'birim sayısı göstergesi'],
     ['weather_min_temp_c', 'minimum sıcaklık'],
     ['weather_temp_drop_c', 'sıcaklık düşüşü'],
     ['weather_heating_degree_c', 'soğukluk yükü'],
@@ -1733,10 +1750,115 @@ function compareCard(row){
     <p class="small" style="margin-top:10px"><b>Neden?</b> ${escapeHtml(humanReason(row.why_risky))}</p>
   </article>`;
 }
+function rowLabel(row, prefix){
+  if (!row) return prefix;
+  return `${prefix}: #${row.inspection_priority_rank} · ${row.borough || 'İlçe yok'}`;
+}
+function rowShortAddress(row){
+  return row ? `${row.incident_address || row.building_id}` : 'Kayıt yok';
+}
+function signed(value, digits=2){
+  const num = Number(value || 0);
+  return `${num >= 0 ? '+' : ''}${num.toFixed(digits)}`;
+}
+function contributionMap(row){
+  const map = {};
+  const rows = [
+    ...(Array.isArray(row?.top_positive_contributors_json) ? row.top_positive_contributors_json : []),
+    ...(Array.isArray(row?.top_negative_contributors_json) ? row.top_negative_contributors_json : [])
+  ];
+  rows.forEach(item => {
+    const label = humanFeature(item.label || item.feature || 'model sinyali');
+    map[label] = (map[label] || 0) + Number(item.contribution || 0);
+  });
+  return map;
+}
+function compareContributionDrivers(a, b){
+  const aMap = contributionMap(a);
+  const bMap = contributionMap(b);
+  const labels = [...new Set([...Object.keys(aMap), ...Object.keys(bMap)])];
+  return labels
+    .map(label => ({label, aValue:aMap[label] || 0, bValue:bMap[label] || 0, diff:(aMap[label] || 0) - (bMap[label] || 0)}))
+    .filter(item => Math.abs(item.diff) > 0.0001)
+    .sort((x,y) => Math.abs(y.diff) - Math.abs(x.diff))
+    .slice(0, 5);
+}
+function compareRawDrivers(a, b){
+  const specs = [
+    ['cumulative_complaints_prior', 'Toplam geçmiş şikayet', 'Kronik problem sinyali: geçmişte çok şikayet alan bina modelde daha yukarı çıkar.'],
+    ['rolling_7d_complaints', 'Son 7 gün şikayeti', 'Yakın dönem sinyali: son hafta hareketliyse yarın tekrar şikayet gelme olasılığı artar.'],
+    ['open_linked_violation_count', 'Açık ihlal', 'Resmi ihlal kaydı bina sorunlarının denetim açısından daha ciddi olabileceğini gösterir.'],
+    ['cre_vulnerability_index', 'Mahalle kırılganlığı', 'Kırılganlık katmanı riskin sosyal bağlamını görünür kılar; tek başına karar değildir.'],
+    ['unit_count_proxy', 'Birim sayısı göstergesi', 'Daha büyük binalarda şikayet üretme hacmi daha yüksek olabilir.']
+  ];
+  return specs
+    .map(([key, label, note]) => {
+      const aValue = Number(a?.[key] || 0);
+      const bValue = Number(b?.[key] || 0);
+      return {key, label, note, aValue, bValue, diff:aValue - bValue};
+    })
+    .filter(item => Math.abs(item.diff) > 0.0001)
+    .sort((x,y) => Math.abs(y.diff) - Math.abs(x.diff))
+    .slice(0, 4);
+}
+function renderCompareExplanation(a, b){
+  const target = $('#compareExplanation');
+  if (!target || !a || !b){
+    if (target) target.innerHTML = '';
+    return;
+  }
+  const riskA = Number(a.model_probability || 0);
+  const riskB = Number(b.model_probability || 0);
+  const leaderKey = riskA >= riskB ? 'A' : 'B';
+  const leader = leaderKey === 'A' ? a : b;
+  const lagger = leaderKey === 'A' ? b : a;
+  const riskDiff = Math.abs(riskA - riskB) * 100;
+  const rankDiff = Math.abs(Number(a.inspection_priority_rank || 0) - Number(b.inspection_priority_rank || 0));
+  const contributorDrivers = compareContributionDrivers(a, b);
+  const rawDrivers = compareRawDrivers(a, b);
+  const topDriver = contributorDrivers[0];
+  const cards = [
+    ['Daha yüksek risk', `${leaderKey} binası · ${pct(leader.model_probability)}`, `${rowShortAddress(leader)}`],
+    ['Risk farkı', `${riskDiff.toFixed(1)} puan`, 'İki olasılık arasındaki doğrudan fark.'],
+    ['Sıra farkı', `${fmt(rankDiff,0)} basamak`, 'Denetim önceliğinde ne kadar ayrıştıklarını gösterir.'],
+    ['Ana istatistiksel sebep', topDriver ? topDriver.label : 'Benzer sinyaller', topDriver ? `${topDriver.diff >= 0 ? 'A' : 'B'} tarafında daha güçlü katkı.` : 'Katkı değerleri çok yakın.']
+  ];
+  const contributionHtml = contributorDrivers.length
+    ? contributorDrivers.map(item => {
+        const stronger = item.diff >= 0 ? 'A' : 'B';
+        return `<div class="compare-driver">
+          <b>${escapeHtml(item.label)}</b>
+          <span>${stronger} binasında model katkısı daha yüksek. Katkı farkı <strong>${signed(item.diff)}</strong> logit puanı.</span>
+        </div>`;
+      }).join('')
+    : '<div class="compare-driver"><b>Katkılar yakın</b><span>İki binanın model sinyalleri birbirine çok yakın görünüyor.</span></div>';
+  const rawHtml = rawDrivers.length
+    ? rawDrivers.map(item => {
+        const stronger = item.diff >= 0 ? 'A' : 'B';
+        const weaker = item.diff >= 0 ? 'B' : 'A';
+        return `<div class="compare-driver">
+          <b>${escapeHtml(item.label)}</b>
+          <span>${stronger}: ${fmt(Math.max(item.aValue, item.bValue),3)} · ${weaker}: ${fmt(Math.min(item.aValue, item.bValue),3)}. ${escapeHtml(item.note)}</span>
+        </div>`;
+      }).join('')
+    : '<div class="compare-driver"><b>Ham değişkenler yakın</b><span>Seçilen iki bina temel sinyallerde çok benzer.</span></div>';
+  target.innerHTML = `<article class="compare-explain-card">
+    <h3>Yüzde neden değişiyor?</h3>
+    <p>Lojistik regresyon önce her bina için bir toplam risk puanı üretir. Geçmiş şikayet, son hafta şikayeti, açık ihlal, hava ve kırılganlık gibi sinyaller bu toplamı yukarı veya aşağı iter. Sonra bu toplam puan olasılığa çevrilir; ekranda gördüğün yüzde bu olasılıktır.</p>
+    <div class="compare-formula">z = β₀ + β₁X₁ + β₂X₂ + ... → p = 1 / (1 + e<sup>-z</sup>)</div>
+    <div class="compare-delta-grid">
+      ${cards.map(([k,v,n]) => `<div class="compare-delta"><span>${escapeHtml(k)}</span><b>${escapeHtml(v)}</b><em>${escapeHtml(n)}</em></div>`).join('')}
+    </div>
+    <p><b>İstatistiksel okuma:</b> yüzde farkı tek bir sebepten değil, değişken katkılarının toplamından gelir. Katkı farkı pozitifse A binasının logit puanını, negatifse B binasının logit puanını daha fazla yükseltmiştir.</p>
+  </article>
+  <div class="compare-driver-list">${contributionHtml}</div>
+  <div class="compare-driver-list">${rawHtml}</div>`;
+}
 function renderCompare(){
   const a = data.priorityRows.find(row => String(row.building_id) === String($('#compareA').value));
   const b = data.priorityRows.find(row => String(row.building_id) === String($('#compareB').value));
   $('#compareGrid').innerHTML = compareCard(a) + compareCard(b);
+  renderCompareExplanation(a, b);
   markVisited('compare');
 }
 
