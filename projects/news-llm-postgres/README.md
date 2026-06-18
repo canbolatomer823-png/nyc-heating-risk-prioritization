@@ -10,6 +10,8 @@ Bu klasör profesyonel/bitmiş ürün değil; mentor isteğine cevap veren ilk t
 
 Kısa mentor özeti için: [MENTOR_DRAFT.md](MENTOR_DRAFT.md)
 
+Ne yaptığımızı öğrenmek için: [LEARNING_NOTES.md](LEARNING_NOTES.md)
+
 Bu proje, 5-10 haber kaynağından haber toplayıp LLM ile analiz eden ve sonucu Postgres içinde tek esnek `jsonb` payload alanında saklayan taslak pipeline'dır.
 
 Mentor isteğine karşılık gelen kapsam:
