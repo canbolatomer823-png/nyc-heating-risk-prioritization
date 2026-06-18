@@ -1,0 +1,83 @@
+[
+  {
+    "key": "bbc_turkce",
+    "name": "BBC Türkçe",
+    "homepage": "https://www.bbc.com/turkce",
+    "feed_url": "https://feeds.bbci.co.uk/turkce/rss.xml",
+    "language": "tr",
+    "enabled": true,
+    "fetch_article": false
+  },
+  {
+    "key": "euronews_tr",
+    "name": "Euronews Türkçe",
+    "homepage": "https://tr.euronews.com",
+    "feed_url": "https://tr.euronews.com/rss",
+    "language": "tr",
+    "enabled": true,
+    "fetch_article": false
+  },
+  {
+    "key": "haberturk",
+    "name": "Habertürk",
+    "homepage": "https://www.haberturk.com",
+    "feed_url": "https://www.haberturk.com/rss",
+    "language": "tr",
+    "enabled": true,
+    "fetch_article": false
+  },
+  {
+    "key": "trt_haber",
+    "name": "TRT Haber",
+    "homepage": "https://www.trthaber.com",
+    "feed_url": "https://www.trthaber.com/sondakika.rss",
+    "language": "tr",
+    "enabled": true,
+    "fetch_article": false
+  },
+  {
+    "key": "bloomberg_ht",
+    "name": "Bloomberg HT",
+    "homepage": "https://www.bloomberght.com",
+    "feed_url": "https://www.bloomberght.com/rss",
+    "language": "tr",
+    "enabled": true,
+    "fetch_article": false
+  },
+  {
+    "key": "anadolu_ajansi",
+    "name": "Anadolu Ajansı",
+    "homepage": "https://www.aa.com.tr/tr",
+    "feed_url": "https://www.aa.com.tr/tr/rss/default?cat=guncel",
+    "language": "tr",
+    "enabled": true,
+    "fetch_article": false
+  },
+  {
+    "key": "dw_turkce",
+    "name": "DW Türkçe",
+    "homepage": "https://www.dw.com/tr",
+    "feed_url": "https://rss.dw.com/xml/rss-tr-all",
+    "language": "tr",
+    "enabled": true,
+    "fetch_article": false
+  },
+  {
+    "key": "mynet_haber",
+    "name": "Mynet Haber",
+    "homepage": "https://www.mynet.com/haber",
+    "feed_url": "https://www.mynet.com/haber/rss/sondakika",
+    "language": "tr",
+    "enabled": true,
+    "fetch_article": false
+  },
+  {
+    "key": "ensonhaber",
+    "name": "Ensonhaber",
+    "homepage": "https://www.ensonhaber.com",
+    "feed_url": "https://www.ensonhaber.com/rss/ensonhaber.xml",
+    "language": "tr",
+    "enabled": true,
+    "fetch_article": false
+  }
+]
