@@ -1,19 +1,19 @@
-# Mentor Taslak Notu
+# Kısa Taslak Notu
 
-Bu dosya, hocanın istediği maddelere direkt cevap vermek için yazıldı. Proje güncellenecek; şu an amaç çalışan bir iskelet göstermek.
+Bu klasör, haber toplama işi için hazırladığım ilk taslak. Bitmiş bir uygulama değil. Daha çok "mantık doğru mu, buradan nasıl devam edelim?" diye konuşmak için hazırladım.
 
-## İstenenler ve Karşılığı
+## İstenen Şeylere Karşılık Ne Var?
 
-| Hocanın isteği | Bu taslakta karşılığı |
+| İstenen | Şu an ne yaptım? |
 |---|---|
-| 5-10 haber sitesi bul | `config/sources.json` içinde 9 kaynak var |
-| Haber topla | RSS üzerinden haber başlığı, link, özet, tarih toplanıyor |
-| LLM ile içeriği analiz ettir | `llm.py` içinde OpenAI analyzer var |
-| Türüne göre ayır | `siyaset`, `ekonomi`, `dunya`, `teknoloji`, `spor`, `saglik`, `kultur`, `hukuk`, `egitim`, `diger` |
-| JSONB olarak Postgres'e tek alanda kaydet | `news_documents.payload jsonb` alanı var |
-| Structure değişecek | Ana veri tek `payload` içinde tutuluyor; yeni alanlar migration yapmadan eklenebilir |
+| 5-10 haber sitesi | `config/sources.json` içine 9 kaynak ekledim |
+| Haber toplama | RSS üzerinden başlık, link, özet ve tarih alıyorum |
+| LLM analizi | `llm.py` içinde OpenAI ile analiz edecek yapı var |
+| Siyaset, ekonomi vb. ayırma | Kategori listesi var: siyaset, ekonomi, dünya, teknoloji, spor, sağlık, kültür, hukuk, eğitim, diğer |
+| Postgres'e JSONB kaydetme | `news_documents` tablosunda tek `payload jsonb` alanı var |
+| Yapı değişebilir | Yeni alanlar tabloyu değiştirmeden `payload` içine eklenebilir |
 
-## Şu An Çalışan Kısım
+## Şu An Nasıl Çalışıyor?
 
 ```bash
 cd /Users/omer/aws-analytics-pipeline/projects/news-llm-postgres
@@ -21,13 +21,13 @@ source /Users/omer/aws-analytics-pipeline/.venv/bin/activate
 make dry-run
 ```
 
-Son denemede:
+Son denemede 9 kaynak üzerinden 14 haber payload'ı oluştu. Çıktı dosyası:
 
-- 9 kaynak aktifti.
-- 14 haber payload'ı üretildi.
-- Çıktı `outputs/latest_payloads.jsonl` dosyasına yazıldı.
+```text
+outputs/latest_payloads.jsonl
+```
 
-## LLM ile Çalıştırma
+## LLM ile Deneme
 
 ```bash
 export OPENAI_API_KEY="..."
@@ -35,11 +35,11 @@ export OPENAI_MODEL="gpt-4o-mini"
 make dry-run-llm
 ```
 
-API key yoksa fallback analyzer devreye giriyor. Bu sadece demo içindir; asıl analiz LLM ile yapılacak.
+API key yoksa basit bir fallback analyzer çalışıyor. Bu sadece akışı test etmek için var. Asıl analiz LLM ile yapılacak.
 
-## Postgres JSONB
+## Postgres Tarafı
 
-Tablo:
+Tablo yapısı basit:
 
 ```sql
 CREATE TABLE IF NOT EXISTS news_documents (
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS news_documents (
 );
 ```
 
-Postgres çalıştırmak için Docker Desktop açık olmalı:
+Docker Desktop açıkken denemek için:
 
 ```bash
 make db-up
@@ -59,24 +59,26 @@ make init-db
 make run-db
 ```
 
-## Neden JSONB?
+## Neden JSONB Kullandım?
 
-Haber kaynaklarının alanları ve LLM çıktısı değişebilir. Bugün kategori/özet/etiket tutarken yarın entity, kişi, kurum, lokasyon veya önem skoru eklemek gerekebilir. Bunları ayrı kolonlara bölmek yerine tek `payload jsonb` içinde saklıyorum. Sorgulanması gereken alanlar için sonradan index eklenebilir.
+Haberden çıkaracağımız alanlar zamanla değişebilir. İlk başta kategori, özet ve keyword yeterli olabilir. Sonra kişi, kurum, lokasyon, önem skoru veya benzer haberler gibi alanlar eklenebilir.
 
-## Eksikler
+Bunları her seferinde ayrı kolon yapmak yerine tek `payload jsonb` içinde tutmak daha esnek. Çok sorgulanacak alanlar için sonradan index eklenebilir.
 
-- Docker Desktop kapalı olduğu için Postgres canlı yazma adımı henüz lokal doğrulanmadı.
-- LLM API key ile gerçek analiz henüz denenmedi.
-- HTML içeriğin tamamını çekme opsiyonu var ama başlangıçta RSS özetiyle gidiyor.
-- Kaynakların robots.txt ve kullanım şartları ayrıca kontrol edilmeli.
-- Kategori seti hocayla netleşince güncellenecek.
+## Şu An Eksik Olanlar
+
+- Docker Desktop kapalı olduğu için Postgres'e canlı yazma adımını henüz lokal doğrulamadım.
+- OpenAI API key ile gerçek LLM çıktısını henüz denemedim.
+- Şimdilik RSS özetiyle gidiyor; tam haber metni çekme kısmı geliştirilecek.
+- Kaynakların robots.txt ve kullanım şartlarına ayrıca bakmak lazım.
+- Kategori listesi hocayla netleşince güncellenecek.
 
 ## Hocaya Atılacak Kısa Mesaj
 
 ```text
-Hocam haber toplama + LLM analiz + Postgres JSONB için ilk taslak iskeleti hazırladım.
+Hocam haber toplama işi için ilk taslağı hazırladım.
 
-Şu an 9 haber kaynağı config'te var. RSS üzerinden haberleri alıyor, LLM varsa kategori/özet/keyword/sentiment çıkaracak katman var. Sonuçları Postgres'te tek payload jsonb alanına yazacak şekilde tasarladım; yapı değişirse payload genişleyebilir.
+Şu an 9 haber kaynağı config'te var. RSS üzerinden haberleri alıyorum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutacak şekilde yazdım; çünkü ileride çıkaracağımız alanlar değişebilir.
 
-Bu bitmiş ürün değil, birlikte güncellemek için ilk taslak.
+Bitmiş ürün değil, beraber güncellemek için ilk iskelet.
 ```

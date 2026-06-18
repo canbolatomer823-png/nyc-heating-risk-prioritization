@@ -1,41 +1,45 @@
-# Ne Yaptık, Neden Yaptık?
+# Ne Yaptık?
 
-Bu not, projeyi ezberlemek için değil, ne kurduğumuzu gerçekten anlamak için yazıldı.
+Bu notu kendim öğrenmek için yazdım. Projenin amacı hocanın söylediği işi küçük parçalara bölüp çalışan bir başlangıç çıkarmak.
 
-## 1. Problemi Parçalara Ayırdık
+## 1. İşi Parçaladık
 
-Hocanın isteği aslında birkaç küçük işten oluşuyor:
+İstek şuydu:
 
-1. Haber kaynakları bul.
-2. Bu kaynaklardan haberleri topla.
-3. Gelen metni LLM'e analiz ettir.
-4. Haberi türüne göre ayır: siyaset, ekonomi, spor vb.
-5. Sonucu Postgres'e kaydet.
-6. Şema değişebileceği için veriyi tek `jsonb` alanda tut.
+- 5-10 haber sitesi bul.
+- Haberleri topla.
+- İçeriği LLM ile analiz et.
+- Haberi türüne göre ayır.
+- Postgres'e kaydet.
+- Yapı değişeceği için tek `jsonb` alan kullan.
 
-Biz de projeyi bu parçalara göre böldük.
+Ben de kodu buna göre ayırdım:
+
+```text
+kaynaklar -> haber çekme -> analiz -> payload oluşturma -> Postgres'e yazma
+```
 
 ## 2. Neden RSS ile Başladık?
 
-Haber sitelerinden veri toplamanın iki yolu var:
+Haber sitesinden veri çekmenin en hızlı ve daha az kırılan yolu RSS.
 
-- HTML scraping: Sayfanın içinden başlık, açıklama, metin çekmek.
-- RSS feed: Haber sitesinin zaten verdiği makine-okunabilir haber akışını kullanmak.
+HTML scraping de yapılabilir ama ilk taslak için daha riskli:
 
-İlk taslak için RSS daha doğru çünkü:
+- Her sitenin HTML yapısı farklı.
+- Site tasarımı değişince kod kırılabilir.
+- Bazı siteler bot koruması kullanıyor.
 
-- Daha stabildir.
-- Daha az kırılır.
-- Başlık, link, özet ve tarih genelde hazır gelir.
-- 5-10 kaynakla hızlıca çalışan demo çıkarmayı sağlar.
+RSS'te genelde başlık, link, özet ve tarih hazır geliyor. Bu yüzden ilk sürümde RSS kullandım.
 
-Bu yüzden kaynakları [config/sources.json](config/sources.json) içinde tuttuk.
+Kaynaklar burada:
 
-## 3. Kaynakları Neden Config Dosyasına Koyduk?
+[config/sources.json](config/sources.json)
 
-Kaynaklar kodun içine gömülü olsaydı yeni site eklemek için kod değiştirmek gerekirdi.
+## 3. Kaynakları Neden Config'e Koyduk?
 
-Biz şöyle yaptık:
+Kaynakları kodun içine yazsaydım yeni site eklemek için Python dosyası değiştirmek gerekecekti.
+
+Onun yerine şöyle bir yapı yaptım:
 
 ```json
 {
@@ -46,75 +50,65 @@ Biz şöyle yaptık:
 }
 ```
 
-Böylece yeni haber sitesi eklemek için sadece config'e yeni kayıt eklemek yeterli.
+Yeni site eklemek için config'e yeni kayıt eklemek yeterli.
 
-## 4. Pipeline Mantığı
+## 4. Kodda Hangi Dosya Ne İş Yapıyor?
 
-Basit akış şu:
-
-```text
-sources.json
-    -> RSS fetch
-    -> RawNewsItem
-    -> LLM / fallback analyzer
-    -> JSON payload
-    -> JSONL file veya Postgres JSONB
-```
-
-Kodda bunun ana yeri:
-
-- [src/news_pipeline/fetchers.py](src/news_pipeline/fetchers.py): Haberleri toplar.
+- [src/news_pipeline/fetchers.py](src/news_pipeline/fetchers.py): RSS'ten haberleri çeker.
 - [src/news_pipeline/llm.py](src/news_pipeline/llm.py): Haberi analiz eder.
-- [src/news_pipeline/pipeline.py](src/news_pipeline/pipeline.py): Tüm akışı birleştirir.
+- [src/news_pipeline/pipeline.py](src/news_pipeline/pipeline.py): Bütün akışı sırayla çalıştırır.
 - [src/news_pipeline/storage.py](src/news_pipeline/storage.py): Postgres'e yazar.
+- [src/news_pipeline/cli.py](src/news_pipeline/cli.py): Terminalden komut çalıştırmayı sağlar.
 
-## 5. LLM Katmanını Nasıl Kurduk?
+## 5. LLM Kısmı Nasıl Çalışıyor?
 
-İki analyzer var:
+İki yol var:
 
 1. `OpenAIAnalyzer`
-   - `OPENAI_API_KEY` varsa gerçek LLM çağırır.
-   - Kategori, özet, sentiment, keyword, confidence üretir.
+   - `OPENAI_API_KEY` varsa LLM'e gider.
+   - Kategori, özet, sentiment, keyword ve confidence üretir.
 
 2. `RuleBasedAnalyzer`
-   - API key yoksa demo bozulmasın diye basit keyword kurallarıyla çalışır.
-   - Mesela haberde `faiz`, `dolar`, `enflasyon` geçiyorsa kategori `ekonomi` olabilir.
+   - API key yokken akış bozulmasın diye var.
+   - Basit kelime kurallarıyla kategori tahmin eder.
+   - Mesela `faiz`, `dolar`, `enflasyon` geçerse ekonomi diyebilir.
 
-Bu fallback profesyonel çözüm değil. Sadece geliştirme sırasında pipeline'ın uçtan uca çalışmasını sağlar.
+Fallback analyzer gerçek çözüm değil. Sadece "pipeline baştan sona çalışıyor mu?" diye bakmak için var.
 
-## 6. Neden JSONB?
+## 6. JSONB Neden Önemli?
 
-Hocanın söylediği önemli yer burası:
+Hocanın söylediği en önemli nokta buydu:
 
-> structure değişecek çünkü
-
-Normal tablo yapsaydık şöyle kolonlar açardık:
-
-```sql
-title text,
-url text,
-category text,
-summary text,
-sentiment text
+```text
+structure değişecek çünkü
 ```
 
-Ama yarın LLM çıktısına şunlar eklenebilir:
+Yani bugün şöyle bir çıktı olabilir:
 
-- kişiler
+```json
+{
+  "category": "ekonomi",
+  "summary": "Kısa özet",
+  "keywords": ["faiz", "dolar"]
+}
+```
+
+Yarın buna şunlar eklenebilir:
+
+- kişi isimleri
 - kurumlar
 - şehirler
 - önem skoru
-- haberin risk seviyesi
+- haberin tonu
 - benzer haberler
-- kaynak güven skoru
 
-Her yeni alan için tablo migration yapmak yerine tek bir esnek alan kullandık:
+Eğer hepsini ayrı kolon yaparsak her değişiklikte tabloyu değiştirmek gerekir. O yüzden tek alan kullandık:
 
 ```sql
 payload jsonb
 ```
 
-Bu sayede tüm haber dokümanı şöyle saklanıyor:
+Payload içinde de kabaca şu bölümler var:
 
 ```json
 {
@@ -125,48 +119,36 @@ Bu sayede tüm haber dokümanı şöyle saklanıyor:
 }
 ```
 
-Yani veri yapısı değişirse payload içine yeni alan eklenir.
+## 7. JSONB'nin Kötü Tarafı Var mı?
 
-## 7. Peki JSONB Kullanmanın Dezavantajı Ne?
+Var.
 
-JSONB esnektir ama her şeyi çözen sihirli çözüm değildir.
+JSONB esnek ama her şeyi JSONB'ye atmak da iyi değil. Çok sık sorgulanacak alanlar için index gerekir.
 
-Dezavantajlar:
-
-- Çok fazla sorgu yapılacak alanlar için index gerekir.
-- Veri doğrulaması uygulama tarafında daha önemli hale gelir.
-- Her şeyi JSONB'ye atarsan raporlama karmaşıklaşabilir.
-
-Bu yüzden taslakta bazı expression index'ler ekledik:
+Bu yüzden örnek olarak kategori index'i ekledim:
 
 ```sql
 CREATE INDEX idx_news_documents_category
     ON news_documents ((payload #>> '{analysis,category}'));
 ```
 
-Bu index kategoriye göre sorguyu hızlandırır.
+Yani veri esnek kalıyor ama kategoriye göre sorgu da hızlanabiliyor.
 
-## 8. Content Hash Neden Var?
+## 8. `content_hash` Neden Var?
 
-Aynı haber tekrar gelirse duplicate kayıt oluşmasın diye `content_hash` üretiyoruz.
+Aynı haber tekrar gelirse Postgres'e tekrar tekrar eklenmesin diye.
 
-Basit mantık:
+Mantık basit:
 
 ```text
-source_key + url -> sha256 hash
+kaynak + haber linki -> hash
 ```
 
-Bu hash unique olduğu için aynı haber tekrar gelirse insert yerine update yapılır.
+Bu hash unique. Aynı haber tekrar gelirse yeni kayıt açmak yerine mevcut kayıt güncellenir.
 
-## 9. Neyi Test Ettik?
+## 9. Şu Ana Kadar Ne Çalıştı?
 
-Şunları test ettik:
-
-- Rule-based analyzer ekonomi haberini doğru sınıflıyor mu?
-- JSON payload beklenen alanlarla oluşuyor mu?
-- Content hash stabil mi?
-
-Komut:
+Test:
 
 ```bash
 make test
@@ -179,9 +161,7 @@ Ran 3 tests
 OK
 ```
 
-## 10. Şu An Ne Çalıştı?
-
-Dry-run çalıştı:
+Dry-run:
 
 ```bash
 make dry-run
@@ -189,34 +169,32 @@ make dry-run
 
 Son denemede:
 
-- 9 haber kaynağı config'te vardı.
-- 14 haber payload'ı üretildi.
+- 9 kaynak aktifti.
+- 14 haber payload'ı oluştu.
 - Çıktı `outputs/latest_payloads.jsonl` dosyasına yazıldı.
 
-Bu Postgres'e yazmadan önce pipeline'ın haber toplama ve analiz kısmının çalıştığını gösterir.
+## 10. Şu An Eksikler
 
-## 11. Henüz Ne Eksik?
+- Docker Desktop kapalı olduğu için Postgres yazma adımını canlı denemedim.
+- OpenAI API key ile gerçek LLM çıktısını henüz denemedim.
+- Şimdilik RSS özetiyle gidiyor, tam haber metni çekme kısmı geliştirilecek.
+- Kaynakların kullanım şartlarına bakmak lazım.
+- Kategoriler hocayla konuşup netleşmeli.
 
-- Docker Desktop kapalı olduğu için Postgres yazma adımı canlı doğrulanmadı.
-- OpenAI API key ile gerçek LLM analizi henüz denenmedi.
-- HTML article body extraction başlangıç seviyesinde.
-- Kaynakların robots.txt ve kullanım şartları kontrol edilmeli.
-- Kategoriler hocayla netleşince güncellenmeli.
+## 11. Hocaya Nasıl Anlatırım?
 
-## 12. Hocaya Nasıl Anlatılır?
-
-Kısa ve doğru anlatım:
+Kısa anlatım:
 
 ```text
-Hocam ilk taslakta haber kaynaklarını config dosyasına aldım. RSS üzerinden haberleri topluyorum. LLM katmanında kategori, özet, keyword ve sentiment üretilecek şekilde yapı kurdum. API key yokken pipeline bozulmasın diye fallback analyzer var. Sonucu Postgres'te tek payload jsonb alanına yazacak şekilde tasarladım, çünkü LLM çıktısının yapısı zamanla değişebilir.
+Hocam kaynakları config'e aldım. RSS üzerinden haberleri çekiyorum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
 ```
 
-## 13. Sonraki Mantıklı Adım
+## 12. Bir Sonraki Adım
 
-Sıradaki güncelleme şu olmalı:
+Sıradaki iş bence şu:
 
-1. Docker Desktop açıp Postgres yazmayı doğrula.
-2. OpenAI API key ile `make dry-run-llm` çalıştır.
-3. 2-3 haber için LLM çıktısının kaliteli olup olmadığına bak.
-4. Kategori listesini hocayla netleştir.
-5. JSONB içinden kategori/tarih/kaynak bazlı örnek SQL sorguları ekle.
+1. Docker Desktop açıp Postgres yazmayı denemek.
+2. OpenAI API key ile `make dry-run-llm` çalıştırmak.
+3. LLM'in 2-3 haber için doğru kategori verip vermediğine bakmak.
+4. Hocayla kategori listesini netleştirmek.
+5. JSONB üzerinden örnek SQL sorguları eklemek.

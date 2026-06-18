@@ -1,26 +1,26 @@
 # News LLM Postgres Draft
 
-Bu klasör profesyonel/bitmiş ürün değil; mentor isteğine cevap veren ilk taslaktır. Amaç hızlıca şunu göstermek:
+Bu klasör haber toplama işi için ilk taslak. Bitmiş bir uygulama değil; hocayla üzerinden konuşup güncellemek için hazırladım.
 
-- 5-10 haber kaynağı belirledim.
-- Haberleri toplamaya başladım.
-- LLM ile kategori/özet/etiket çıkaracak katman koydum.
-- Sonucu Postgres'te tek `jsonb` payload alanına yazacak şekilde tasarladım.
-- Yapı değişirse tabloyu sürekli değiştirmek gerekmeyecek.
+Şimdilik yaptığı şey:
+
+- 9 haber kaynağını config dosyasından okuyor.
+- RSS üzerinden haber başlığı, link, özet ve tarih çekiyor.
+- LLM varsa kategori, özet, keyword ve sentiment çıkaracak yapı var.
+- API key yoksa akışı test etmek için basit fallback analyzer çalışıyor.
+- Sonucu Postgres'te tek `payload jsonb` alanına yazacak şekilde tasarlandı.
 
 Kısa mentor özeti için: [MENTOR_DRAFT.md](MENTOR_DRAFT.md)
 
 Ne yaptığımızı öğrenmek için: [LEARNING_NOTES.md](LEARNING_NOTES.md)
 
-Bu proje, 5-10 haber kaynağından haber toplayıp LLM ile analiz eden ve sonucu Postgres içinde tek esnek `jsonb` payload alanında saklayan taslak pipeline'dır.
+Kapsam:
 
-Mentor isteğine karşılık gelen kapsam:
-
-- Haber kaynakları config dosyasından yönetilir.
-- RSS tabanlı toplama ile başlar, HTML article text extraction için genişletilebilir alan bırakır.
-- LLM ile kategori, özet, sentiment, anahtar kelime ve güven skoru çıkarır.
-- `payload jsonb` alanına ham haber, scrape metadata ve LLM çıktısı birlikte yazılır.
-- Şema değişirse tablo kolonları değişmez, sadece JSONB içeriği evrilir.
+- Haber kaynakları config dosyasından yönetiliyor.
+- İlk sürüm RSS ile gidiyor.
+- HTML'den tam metin çekme kısmı sonradan geliştirilebilir.
+- Ham haber ve analiz sonucu aynı JSONB payload içinde tutuluyor.
+- Çıktı yapısı değişirse tabloyu sürekli değiştirmek gerekmiyor.
 
 ## Mimari
 
