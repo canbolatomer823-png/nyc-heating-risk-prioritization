@@ -10,7 +10,7 @@ class RuleBasedAnalyzerTest(unittest.TestCase):
             key="test",
             name="Test",
             homepage="https://example.com",
-            feed_url="https://example.com/rss",
+            crawl_url="https://example.com",
         )
         item = RawNewsItem(
             source=source,

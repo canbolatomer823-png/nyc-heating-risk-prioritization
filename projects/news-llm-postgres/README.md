@@ -5,7 +5,8 @@ Bu klasör haber toplama işi için ilk taslak. Bitmiş bir uygulama değil; hoc
 Şimdilik yaptığı şey:
 
 - 9 haber kaynağını config dosyasından okuyor.
-- RSS üzerinden haber başlığı, link, özet ve tarih çekiyor.
+- Normal web sayfasından haber linklerini buluyor.
+- Haber sayfasına girip başlık, açıklama, tarih ve paragraf metni çekmeye çalışıyor.
 - LLM varsa kategori, özet, keyword ve sentiment çıkaracak yapı var.
 - API key yoksa akışı test etmek için basit fallback analyzer çalışıyor.
 - Sonucu Postgres'te tek `payload jsonb` alanına yazacak şekilde tasarlandı.
@@ -17,7 +18,7 @@ Ne yaptığımızı öğrenmek için: [LEARNING_NOTES.md](LEARNING_NOTES.md)
 Kapsam:
 
 - Haber kaynakları config dosyasından yönetiliyor.
-- İlk sürüm RSS ile gidiyor.
+- İlk sürüm normal HTML crawling ile gidiyor.
 - HTML'den tam metin çekme kısmı sonradan geliştirilebilir.
 - Ham haber ve analiz sonucu aynı JSONB payload içinde tutuluyor.
 - Çıktı yapısı değişirse tabloyu sürekli değiştirmek gerekmiyor.
@@ -28,7 +29,10 @@ Kapsam:
 config/sources.json
         |
         v
-RSS fetcher / optional HTML fetch
+HTML listing crawler
+        |
+        v
+Article page fetch + text extraction
         |
         v
 RawNewsItem
@@ -57,7 +61,7 @@ Başlangıç config'i 9 kaynak içerir:
 - Mynet Haber
 - Ensonhaber
 
-Bazı haber siteleri Cloudflare veya bot protection kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder.
+Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder.
 
 ## Kurulum
 
@@ -80,7 +84,7 @@ python -m pip install -r requirements.txt
 
 ## Dry Run
 
-LLM API key olmadan rule-based fallback analyzer ile payload üret:
+LLM API key olmadan web crawling + rule-based fallback analyzer ile payload üret:
 
 ```bash
 make dry-run
@@ -140,12 +144,12 @@ psql "$DATABASE_URL" -c "select id, payload #>> '{analysis,category}' as categor
   "source": {
     "key": "bbc_turkce",
     "name": "BBC Türkçe",
-    "feed_url": "https://feeds.bbci.co.uk/turkce/rss.xml"
+    "crawl_url": "https://www.bbc.com/turkce"
   },
   "article": {
     "title": "Başlık",
     "url": "https://example.com/news",
-    "summary": "RSS özeti",
+    "summary": "HTML meta açıklaması veya kısa açıklama",
     "published_at": "2026-06-18T10:00:00Z",
     "content_text": "Opsiyonel HTML içerik"
   },

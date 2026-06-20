@@ -19,17 +19,18 @@ Ben de kodu buna göre ayırdım:
 kaynaklar -> haber çekme -> analiz -> payload oluşturma -> Postgres'e yazma
 ```
 
-## 2. Neden RSS ile Başladık?
+## 2. Neden Normal Web Crawling'e Çevirdik?
 
-Haber sitesinden veri çekmenin en hızlı ve daha az kırılan yolu RSS.
+İlk akılda RSS ile yapmak daha kolaydı ama hocanın dediği doğru: gerçek hayatta her veri RSS gibi temiz gelmiyor.
 
-HTML scraping de yapılabilir ama ilk taslak için daha riskli:
+Bu yüzden akışı normal web crawling'e çevirdim:
 
-- Her sitenin HTML yapısı farklı.
-- Site tasarımı değişince kod kırılabilir.
-- Bazı siteler bot koruması kullanıyor.
+- Önce haber sitesinin ana/liste sayfasına gidiyor.
+- Sayfadaki linkleri geziyor.
+- Haber linkine benzeyenleri seçiyor.
+- Her haber sayfasına girip başlık, açıklama, tarih ve paragraf metni çıkarmaya çalışıyor.
 
-RSS'te genelde başlık, link, özet ve tarih hazır geliyor. Bu yüzden ilk sürümde RSS kullandım.
+Bu RSS'e göre daha zor ama hocanın istediği probleme daha yakın.
 
 Kaynaklar burada:
 
@@ -45,7 +46,8 @@ Onun yerine şöyle bir yapı yaptım:
 {
   "key": "bbc_turkce",
   "name": "BBC Türkçe",
-  "feed_url": "https://feeds.bbci.co.uk/turkce/rss.xml",
+  "crawl_url": "https://www.bbc.com/turkce",
+  "allowed_domains": ["bbc.com"],
   "enabled": true
 }
 ```
@@ -54,7 +56,7 @@ Yeni site eklemek için config'e yeni kayıt eklemek yeterli.
 
 ## 4. Kodda Hangi Dosya Ne İş Yapıyor?
 
-- [src/news_pipeline/fetchers.py](src/news_pipeline/fetchers.py): RSS'ten haberleri çeker.
+- [src/news_pipeline/fetchers.py](src/news_pipeline/fetchers.py): Liste sayfasından linkleri bulur, haber sayfasından metin çeker.
 - [src/news_pipeline/llm.py](src/news_pipeline/llm.py): Haberi analiz eder.
 - [src/news_pipeline/pipeline.py](src/news_pipeline/pipeline.py): Bütün akışı sırayla çalıştırır.
 - [src/news_pipeline/storage.py](src/news_pipeline/storage.py): Postgres'e yazar.
@@ -169,15 +171,17 @@ make dry-run
 
 Son denemede:
 
-- 9 kaynak aktifti.
-- 14 haber payload'ı oluştu.
+- 9 kaynak config'te vardı.
+- Normal web crawling ile 14 haber payload'ı oluştu.
+- Anadolu Ajansı header hatası verdi ama pipeline durmadı.
 - Çıktı `outputs/latest_payloads.jsonl` dosyasına yazıldı.
 
 ## 10. Şu An Eksikler
 
 - Docker Desktop kapalı olduğu için Postgres yazma adımını canlı denemedim.
 - OpenAI API key ile gerçek LLM çıktısını henüz denemedim.
-- Şimdilik RSS özetiyle gidiyor, tam haber metni çekme kısmı geliştirilecek.
+- Normal web crawling'e geçti ama her sitenin HTML yapısı farklı olduğu için selector/parser kısmı geliştirilecek.
+- Anadolu Ajansı için ayrı header/parser ayarı gerekebilir.
 - Kaynakların kullanım şartlarına bakmak lazım.
 - Kategoriler hocayla konuşup netleşmeli.
 
@@ -186,7 +190,7 @@ Son denemede:
 Kısa anlatım:
 
 ```text
-Hocam kaynakları config'e aldım. RSS üzerinden haberleri çekiyorum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
+Hocam kaynakları config'e aldım. RSS yerine normal web sayfasından haber linklerini bulup haber sayfasına giren bir crawler akışı kurdum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
 ```
 
 ## 12. Bir Sonraki Adım

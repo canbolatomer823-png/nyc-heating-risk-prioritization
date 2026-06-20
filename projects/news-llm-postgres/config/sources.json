@@ -3,81 +3,99 @@
     "key": "bbc_turkce",
     "name": "BBC Türkçe",
     "homepage": "https://www.bbc.com/turkce",
-    "feed_url": "https://feeds.bbci.co.uk/turkce/rss.xml",
+    "crawl_url": "https://www.bbc.com/turkce",
+    "allowed_domains": ["bbc.com"],
+    "article_url_patterns": ["bbc\\.com/turkce/articles/"],
+    "exclude_url_patterns": ["/live/", "/video"],
     "language": "tr",
-    "enabled": true,
-    "fetch_article": false
+    "enabled": true
   },
   {
     "key": "euronews_tr",
     "name": "Euronews Türkçe",
     "homepage": "https://tr.euronews.com",
-    "feed_url": "https://tr.euronews.com/rss",
+    "crawl_url": "https://tr.euronews.com",
+    "allowed_domains": ["tr.euronews.com"],
+    "article_url_patterns": ["tr\\.euronews\\.com/\\d{4}/\\d{2}/\\d{2}/"],
+    "exclude_url_patterns": ["/video/", "/programlar/"],
     "language": "tr",
-    "enabled": true,
-    "fetch_article": false
+    "enabled": true
   },
   {
     "key": "haberturk",
     "name": "Habertürk",
     "homepage": "https://www.haberturk.com",
-    "feed_url": "https://www.haberturk.com/rss",
+    "crawl_url": "https://www.haberturk.com",
+    "allowed_domains": ["haberturk.com"],
+    "article_url_patterns": ["haberturk\\.com/.+-\\d+"],
+    "exclude_url_patterns": ["/video", "/galeri", "/canli"],
     "language": "tr",
-    "enabled": true,
-    "fetch_article": false
+    "enabled": true
   },
   {
     "key": "trt_haber",
     "name": "TRT Haber",
     "homepage": "https://www.trthaber.com",
-    "feed_url": "https://www.trthaber.com/sondakika.rss",
+    "crawl_url": "https://www.trthaber.com",
+    "allowed_domains": ["trthaber.com"],
+    "article_url_patterns": ["trthaber\\.com/haber/"],
+    "exclude_url_patterns": ["/video/", "/fotogaleri/"],
     "language": "tr",
-    "enabled": true,
-    "fetch_article": false
+    "enabled": true
   },
   {
     "key": "bloomberg_ht",
     "name": "Bloomberg HT",
     "homepage": "https://www.bloomberght.com",
-    "feed_url": "https://www.bloomberght.com/rss",
+    "crawl_url": "https://www.bloomberght.com",
+    "allowed_domains": ["bloomberght.com"],
+    "article_url_patterns": ["bloomberght\\.com/.+"],
+    "exclude_url_patterns": ["/video", "/canli-yayin", "/radyo"],
     "language": "tr",
-    "enabled": true,
-    "fetch_article": false
+    "enabled": true
   },
   {
     "key": "anadolu_ajansi",
     "name": "Anadolu Ajansı",
     "homepage": "https://www.aa.com.tr/tr",
-    "feed_url": "https://www.aa.com.tr/tr/rss/default?cat=guncel",
+    "crawl_url": "https://www.aa.com.tr/tr",
+    "allowed_domains": ["aa.com.tr"],
+    "article_url_patterns": ["aa\\.com\\.tr/tr/.+/\\d+"],
+    "exclude_url_patterns": ["/video/", "/foto-galeri/"],
     "language": "tr",
-    "enabled": true,
-    "fetch_article": false
+    "enabled": true
   },
   {
     "key": "dw_turkce",
     "name": "DW Türkçe",
     "homepage": "https://www.dw.com/tr",
-    "feed_url": "https://rss.dw.com/xml/rss-tr-all",
+    "crawl_url": "https://www.dw.com/tr",
+    "allowed_domains": ["dw.com"],
+    "article_url_patterns": ["dw\\.com/tr/.+/a-\\d+"],
+    "exclude_url_patterns": ["/media-center/", "/tv/"],
     "language": "tr",
-    "enabled": true,
-    "fetch_article": false
+    "enabled": true
   },
   {
     "key": "mynet_haber",
     "name": "Mynet Haber",
     "homepage": "https://www.mynet.com/haber",
-    "feed_url": "https://www.mynet.com/haber/rss/sondakika",
+    "crawl_url": "https://www.mynet.com/haber",
+    "allowed_domains": ["mynet.com"],
+    "article_url_patterns": ["mynet\\.com/.+-\\d+"],
+    "exclude_url_patterns": ["/video", "/foto-galeri"],
     "language": "tr",
-    "enabled": true,
-    "fetch_article": false
+    "enabled": true
   },
   {
     "key": "ensonhaber",
     "name": "Ensonhaber",
     "homepage": "https://www.ensonhaber.com",
-    "feed_url": "https://www.ensonhaber.com/rss/ensonhaber.xml",
+    "crawl_url": "https://www.ensonhaber.com",
+    "allowed_domains": ["ensonhaber.com"],
+    "article_url_patterns": ["ensonhaber\\.com/.+"],
+    "exclude_url_patterns": ["/video", "/galeri", "/canli"],
     "language": "tr",
-    "enabled": true,
-    "fetch_article": false
+    "enabled": true
   }
 ]

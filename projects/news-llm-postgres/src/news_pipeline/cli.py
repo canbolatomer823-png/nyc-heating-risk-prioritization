@@ -11,7 +11,7 @@ from .storage import PostgresStore
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Collect news, analyze with LLM, store JSONB in Postgres.")
     parser.add_argument("--sources", default="config/sources.json", help="Path to source config JSON.")
-    parser.add_argument("--limit-per-source", type=int, default=3, help="Max RSS items per source.")
+    parser.add_argument("--limit-per-source", type=int, default=3, help="Max items per source.")
     parser.add_argument(
         "--analyzer",
         choices=["auto", "openai", "fallback"],
@@ -20,7 +20,6 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--output", default="outputs/latest_payloads.jsonl", help="JSONL output path.")
     parser.add_argument("--write-db", action="store_true", help="Upsert payloads into Postgres.")
-    parser.add_argument("--fetch-articles", action="store_true", help="Fetch article HTML and extract paragraph text.")
     parser.add_argument("--init-db", action="store_true", help="Create Postgres table and indexes, then exit.")
     return parser.parse_args()
 
@@ -43,7 +42,6 @@ def main() -> None:
         output_path=args.output,
         write_db=args.write_db,
         database_url=database_url,
-        fetch_articles=args.fetch_articles,
     )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 

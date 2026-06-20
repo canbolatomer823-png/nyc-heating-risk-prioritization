@@ -9,10 +9,13 @@ class NewsSource:
     key: str
     name: str
     homepage: str
-    feed_url: str
+    crawl_url: str | None = None
+    allowed_domains: list[str] = field(default_factory=list)
+    article_url_patterns: list[str] = field(default_factory=list)
+    exclude_url_patterns: list[str] = field(default_factory=list)
     language: str = "tr"
     enabled: bool = True
-    fetch_article: bool = False
+    fetch_article: bool = True
 
 
 @dataclass(frozen=True)

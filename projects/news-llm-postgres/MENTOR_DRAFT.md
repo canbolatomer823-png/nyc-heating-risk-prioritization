@@ -7,7 +7,7 @@ Bu klasör, haber toplama işi için hazırladığım ilk taslak. Bitmiş bir uy
 | İstenen | Şu an ne yaptım? |
 |---|---|
 | 5-10 haber sitesi | `config/sources.json` içine 9 kaynak ekledim |
-| Haber toplama | RSS üzerinden başlık, link, özet ve tarih alıyorum |
+| Haber toplama | Normal web sayfasından haber linklerini bulup haber sayfasına giriyorum |
 | LLM analizi | `llm.py` içinde OpenAI ile analiz edecek yapı var |
 | Siyaset, ekonomi vb. ayırma | Kategori listesi var: siyaset, ekonomi, dünya, teknoloji, spor, sağlık, kültür, hukuk, eğitim, diğer |
 | Postgres'e JSONB kaydetme | `news_documents` tablosunda tek `payload jsonb` alanı var |
@@ -21,7 +21,7 @@ source /Users/omer/aws-analytics-pipeline/.venv/bin/activate
 make dry-run
 ```
 
-Son denemede 9 kaynak üzerinden 14 haber payload'ı oluştu. Çıktı dosyası:
+Son denemede normal web crawling ile 14 haber payload'ı oluştu. Anadolu Ajansı tarafında bir header hatası geldi ama pipeline durmadı, diğer kaynaklardan devam etti. Çıktı dosyası:
 
 ```text
 outputs/latest_payloads.jsonl
@@ -69,7 +69,8 @@ Bunları her seferinde ayrı kolon yapmak yerine tek `payload jsonb` içinde tut
 
 - Docker Desktop kapalı olduğu için Postgres'e canlı yazma adımını henüz lokal doğrulamadım.
 - OpenAI API key ile gerçek LLM çıktısını henüz denemedim.
-- Şimdilik RSS özetiyle gidiyor; tam haber metni çekme kısmı geliştirilecek.
+- HTML yapıları siteye göre değiştiği için haber metni çekme kısmı kaynak bazında iyileştirilecek.
+- Anadolu Ajansı için ayrı header/parser ayarı gerekebilir.
 - Kaynakların robots.txt ve kullanım şartlarına ayrıca bakmak lazım.
 - Kategori listesi hocayla netleşince güncellenecek.
 
@@ -78,7 +79,7 @@ Bunları her seferinde ayrı kolon yapmak yerine tek `payload jsonb` içinde tut
 ```text
 Hocam haber toplama işi için ilk taslağı hazırladım.
 
-Şu an 9 haber kaynağı config'te var. RSS üzerinden haberleri alıyorum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutacak şekilde yazdım; çünkü ileride çıkaracağımız alanlar değişebilir.
+Şu an 9 haber kaynağı config'te var. Normal web sayfasından haber linklerini bulup haber sayfasına girmeye çalışıyorum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutacak şekilde yazdım; çünkü ileride çıkaracağımız alanlar değişebilir.
 
 Bitmiş ürün değil, beraber güncellemek için ilk iskelet.
 ```

@@ -11,7 +11,7 @@ class PayloadTest(unittest.TestCase):
             key="test",
             name="Test",
             homepage="https://example.com",
-            feed_url="https://example.com/rss",
+            crawl_url="https://example.com",
         )
         item = RawNewsItem(source=source, title="Başlık", url="https://example.com/news")
         analysis = AnalysisResult(
@@ -37,7 +37,7 @@ class PayloadTest(unittest.TestCase):
             key="test",
             name="Test",
             homepage="https://example.com",
-            feed_url="https://example.com/rss",
+            crawl_url="https://example.com",
         )
         item = RawNewsItem(source=source, title="A", url="https://example.com/news")
 
