@@ -6,7 +6,7 @@ Bu klasör, haber toplama işi için hazırladığım ilk taslak. Bitmiş bir uy
 
 | İstenen | Şu an ne yaptım? |
 |---|---|
-| 5-10 haber sitesi | `config/sources.json` içine Türkiye merkezli 11 kaynak ekledim |
+| 5-10 haber sitesi | `config/sources.json` içine Türkiye merkezli 12 kaynak ekledim |
 | Haber toplama | Normal web sayfasından haber linklerini bulup haber sayfasına giriyorum |
 | LLM analizi | `llm.py` içinde OpenAI ile analiz edecek yapı var |
 | Siyaset, ekonomi vb. ayırma | Kategori listesi var: siyaset, ekonomi, dünya, teknoloji, spor, sağlık, kültür, hukuk, eğitim, diğer |
@@ -21,9 +21,11 @@ source /Users/omer/aws-analytics-pipeline/.venv/bin/activate
 make dry-run
 ```
 
-Kaynak listesi şu an Türkiye'deki haber sitelerine göre güncellendi: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Bloomberg HT, Mynet Haber, Ensonhaber.
+Kaynak listesi şu an Türkiye'deki haber sitelerine göre güncellendi: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Sözcü, Bloomberg HT, Mynet Haber, Ensonhaber.
 
-Son dry-run sonucunda 11 kaynak config'te vardı. 10 kaynaktan toplam 20 haber payload'ı oluştu. Anadolu Ajansı tarafında `multiple Transfer-Encoding headers` hatası geldi; onu ayrı header/parser ayarıyla ele almak gerekiyor. Pipeline durmadı, diğer kaynaklardan devam etti. Çıktı dosyası:
+Sözcü için kontrol ettim: `HEAD` isteği Cloudflare challenge/403 döndürdü ama normal `GET` isteği tarayıcı User-Agent ile HTML verdi. Yani tamamen kapalı değil; crawler tarafında doğru header ile linkler ve haber detayları alınabiliyor.
+
+Son dry-run sonucunda 12 kaynak config'te vardı. 11 kaynaktan toplam 22 haber payload'ı oluştu. Sözcü'den de 2 haber geldi. Anadolu Ajansı tarafında `multiple Transfer-Encoding headers` hatası geldi; onu ayrı header/parser ayarıyla ele almak gerekiyor. Pipeline durmadı, diğer kaynaklardan devam etti. Çıktı dosyası:
 
 ```text
 outputs/latest_payloads.jsonl
@@ -81,7 +83,7 @@ Bunları her seferinde ayrı kolon yapmak yerine tek `payload jsonb` içinde tut
 ```text
 Hocam haber toplama işi için ilk taslağı hazırladım.
 
-Şu an Türkiye'deki 11 haber kaynağını config'e aldım: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Bloomberg HT, Mynet Haber, Ensonhaber. Normal web sayfasından haber linklerini bulup haber sayfasına girmeye çalışıyorum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutacak şekilde yazdım; çünkü ileride çıkaracağımız alanlar değişebilir.
+Şu an Türkiye'deki haber kaynaklarını config'e aldım: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Sözcü, Bloomberg HT, Mynet Haber, Ensonhaber. Sözcü'de `HEAD` isteği Cloudflare'a takılıyor ama normal `GET` isteğiyle HTML alabildim. Normal web sayfasından haber linklerini bulup haber sayfasına girmeye çalışıyorum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutacak şekilde yazdım; çünkü ileride çıkaracağımız alanlar değişebilir.
 
 Bitmiş ürün değil, beraber güncellemek için ilk iskelet.
 ```

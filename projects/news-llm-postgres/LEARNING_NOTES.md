@@ -46,6 +46,7 @@ Kaynaklar burada:
 - Milliyet
 - Sabah
 - Cumhuriyet
+- Sözcü
 - Bloomberg HT
 - Mynet Haber
 - Ensonhaber
@@ -183,10 +184,13 @@ Dry-run:
 make dry-run
 ```
 
+Sözcü için ayrıca baktım. `HEAD` isteği Cloudflare challenge/403 döndürdü ama normal `GET` isteği tarayıcı User-Agent ile HTML verdi. Bu yüzden Sözcü tamamen kapalı değil; doğru istek tipi ve header ile crawler'a eklenebilir.
+
 Son crawler denemesinde:
 
-- 11 Türkiye kaynağı config'te vardı.
-- 10 kaynaktan toplam 20 haber payload'ı oluştu.
+- 12 Türkiye kaynağı config'te vardı.
+- 11 kaynaktan toplam 22 haber payload'ı oluştu.
+- Sözcü'den 2 haber geldi.
 - Anadolu Ajansı `multiple Transfer-Encoding headers` hatası verdi ama pipeline durmadı.
 - Çıktı `outputs/latest_payloads.jsonl` dosyasına yazıldı.
 
@@ -204,7 +208,7 @@ Son crawler denemesinde:
 Kısa anlatım:
 
 ```text
-Hocam kaynakları Türkiye'deki haber sitelerine göre güncelledim: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Bloomberg HT, Mynet Haber ve Ensonhaber. RSS yerine normal web sayfasından haber linklerini bulup haber sayfasına giren bir crawler akışı kurdum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
+Hocam kaynakları Türkiye'deki haber sitelerine göre güncelledim: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Sözcü, Bloomberg HT, Mynet Haber ve Ensonhaber. Sözcü'de HEAD isteği Cloudflare'a takılıyor ama normal GET isteğiyle HTML alabildim. RSS yerine normal web sayfasından haber linklerini bulup haber sayfasına giren bir crawler akışı kurdum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
 ```
 
 ## 12. Bir Sonraki Adım

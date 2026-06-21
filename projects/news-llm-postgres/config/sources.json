@@ -88,6 +88,17 @@
     "enabled": true
   },
   {
+    "key": "sozcu",
+    "name": "Sözcü",
+    "homepage": "https://www.sozcu.com.tr",
+    "crawl_url": "https://www.sozcu.com.tr",
+    "allowed_domains": ["sozcu.com.tr"],
+    "article_url_patterns": ["sozcu\\.com\\.tr/.+-p\\d+"],
+    "exclude_url_patterns": ["/video", "/galeri", "/yazarlar", "/e-gazete", "/finans/"],
+    "language": "tr",
+    "enabled": true
+  },
+  {
     "key": "bloomberg_ht",
     "name": "Bloomberg HT",
     "homepage": "https://www.bloomberght.com",

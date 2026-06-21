@@ -49,7 +49,7 @@ Postgres news_documents(payload jsonb)
 
 ## Kaynaklar
 
-Başlangıç config'i Türkiye merkezli 11 kaynak içerir:
+Başlangıç config'i Türkiye merkezli 12 kaynak içerir:
 
 - Habertürk
 - TRT Haber
@@ -59,13 +59,14 @@ Başlangıç config'i Türkiye merkezli 11 kaynak içerir:
 - Milliyet
 - Sabah
 - Cumhuriyet
+- Sözcü
 - Bloomberg HT
 - Mynet Haber
 - Ensonhaber
 
 İlk listede BBC Türkçe, Euronews Türkçe ve DW Türkçe gibi Türkçe yayın yapan ama Türkiye merkezli olmayan kaynaklar da vardı. Mentor notundan sonra ana deneme listesi Türkiye'deki haber sitelerine çevrildi.
 
-Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder. Son dry-run'da Anadolu Ajansı header hatası verdi; diğer Türkiye kaynaklarından payload üretildi.
+Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder. Sözcü'de `HEAD` isteği Cloudflare challenge döndürdü ama normal `GET` isteği tarayıcı User-Agent ile HTML verdi. Son dry-run'da Sözcü'den 2 haber geldi; Anadolu Ajansı header hatası verdi, diğer Türkiye kaynaklarından payload üretildi.
 
 ## Kurulum
 
