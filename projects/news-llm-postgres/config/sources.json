@@ -1,27 +1,5 @@
 [
   {
-    "key": "bbc_turkce",
-    "name": "BBC Türkçe",
-    "homepage": "https://www.bbc.com/turkce",
-    "crawl_url": "https://www.bbc.com/turkce",
-    "allowed_domains": ["bbc.com"],
-    "article_url_patterns": ["bbc\\.com/turkce/articles/"],
-    "exclude_url_patterns": ["/live/", "/video"],
-    "language": "tr",
-    "enabled": true
-  },
-  {
-    "key": "euronews_tr",
-    "name": "Euronews Türkçe",
-    "homepage": "https://tr.euronews.com",
-    "crawl_url": "https://tr.euronews.com",
-    "allowed_domains": ["tr.euronews.com"],
-    "article_url_patterns": ["tr\\.euronews\\.com/\\d{4}/\\d{2}/\\d{2}/"],
-    "exclude_url_patterns": ["/video/", "/programlar/"],
-    "language": "tr",
-    "enabled": true
-  },
-  {
     "key": "haberturk",
     "name": "Habertürk",
     "homepage": "https://www.haberturk.com",
@@ -44,17 +22,6 @@
     "enabled": true
   },
   {
-    "key": "bloomberg_ht",
-    "name": "Bloomberg HT",
-    "homepage": "https://www.bloomberght.com",
-    "crawl_url": "https://www.bloomberght.com",
-    "allowed_domains": ["bloomberght.com"],
-    "article_url_patterns": ["bloomberght\\.com/.+"],
-    "exclude_url_patterns": ["/video", "/canli-yayin", "/radyo"],
-    "language": "tr",
-    "enabled": true
-  },
-  {
     "key": "anadolu_ajansi",
     "name": "Anadolu Ajansı",
     "homepage": "https://www.aa.com.tr/tr",
@@ -66,13 +33,68 @@
     "enabled": true
   },
   {
-    "key": "dw_turkce",
-    "name": "DW Türkçe",
-    "homepage": "https://www.dw.com/tr",
-    "crawl_url": "https://www.dw.com/tr",
-    "allowed_domains": ["dw.com"],
-    "article_url_patterns": ["dw\\.com/tr/.+/a-\\d+"],
-    "exclude_url_patterns": ["/media-center/", "/tv/"],
+    "key": "ntv",
+    "name": "NTV",
+    "homepage": "https://www.ntv.com.tr",
+    "crawl_url": "https://www.ntv.com.tr",
+    "allowed_domains": ["ntv.com.tr"],
+    "article_url_patterns": ["ntv\\.com\\.tr/.+-\\d+"],
+    "exclude_url_patterns": ["/video", "/galeri", "/canli-yayin", "/resmi-ilanlar", "/yazarlar"],
+    "language": "tr",
+    "enabled": true
+  },
+  {
+    "key": "hurriyet",
+    "name": "Hürriyet",
+    "homepage": "https://www.hurriyet.com.tr",
+    "crawl_url": "https://www.hurriyet.com.tr",
+    "allowed_domains": ["hurriyet.com.tr"],
+    "article_url_patterns": ["hurriyet\\.com\\.tr/.+/.+-\\d+"],
+    "exclude_url_patterns": ["/video", "/galeri", "/kelebek"],
+    "language": "tr",
+    "enabled": true
+  },
+  {
+    "key": "milliyet",
+    "name": "Milliyet",
+    "homepage": "https://www.milliyet.com.tr",
+    "crawl_url": "https://www.milliyet.com.tr",
+    "allowed_domains": ["milliyet.com.tr"],
+    "article_url_patterns": ["milliyet\\.com\\.tr/.+/.+-\\d+"],
+    "exclude_url_patterns": ["/video", "/galeri", "/pembenar"],
+    "language": "tr",
+    "enabled": true
+  },
+  {
+    "key": "sabah",
+    "name": "Sabah",
+    "homepage": "https://www.sabah.com.tr",
+    "crawl_url": "https://www.sabah.com.tr",
+    "allowed_domains": ["sabah.com.tr"],
+    "article_url_patterns": ["sabah\\.com\\.tr/.+/\\d{4}/\\d{2}/\\d{2}/"],
+    "exclude_url_patterns": ["/video", "/galeri"],
+    "language": "tr",
+    "enabled": true
+  },
+  {
+    "key": "cumhuriyet",
+    "name": "Cumhuriyet",
+    "homepage": "https://www.cumhuriyet.com.tr",
+    "crawl_url": "https://www.cumhuriyet.com.tr",
+    "allowed_domains": ["cumhuriyet.com.tr"],
+    "article_url_patterns": ["cumhuriyet\\.com\\.tr/.+/.+-\\d+"],
+    "exclude_url_patterns": ["/video", "/galeri"],
+    "language": "tr",
+    "enabled": true
+  },
+  {
+    "key": "bloomberg_ht",
+    "name": "Bloomberg HT",
+    "homepage": "https://www.bloomberght.com",
+    "crawl_url": "https://www.bloomberght.com",
+    "allowed_domains": ["bloomberght.com"],
+    "article_url_patterns": ["bloomberght\\.com/.+-\\d+"],
+    "exclude_url_patterns": ["/video", "/canli-yayin", "/radyo"],
     "language": "tr",
     "enabled": true
   },
@@ -93,7 +115,7 @@
     "homepage": "https://www.ensonhaber.com",
     "crawl_url": "https://www.ensonhaber.com",
     "allowed_domains": ["ensonhaber.com"],
-    "article_url_patterns": ["ensonhaber\\.com/.+"],
+    "article_url_patterns": ["ensonhaber\\.com/.+-\\d+"],
     "exclude_url_patterns": ["/video", "/galeri", "/canli"],
     "language": "tr",
     "enabled": true

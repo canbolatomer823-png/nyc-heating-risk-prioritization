@@ -4,7 +4,7 @@ Bu klasör haber toplama işi için ilk taslak. Bitmiş bir uygulama değil; hoc
 
 Şimdilik yaptığı şey:
 
-- 9 haber kaynağını config dosyasından okuyor.
+- Türkiye merkezli 11 haber kaynağını config dosyasından okuyor.
 - Normal web sayfasından haber linklerini buluyor.
 - Haber sayfasına girip başlık, açıklama, tarih ve paragraf metni çekmeye çalışıyor.
 - LLM varsa kategori, özet, keyword ve sentiment çıkaracak yapı var.
@@ -49,19 +49,23 @@ Postgres news_documents(payload jsonb)
 
 ## Kaynaklar
 
-Başlangıç config'i 9 kaynak içerir:
+Başlangıç config'i Türkiye merkezli 11 kaynak içerir:
 
-- BBC Türkçe
-- Euronews Türkçe
 - Habertürk
 - TRT Haber
-- Bloomberg HT
 - Anadolu Ajansı
-- DW Türkçe
+- NTV
+- Hürriyet
+- Milliyet
+- Sabah
+- Cumhuriyet
+- Bloomberg HT
 - Mynet Haber
 - Ensonhaber
 
-Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder.
+İlk listede BBC Türkçe, Euronews Türkçe ve DW Türkçe gibi Türkçe yayın yapan ama Türkiye merkezli olmayan kaynaklar da vardı. Mentor notundan sonra ana deneme listesi Türkiye'deki haber sitelerine çevrildi.
+
+Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder. Son dry-run'da Anadolu Ajansı header hatası verdi; diğer Türkiye kaynaklarından payload üretildi.
 
 ## Kurulum
 
@@ -142,9 +146,9 @@ psql "$DATABASE_URL" -c "select id, payload #>> '{analysis,category}' as categor
 {
   "schema_version": "news-item-v1",
   "source": {
-    "key": "bbc_turkce",
-    "name": "BBC Türkçe",
-    "crawl_url": "https://www.bbc.com/turkce"
+    "key": "haberturk",
+    "name": "Habertürk",
+    "crawl_url": "https://www.haberturk.com"
   },
   "article": {
     "title": "Başlık",

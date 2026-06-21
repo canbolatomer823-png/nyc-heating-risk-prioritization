@@ -36,6 +36,20 @@ Kaynaklar burada:
 
 [config/sources.json](config/sources.json)
 
+İlk listede BBC Türkçe, Euronews Türkçe ve DW Türkçe de vardı. Onlar Türkçe yayın yapıyor ama Türkiye merkezli kaynaklar değil. Hocanın "Türkiye'deki haber sitelerini dene" notundan sonra listeyi Türkiye merkezli sitelere çevirdim:
+
+- Habertürk
+- TRT Haber
+- Anadolu Ajansı
+- NTV
+- Hürriyet
+- Milliyet
+- Sabah
+- Cumhuriyet
+- Bloomberg HT
+- Mynet Haber
+- Ensonhaber
+
 ## 3. Kaynakları Neden Config'e Koyduk?
 
 Kaynakları kodun içine yazsaydım yeni site eklemek için Python dosyası değiştirmek gerekecekti.
@@ -44,10 +58,10 @@ Onun yerine şöyle bir yapı yaptım:
 
 ```json
 {
-  "key": "bbc_turkce",
-  "name": "BBC Türkçe",
-  "crawl_url": "https://www.bbc.com/turkce",
-  "allowed_domains": ["bbc.com"],
+  "key": "haberturk",
+  "name": "Habertürk",
+  "crawl_url": "https://www.haberturk.com",
+  "allowed_domains": ["haberturk.com"],
   "enabled": true
 }
 ```
@@ -169,11 +183,11 @@ Dry-run:
 make dry-run
 ```
 
-Son denemede:
+Son crawler denemesinde:
 
-- 9 kaynak config'te vardı.
-- Normal web crawling ile 14 haber payload'ı oluştu.
-- Anadolu Ajansı header hatası verdi ama pipeline durmadı.
+- 11 Türkiye kaynağı config'te vardı.
+- 10 kaynaktan toplam 20 haber payload'ı oluştu.
+- Anadolu Ajansı `multiple Transfer-Encoding headers` hatası verdi ama pipeline durmadı.
 - Çıktı `outputs/latest_payloads.jsonl` dosyasına yazıldı.
 
 ## 10. Şu An Eksikler
@@ -181,7 +195,7 @@ Son denemede:
 - Docker Desktop kapalı olduğu için Postgres yazma adımını canlı denemedim.
 - OpenAI API key ile gerçek LLM çıktısını henüz denemedim.
 - Normal web crawling'e geçti ama her sitenin HTML yapısı farklı olduğu için selector/parser kısmı geliştirilecek.
-- Anadolu Ajansı için ayrı header/parser ayarı gerekebilir.
+- Anadolu Ajansı için ayrı header/parser ayarı gerekiyor.
 - Kaynakların kullanım şartlarına bakmak lazım.
 - Kategoriler hocayla konuşup netleşmeli.
 
@@ -190,7 +204,7 @@ Son denemede:
 Kısa anlatım:
 
 ```text
-Hocam kaynakları config'e aldım. RSS yerine normal web sayfasından haber linklerini bulup haber sayfasına giren bir crawler akışı kurdum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
+Hocam kaynakları Türkiye'deki haber sitelerine göre güncelledim: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Bloomberg HT, Mynet Haber ve Ensonhaber. RSS yerine normal web sayfasından haber linklerini bulup haber sayfasına giren bir crawler akışı kurdum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
 ```
 
 ## 12. Bir Sonraki Adım
