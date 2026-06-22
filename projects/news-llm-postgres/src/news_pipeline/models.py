@@ -9,6 +9,7 @@ class NewsSource:
     key: str
     name: str
     homepage: str
+    source_type: str = "html"
     crawl_url: str | None = None
     allowed_domains: list[str] = field(default_factory=list)
     article_url_patterns: list[str] = field(default_factory=list)

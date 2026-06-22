@@ -31,12 +31,19 @@ def crawl_source_items(
     )
     response.raise_for_status()
 
-    article_links = extract_article_links(
-        html=response.text,
-        base_url=str(response.url),
-        source=source,
-        limit=max(limit * 4, limit),
-    )
+    if source.source_type == "reddit":
+        article_links = extract_reddit_post_links(
+            html=response.text,
+            base_url=str(response.url),
+            limit=max(limit * 4, limit),
+        )
+    else:
+        article_links = extract_article_links(
+            html=response.text,
+            base_url=str(response.url),
+            source=source,
+            limit=max(limit * 4, limit),
+        )
 
     items: list[RawNewsItem] = []
     for url in article_links[:limit]:
@@ -137,6 +144,9 @@ def extract_article_from_html(html: str, url: str, source: NewsSource) -> RawNew
     for tag in soup(["script", "style", "noscript", "svg", "iframe", "form"]):
         tag.decompose()
 
+    if source.source_type == "reddit":
+        return extract_reddit_post_from_html(soup, url=url, source=source)
+
     title = (
         text_of_first(soup, ["h1"])
         or meta_content(soup, "property", "og:title")
@@ -167,7 +177,90 @@ def extract_article_from_html(html: str, url: str, source: NewsSource) -> RawNew
         content_text=content_text,
         raw={
             "collector": "html_crawl",
+            "source_type": source.source_type,
             "title_strategy": "h1_or_meta",
+            "content_chars": len(content_text),
+        },
+    )
+
+
+def extract_reddit_post_links(html: str, base_url: str, limit: int = 20) -> list[str]:
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError as exc:
+        raise RuntimeError("beautifulsoup4 is required. Run `pip install -r requirements.txt`.") from exc
+
+    soup = BeautifulSoup(html, "html.parser")
+    links: list[str] = []
+    seen: set[str] = set()
+    base_subreddit = reddit_subreddit_from_path(urlparse(base_url).path)
+
+    for thing in soup.select(".thing.link"):
+        classes = set(thing.get("class", []))
+        if "stickied" in classes or "promoted" in classes:
+            continue
+
+        comments_link = thing.select_one("a.comments")
+        title_link = thing.select_one("a.title")
+        href = ""
+        if comments_link and comments_link.get("href"):
+            href = comments_link.get("href", "")
+        elif title_link and title_link.get("href"):
+            href = title_link.get("href", "")
+
+        url = normalize_url(urljoin(base_url, href))
+        parsed = urlparse(url)
+        if "reddit.com" not in parsed.netloc:
+            continue
+        if "/comments/" not in parsed.path:
+            continue
+        if base_subreddit and reddit_subreddit_from_path(parsed.path) != base_subreddit:
+            continue
+        if url in seen:
+            continue
+        seen.add(url)
+        links.append(url)
+        if len(links) >= limit:
+            break
+
+    return links
+
+
+def reddit_subreddit_from_path(path: str) -> str:
+    match = re.search(r"/r/([^/]+)", path, flags=re.IGNORECASE)
+    return match.group(1).lower() if match else ""
+
+
+def extract_reddit_post_from_html(soup: Any, url: str, source: NewsSource) -> RawNewsItem:
+    title = (
+        text_of_first(soup, [".thing.link a.title", "a.title"])
+        or meta_content(soup, "property", "og:title")
+        or clean_text(soup.title.get_text(" ") if soup.title else "")
+    )
+    post_body = text_of_first(soup, [".thing.link .usertext-body"])
+    comments = [
+        clean_text(comment.get_text(" "))
+        for comment in soup.select(".comment .usertext-body")[:5]
+    ]
+    comments = [comment for comment in comments if comment]
+
+    content_parts = []
+    if post_body:
+        content_parts.append(post_body)
+    if comments:
+        content_parts.append("Top comments:\n" + "\n".join(comments))
+    content_text = "\n\n".join(content_parts)
+
+    return RawNewsItem(
+        source=source,
+        title=title or url,
+        url=url,
+        summary=post_body[:500],
+        content_text=content_text[:8000],
+        raw={
+            "collector": "html_crawl",
+            "source_type": "reddit",
+            "comments_sampled": len(comments),
             "content_chars": len(content_text),
         },
     )

@@ -49,7 +49,7 @@ Postgres news_documents(payload jsonb)
 
 ## Kaynaklar
 
-Başlangıç config'i Türkiye merkezli 12 kaynak içerir:
+Başlangıç config'i Türkiye merkezli 12 haber kaynağı ve 1 Reddit kaynağı içerir:
 
 - Habertürk
 - TRT Haber
@@ -63,10 +63,11 @@ Başlangıç config'i Türkiye merkezli 12 kaynak içerir:
 - Bloomberg HT
 - Mynet Haber
 - Ensonhaber
+- Reddit r/Turkey
 
 İlk listede BBC Türkçe, Euronews Türkçe ve DW Türkçe gibi Türkçe yayın yapan ama Türkiye merkezli olmayan kaynaklar da vardı. Mentor notundan sonra ana deneme listesi Türkiye'deki haber sitelerine çevrildi.
 
-Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder. Sözcü'de `HEAD` isteği Cloudflare challenge döndürdü ama normal `GET` isteği tarayıcı User-Agent ile HTML verdi. Son dry-run'da Sözcü'den 2 haber geldi; Anadolu Ajansı header hatası verdi, diğer Türkiye kaynaklarından payload üretildi.
+Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder. Sözcü'de `HEAD` isteği Cloudflare challenge döndürdü ama normal `GET` isteği tarayıcı User-Agent ile HTML verdi. Reddit tarafında `www.reddit.com` modern/JS ağırlıklı, `.json` endpoint 403 döndü; `old.reddit.com/r/Turkey/` ise Selenium kullanmadan HTML verdi. Son dry-run'da Reddit dahil 13 kaynak config'teydi, 26 payload oluştu ve hata dönmedi.
 
 ## Kurulum
 

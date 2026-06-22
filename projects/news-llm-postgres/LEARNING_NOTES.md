@@ -50,6 +50,7 @@ Kaynaklar burada:
 - Bloomberg HT
 - Mynet Haber
 - Ensonhaber
+- Reddit r/Turkey
 
 ## 3. Kaynakları Neden Config'e Koyduk?
 
@@ -186,12 +187,14 @@ make dry-run
 
 Sözcü için ayrıca baktım. `HEAD` isteği Cloudflare challenge/403 döndürdü ama normal `GET` isteği tarayıcı User-Agent ile HTML verdi. Bu yüzden Sözcü tamamen kapalı değil; doğru istek tipi ve header ile crawler'a eklenebilir.
 
+Reddit için de deneme yaptım. Normal `www.reddit.com` sayfası modern/JS ağırlıklı, `.json` endpoint de 403 döndü. `old.reddit.com/r/Turkey/` ise Selenium kullanmadan HTML verdi. Oradan post linklerini alıp comments sayfasına gidince başlık, post metni ve yorumlardan örnek metin çekilebildi.
+
 Son crawler denemesinde:
 
-- 12 Türkiye kaynağı config'te vardı.
-- 11 kaynaktan toplam 22 haber payload'ı oluştu.
-- Sözcü'den 2 haber geldi.
-- Anadolu Ajansı `multiple Transfer-Encoding headers` hatası verdi ama pipeline durmadı.
+- Reddit dahil 13 kaynak config'te vardı.
+- Toplam 26 payload oluştu.
+- Reddit r/Turkey'den 2 post geldi.
+- Bu denemede hata dönmedi.
 - Çıktı `outputs/latest_payloads.jsonl` dosyasına yazıldı.
 
 ## 10. Şu An Eksikler

@@ -130,5 +130,17 @@
     "exclude_url_patterns": ["/video", "/galeri", "/canli"],
     "language": "tr",
     "enabled": true
+  },
+  {
+    "key": "reddit_turkey",
+    "name": "Reddit r/Turkey",
+    "homepage": "https://www.reddit.com/r/Turkey/",
+    "source_type": "reddit",
+    "crawl_url": "https://old.reddit.com/r/Turkey/",
+    "allowed_domains": ["old.reddit.com", "reddit.com"],
+    "article_url_patterns": ["reddit\\.com/r/Turkey/comments/"],
+    "exclude_url_patterns": [],
+    "language": "tr",
+    "enabled": true
   }
 ]
