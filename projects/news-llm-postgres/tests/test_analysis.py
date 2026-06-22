@@ -23,6 +23,9 @@ class RuleBasedAnalyzerTest(unittest.TestCase):
 
         self.assertEqual(result.category, "ekonomi")
         self.assertGreaterEqual(result.confidence, 0.5)
+        self.assertIn("market_pressure", result.risk_flags)
+        self.assertIn("ekonomi", result.topics)
+        self.assertIn(result.importance, {"high", "critical"})
 
 
 if __name__ == "__main__":

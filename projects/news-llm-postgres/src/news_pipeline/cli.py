@@ -19,6 +19,7 @@ def parse_args() -> argparse.Namespace:
         help="Analyzer backend. auto uses OpenAI when OPENAI_API_KEY exists, otherwise fallback rules.",
     )
     parser.add_argument("--output", default="outputs/latest_payloads.jsonl", help="JSONL output path.")
+    parser.add_argument("--patterns-output", default=None, help="Pattern report JSON output path.")
     parser.add_argument("--write-db", action="store_true", help="Upsert payloads into Postgres.")
     parser.add_argument("--init-db", action="store_true", help="Create Postgres table and indexes, then exit.")
     return parser.parse_args()
@@ -40,6 +41,7 @@ def main() -> None:
         limit_per_source=args.limit_per_source,
         analyzer_name=args.analyzer,
         output_path=args.output,
+        patterns_output_path=args.patterns_output,
         write_db=args.write_db,
         database_url=database_url,
     )

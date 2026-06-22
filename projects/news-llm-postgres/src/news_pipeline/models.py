@@ -42,5 +42,12 @@ class AnalysisResult:
     confidence: float
     analyzer: str
     model: str | None = None
-    analysis_version: str = "v1"
+    topics: list[str] = field(default_factory=list)
+    entities: dict[str, list[str]] = field(default_factory=dict)
+    event_type: str = "general"
+    geography: list[str] = field(default_factory=list)
+    importance: str = "normal"
+    risk_flags: list[str] = field(default_factory=list)
+    language: str = "tr"
+    analysis_version: str = "v2"
     error: str | None = None

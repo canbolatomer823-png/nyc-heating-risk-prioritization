@@ -10,6 +10,8 @@ Bu klasör, haber toplama işi için hazırladığım ilk taslak. Bitmiş bir uy
 | Haber toplama | Normal web sayfasından haber linklerini bulup haber sayfasına giriyorum |
 | LLM analizi | `llm.py` içinde OpenAI ile analiz edecek yapı var |
 | Siyaset, ekonomi vb. ayırma | Kategori listesi var: siyaset, ekonomi, dünya, teknoloji, spor, sağlık, kültür, hukuk, eğitim, diğer |
+| Kapsamlı etiketleme | Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem ve risk/pattern sinyalleri ekledim |
+| Haberlerde pattern bulma | Benzer haberleri basit metin benzerliğiyle cluster'a ayıran ve genel pattern raporu çıkaran yapı ekledim |
 | Postgres'e JSONB kaydetme | `news_documents` tablosunda tek `payload jsonb` alanı var |
 | Yapı değişebilir | Yeni alanlar tabloyu değiştirmeden `payload` içine eklenebilir |
 
@@ -27,11 +29,24 @@ Sözcü için kontrol ettim: `HEAD` isteği Cloudflare challenge/403 döndürdü
 
 Reddit için de denedim. `www.reddit.com` modern/JS ağırlıklı geldi, `.json` endpoint 403 döndü. Selenium kullanmadan `old.reddit.com/r/Turkey/` üzerinden daha temiz HTML alabildim. Sticky postları atlayıp normal postların comments sayfasına gidiyorum; başlık, post metni ve ilk yorumlardan örnek metin çekiliyor.
 
-Son dry-run sonucunda Reddit dahil 13 kaynak config'te vardı. Toplam 26 payload oluştu ve hata dönmedi. Reddit r/Turkey'den 2 post geldi. Çıktı dosyası:
+Son dry-run sonucunda Reddit dahil 13 kaynak config'te vardı. Toplam 24 payload oluştu ve 4 cluster bulundu. Anadolu Ajansı o denemede header kaynaklı hata verdi; pipeline diğer kaynaklarla devam etti. Çıktı dosyaları:
 
 ```text
 outputs/latest_payloads.jsonl
+outputs/latest_patterns.json
 ```
+
+Temel kategoriye ek olarak daha kapsamlı etiketleme de ekledim. Şu an her haber için kabaca şu alanlar çıkıyor:
+
+- `category`: ana kategori
+- `event_type`: olay tipi
+- `topics`: konu başlıkları
+- `entities`: kişi, kurum ve yer bilgileri
+- `geography`: haberin geçtiği yerler
+- `importance`: önem seviyesi
+- `risk_flags`: pattern ararken kullanılacak sinyaller
+
+Clustering tarafında ilk sürüm basit metin benzerliğiyle çalışıyor. Aynı olayı anlatan haberler benzer kelimeler, başlıklar ve topic'ler üzerinden aynı cluster'a düşüyor. Bunu özellikle ilk taslakta anlaşılır tutmak istedim; sonraki adımda embedding tabanlı benzerlik veya KMeans/DBSCAN/HDBSCAN gibi yöntemlerle daha düzgün hale getirilebilir.
 
 ## LLM ile Deneme
 
@@ -41,7 +56,7 @@ export OPENAI_MODEL="gpt-4o-mini"
 make dry-run-llm
 ```
 
-API key yoksa basit bir fallback analyzer çalışıyor. Bu sadece akışı test etmek için var. Asıl analiz LLM ile yapılacak.
+API key yoksa basit bir fallback analyzer çalışıyor. Bu sadece akışı test etmek için var. Asıl detaylı analiz LLM ile yapılacak.
 
 ## Postgres Tarafı
 
@@ -67,7 +82,7 @@ make run-db
 
 ## Neden JSONB Kullandım?
 
-Haberden çıkaracağımız alanlar zamanla değişebilir. İlk başta kategori, özet ve keyword yeterli olabilir. Sonra kişi, kurum, lokasyon, önem skoru veya benzer haberler gibi alanlar eklenebilir.
+Haberden çıkaracağımız alanlar zamanla değişebilir. İlk başta kategori, özet ve keyword yeterli olabilir. Sonra kişi, kurum, lokasyon, önem skoru, risk sinyali veya benzer haber cluster'ı gibi alanlar eklenebilir.
 
 Bunları her seferinde ayrı kolon yapmak yerine tek `payload jsonb` içinde tutmak daha esnek. Çok sorgulanacak alanlar için sonradan index eklenebilir.
 
@@ -85,7 +100,9 @@ Bunları her seferinde ayrı kolon yapmak yerine tek `payload jsonb` içinde tut
 ```text
 Hocam haber toplama işi için ilk taslağı hazırladım.
 
-Şu an Türkiye'deki haber kaynaklarını config'e aldım: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Sözcü, Bloomberg HT, Mynet Haber, Ensonhaber. Reddit için de r/Turkey'i old.reddit üzerinden denedim. Normal web sayfasından linkleri bulup detay sayfasına girmeye çalışıyorum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutacak şekilde yazdım; çünkü ileride çıkaracağımız alanlar değişebilir.
+Şu an Türkiye'deki haber kaynaklarını config'e aldım: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Sözcü, Bloomberg HT, Mynet Haber, Ensonhaber. Reddit için de r/Turkey'i old.reddit üzerinden denedim. Normal web sayfasından linkleri bulup detay sayfasına girmeye çalışıyorum.
+
+Etiketleme tarafını da sadece kategori seviyesinde bırakmadım. Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem seviyesi ve risk/pattern sinyalleri çıkacak şekilde genişlettim. Benzer haberleri de basit metin benzerliğiyle cluster'a ayıran ilk yapıyı ekledim. Çıktıları Postgres'te tek payload jsonb alanında tutuyorum; çünkü ileride bu alanlar değişebilir.
 
 Bitmiş ürün değil, beraber güncellemek için ilk iskelet.
 ```

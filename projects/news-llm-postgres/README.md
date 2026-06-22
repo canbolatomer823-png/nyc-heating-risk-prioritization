@@ -4,10 +4,12 @@ Bu klasör haber toplama işi için ilk taslak. Bitmiş bir uygulama değil; hoc
 
 Şimdilik yaptığı şey:
 
-- Türkiye merkezli 11 haber kaynağını config dosyasından okuyor.
+- Türkiye merkezli 12 haber kaynağını ve Reddit r/Turkey denemesini config dosyasından okuyor.
 - Normal web sayfasından haber linklerini buluyor.
 - Haber sayfasına girip başlık, açıklama, tarih ve paragraf metni çekmeye çalışıyor.
-- LLM varsa kategori, özet, keyword ve sentiment çıkaracak yapı var.
+- LLM varsa kategori, özet, keyword, sentiment, entity, lokasyon, olay tipi, önem ve risk/pattern sinyalleri çıkaracak yapı var.
+- Benzer haberleri basit metin benzerliğiyle cluster'a ayırıyor.
+- Çalıştırma sonunda ayrıca pattern raporu üretiyor.
 - API key yoksa akışı test etmek için basit fallback analyzer çalışıyor.
 - Sonucu Postgres'te tek `payload jsonb` alanına yazacak şekilde tasarlandı.
 
@@ -38,7 +40,10 @@ Article page fetch + text extraction
 RawNewsItem
         |
         v
-LLM analyzer
+LLM analyzer + detailed tags
+        |
+        v
+Clustering + pattern report
         |
         v
 JSONB payload
@@ -67,7 +72,7 @@ Başlangıç config'i Türkiye merkezli 12 haber kaynağı ve 1 Reddit kaynağı
 
 İlk listede BBC Türkçe, Euronews Türkçe ve DW Türkçe gibi Türkçe yayın yapan ama Türkiye merkezli olmayan kaynaklar da vardı. Mentor notundan sonra ana deneme listesi Türkiye'deki haber sitelerine çevrildi.
 
-Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder. Sözcü'de `HEAD` isteği Cloudflare challenge döndürdü ama normal `GET` isteği tarayıcı User-Agent ile HTML verdi. Reddit tarafında `www.reddit.com` modern/JS ağırlıklı, `.json` endpoint 403 döndü; `old.reddit.com/r/Turkey/` ise Selenium kullanmadan HTML verdi. Son dry-run'da Reddit dahil 13 kaynak config'teydi, 26 payload oluştu ve hata dönmedi.
+Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder. Sözcü'de `HEAD` isteği Cloudflare challenge döndürdü ama normal `GET` isteği tarayıcı User-Agent ile HTML verdi. Reddit tarafında `www.reddit.com` modern/JS ağırlıklı, `.json` endpoint 403 döndü; `old.reddit.com/r/Turkey/` ise Selenium kullanmadan HTML verdi. Son dry-run'da Reddit dahil 13 kaynak config'teydi, 24 payload oluştu ve 4 cluster bulundu. Anadolu Ajansı o denemede header kaynaklı hata verdi; diğer kaynaklar devam etti.
 
 ## Kurulum
 
@@ -100,6 +105,7 @@ make dry-run
 
 ```text
 outputs/latest_payloads.jsonl
+outputs/latest_patterns.json
 ```
 
 ## OpenAI ile Çalıştırma
@@ -165,8 +171,26 @@ psql "$DATABASE_URL" -c "select id, payload #>> '{analysis,category}' as categor
     "sentiment": "neutral",
     "summary": "LLM tarafından kısa özet",
     "keywords": ["seçim", "meclis"],
+    "topics": ["siyaset", "policy_decision", "seçim"],
+    "entities": {
+      "persons": [],
+      "organizations": ["TBMM"],
+      "locations": ["Ankara"]
+    },
+    "event_type": "policy_decision",
+    "geography": ["Ankara"],
+    "importance": "high",
+    "risk_flags": ["political_tension"],
     "confidence": 0.74,
     "analyzer": "openai"
+  },
+  "cluster": {
+    "cluster_id": "cluster_...",
+    "cluster_size": 2,
+    "method": "token_cosine_v1",
+    "representative_title": "Başlık",
+    "common_terms": ["seçim", "meclis"],
+    "related_urls": ["https://example.com/related"]
   },
   "pipeline": {
     "collected_at": "2026-06-18T14:00:00Z",
@@ -183,13 +207,14 @@ make test
 
 ## Hocaya Anlatılacak Kısa Özet
 
-Bu taslakta haber kaynaklarını normalize etmeye çalışmıyorum. Çünkü haber sitelerinin alanları değişebilir. Bunun yerine her haberi tek `payload jsonb` içinde saklıyorum. Böylece LLM çıktısına yeni alan eklemek veya kaynak bazlı farklı metadata tutmak için migration gerekmiyor. Sadece indekslenmesi gereken alanlar için expression index eklenebilir.
+Bu taslakta haber kaynaklarını tamamen tek formata zorlamıyorum. Çünkü haber sitelerinin alanları değişebilir. Bunun yerine her haberi tek `payload jsonb` içinde saklıyorum. Böylece LLM çıktısına entity, olay tipi, önem, risk sinyali veya cluster gibi yeni alanlar eklemek için migration gerekmiyor. Sadece indekslenmesi gereken alanlar için expression index eklenebilir.
 
 ## Geliştirilecek Yerler
 
 - Robots.txt ve site kullanım şartları kaynak bazında kontrol edilmeli.
 - HTML extraction site bazlı selectorlarla güçlendirilmeli.
 - Aynı haberin farklı kaynaklarda duplicate detection'ı yapılmalı.
+- Clustering tarafı ileride TF-IDF/embedding + KMeans, DBSCAN veya HDBSCAN ile güçlendirilebilir.
 - LLM çıktısı için strict schema validation eklenmeli.
 - Kategori seti mentorla netleştirilmeli.
 - Scheduled run için cron, Airflow veya AWS EventBridge eklenebilir.

@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .clustering import apply_clusters, build_pattern_report
 from .fetchers import crawl_source_items
 from .llm import get_analyzer
 from .models import AnalysisResult, RawNewsItem
@@ -19,6 +20,7 @@ def run_pipeline(
     limit_per_source: int,
     analyzer_name: str,
     output_path: str,
+    patterns_output_path: str | None = None,
     write_db: bool = False,
     database_url: str | None = None,
 ) -> dict[str, Any]:
@@ -39,7 +41,14 @@ def run_pipeline(
             analysis = analyzer.analyze(item)
             payloads.append(build_payload(item, analysis))
 
+    apply_clusters(payloads)
+    pattern_report = build_pattern_report(payloads)
+
+    if patterns_output_path is None:
+        patterns_output_path = str(Path(output_path).with_name("latest_patterns.json"))
+
     write_jsonl(output_path, payloads)
+    write_json(patterns_output_path, pattern_report)
 
     inserted = 0
     if write_db:
@@ -55,6 +64,8 @@ def run_pipeline(
         "db_upserts": inserted,
         "errors": errors,
         "output_path": output_path,
+        "patterns_output_path": patterns_output_path,
+        "clusters": len(pattern_report["clusters"]),
     }
 
 
@@ -102,6 +113,12 @@ def write_jsonl(path: str, payloads: list[dict[str, Any]]) -> None:
     with output_path.open("w", encoding="utf-8") as file:
         for payload in payloads:
             file.write(json.dumps(payload, ensure_ascii=False, sort_keys=True) + "\n")
+
+
+def write_json(path: str, data: dict[str, Any]) -> None:
+    output_path = Path(path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8")
 
 
 def utc_now_iso() -> str:

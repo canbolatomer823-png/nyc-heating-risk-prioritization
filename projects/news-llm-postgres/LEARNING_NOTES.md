@@ -16,7 +16,7 @@ Bu notu kendim öğrenmek için yazdım. Projenin amacı hocanın söylediği i�
 Ben de kodu buna göre ayırdım:
 
 ```text
-kaynaklar -> haber çekme -> analiz -> payload oluşturma -> Postgres'e yazma
+kaynaklar -> haber çekme -> analiz -> clustering/pattern -> payload oluşturma -> Postgres'e yazma
 ```
 
 ## 2. Neden Normal Web Crawling'e Çevirdik?
@@ -74,6 +74,7 @@ Yeni site eklemek için config'e yeni kayıt eklemek yeterli.
 
 - [src/news_pipeline/fetchers.py](src/news_pipeline/fetchers.py): Liste sayfasından linkleri bulur, haber sayfasından metin çeker.
 - [src/news_pipeline/llm.py](src/news_pipeline/llm.py): Haberi analiz eder.
+- [src/news_pipeline/clustering.py](src/news_pipeline/clustering.py): Benzer haberleri cluster'a ayırır ve pattern raporu çıkarır.
 - [src/news_pipeline/pipeline.py](src/news_pipeline/pipeline.py): Bütün akışı sırayla çalıştırır.
 - [src/news_pipeline/storage.py](src/news_pipeline/storage.py): Postgres'e yazar.
 - [src/news_pipeline/cli.py](src/news_pipeline/cli.py): Terminalden komut çalıştırmayı sağlar.
@@ -85,15 +86,85 @@ Yeni site eklemek için config'e yeni kayıt eklemek yeterli.
 1. `OpenAIAnalyzer`
    - `OPENAI_API_KEY` varsa LLM'e gider.
    - Kategori, özet, sentiment, keyword ve confidence üretir.
+   - Yeni sürümde olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem seviyesi ve risk/pattern sinyalleri de bekleniyor.
 
 2. `RuleBasedAnalyzer`
    - API key yokken akış bozulmasın diye var.
    - Basit kelime kurallarıyla kategori tahmin eder.
    - Mesela `faiz`, `dolar`, `enflasyon` geçerse ekonomi diyebilir.
+   - Ayrıca basit şekilde olay tipi, lokasyon ve risk sinyali çıkarmaya çalışır.
 
 Fallback analyzer gerçek çözüm değil. Sadece "pipeline baştan sona çalışıyor mu?" diye bakmak için var.
 
-## 6. JSONB Neden Önemli?
+## 6. Kapsamlı Etiketleme Ne Demek?
+
+Temel etiketleme şöyleydi:
+
+```json
+{
+  "category": "ekonomi",
+  "summary": "Kısa özet",
+  "keywords": ["faiz", "dolar"]
+}
+```
+
+Kapsamlı etiketleme ise habere biraz daha analitik bakmak demek:
+
+```json
+{
+  "category": "ekonomi",
+  "event_type": "market_update",
+  "topics": ["ekonomi", "faiz", "merkez bankası"],
+  "entities": {
+    "persons": [],
+    "organizations": ["Merkez Bankası"],
+    "locations": ["Türkiye"]
+  },
+  "geography": ["Türkiye"],
+  "importance": "high",
+  "risk_flags": ["market_pressure"]
+}
+```
+
+Yani sadece "bu haber ekonomi" demiyoruz. Aynı zamanda "hangi olay tipi, hangi kurumlar, hangi yerler, önemi ne, hangi pattern sinyalleri var?" diye bakıyoruz.
+
+## 7. Clustering ve Pattern Bulma Nedir?
+
+Clustering, etiketi önceden vermeden benzer kayıtları gruplamak demek.
+
+Haber örneğinde mantık şu:
+
+```text
+Habertürk: Merkez Bankası faiz kararını açıkladı
+NTV: Merkez Bankası faiz kararını duyurdu
+Bloomberg HT: Faiz kararı sonrası piyasalarda hareketlilik
+```
+
+Bu üç haber farklı kaynaklardan gelebilir ama aynı gündem etrafında olabilir. Clustering ile bunları aynı gruba koymaya çalışıyoruz.
+
+Bu projedeki ilk sürüm basit çalışıyor:
+
+1. Haberin başlık, özet, metin ve keyword alanlarını alıyor.
+2. Kelimeleri normalize ediyor.
+3. Haberler arası kelime benzerliğine bakıyor.
+4. Benzer olanları aynı `cluster_id` altına koyuyor.
+
+Bu henüz ileri seviye ML değil. Öğrenmek için iyi bir başlangıç. Sonraki adımda aynı mantık embedding ile yapılabilir:
+
+- Haber metni embedding'e çevrilir.
+- Benzer embedding'ler yakın çıkar.
+- KMeans, DBSCAN veya HDBSCAN gibi yöntemlerle kümeler bulunur.
+
+Pattern bulma da clustering'in üstüne kuruluyor:
+
+- Aynı konu farklı kaynaklarda tekrar ediyor mu?
+- En sık geçen kategori ne?
+- Hangi şehir veya kurumlar öne çıkıyor?
+- Hangi risk sinyalleri sıklaşıyor?
+
+Bu bilgiler `outputs/latest_patterns.json` dosyasında özetleniyor.
+
+## 8. JSONB Neden Önemli?
 
 Hocanın söylediği en önemli nokta buydu:
 
@@ -119,6 +190,8 @@ Yarın buna şunlar eklenebilir:
 - önem skoru
 - haberin tonu
 - benzer haberler
+- cluster bilgisi
+- pattern sinyalleri
 
 Eğer hepsini ayrı kolon yaparsak her değişiklikte tabloyu değiştirmek gerekir. O yüzden tek alan kullandık:
 
@@ -137,7 +210,7 @@ Payload içinde de kabaca şu bölümler var:
 }
 ```
 
-## 7. JSONB'nin Kötü Tarafı Var mı?
+## 9. JSONB'nin Kötü Tarafı Var mı?
 
 Var.
 
@@ -152,7 +225,7 @@ CREATE INDEX idx_news_documents_category
 
 Yani veri esnek kalıyor ama kategoriye göre sorgu da hızlanabiliyor.
 
-## 8. `content_hash` Neden Var?
+## 10. `content_hash` Neden Var?
 
 Aynı haber tekrar gelirse Postgres'e tekrar tekrar eklenmesin diye.
 
@@ -164,7 +237,7 @@ kaynak + haber linki -> hash
 
 Bu hash unique. Aynı haber tekrar gelirse yeni kayıt açmak yerine mevcut kayıt güncellenir.
 
-## 9. Şu Ana Kadar Ne Çalıştı?
+## 11. Şu Ana Kadar Ne Çalıştı?
 
 Test:
 
@@ -175,7 +248,7 @@ make test
 Sonuç:
 
 ```text
-Ran 3 tests
+Ran 9 tests
 OK
 ```
 
@@ -192,34 +265,39 @@ Reddit için de deneme yaptım. Normal `www.reddit.com` sayfası modern/JS ağı
 Son crawler denemesinde:
 
 - Reddit dahil 13 kaynak config'te vardı.
-- Toplam 26 payload oluştu.
-- Reddit r/Turkey'den 2 post geldi.
-- Bu denemede hata dönmedi.
+- Toplam 24 payload oluştu.
+- 4 cluster bulundu.
+- Anadolu Ajansı o denemede header kaynaklı hata verdi; pipeline diğer kaynaklarla devam etti.
 - Çıktı `outputs/latest_payloads.jsonl` dosyasına yazıldı.
+- Pattern özeti `outputs/latest_patterns.json` dosyasına yazılıyor.
 
-## 10. Şu An Eksikler
+## 12. Şu An Eksikler
 
 - Docker Desktop kapalı olduğu için Postgres yazma adımını canlı denemedim.
 - OpenAI API key ile gerçek LLM çıktısını henüz denemedim.
 - Normal web crawling'e geçti ama her sitenin HTML yapısı farklı olduğu için selector/parser kısmı geliştirilecek.
 - Anadolu Ajansı için ayrı header/parser ayarı gerekiyor.
+- Clustering şu an basit kelime benzerliğiyle çalışıyor; embedding tabanlı hale getirilebilir.
 - Kaynakların kullanım şartlarına bakmak lazım.
 - Kategoriler hocayla konuşup netleşmeli.
 
-## 11. Hocaya Nasıl Anlatırım?
+## 13. Hocaya Nasıl Anlatırım?
 
 Kısa anlatım:
 
 ```text
-Hocam kaynakları Türkiye'deki haber sitelerine göre güncelledim: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Sözcü, Bloomberg HT, Mynet Haber ve Ensonhaber. Sözcü'de HEAD isteği Cloudflare'a takılıyor ama normal GET isteğiyle HTML alabildim. RSS yerine normal web sayfasından haber linklerini bulup haber sayfasına giren bir crawler akışı kurdum. LLM tarafında kategori, özet, keyword ve sentiment çıkaracak yapı var. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
+Hocam kaynakları Türkiye'deki haber sitelerine göre güncelledim: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Sözcü, Bloomberg HT, Mynet Haber ve Ensonhaber. Sözcü'de HEAD isteği Cloudflare'a takılıyor ama normal GET isteğiyle HTML alabildim. RSS yerine normal web sayfasından haber linklerini bulup haber sayfasına giren bir crawler akışı kurdum.
+
+Etiketleme tarafını da genişlettim. Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem seviyesi ve risk/pattern sinyalleri çıkıyor. Benzer haberleri de basit metin benzerliğiyle cluster'a ayıran ilk yapıyı ekledim. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
 ```
 
-## 12. Bir Sonraki Adım
+## 14. Bir Sonraki Adım
 
 Sıradaki iş bence şu:
 
 1. Docker Desktop açıp Postgres yazmayı denemek.
 2. OpenAI API key ile `make dry-run-llm` çalıştırmak.
 3. LLM'in 2-3 haber için doğru kategori verip vermediğine bakmak.
-4. Hocayla kategori listesini netleştirmek.
-5. JSONB üzerinden örnek SQL sorguları eklemek.
+4. Clustering sonucunda aynı olayların doğru gruplanıp gruplanmadığına bakmak.
+5. Hocayla kategori ve pattern alanlarını netleştirmek.
+6. JSONB üzerinden örnek SQL sorguları eklemek.
