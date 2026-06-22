@@ -6,12 +6,13 @@ Bu klasör, haber toplama işi için hazırladığım ilk taslak. Bitmiş bir uy
 
 | İstenen | Şu an ne yaptım? |
 |---|---|
-| 5-10 haber sitesi | `config/sources.json` içine Türkiye merkezli 12 haber kaynağı ve 1 Reddit kaynağı ekledim |
+| 5-10 haber sitesi | `config/sources.json` içine Türkiye merkezli 12 haber kaynağı, 1 Reddit kaynağı ve 1 Twitter/X denemesi ekledim |
 | Haber toplama | Normal web sayfasından haber linklerini bulup haber sayfasına giriyorum |
 | LLM analizi | `llm.py` içinde OpenAI ile analiz edecek yapı var |
 | Siyaset, ekonomi vb. ayırma | Kategori listesi var: siyaset, ekonomi, dünya, teknoloji, spor, sağlık, kültür, hukuk, eğitim, diğer |
 | Kapsamlı etiketleme | Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem ve risk/pattern sinyalleri ekledim |
 | Haberlerde pattern bulma | Benzer haberleri basit metin benzerliğiyle cluster'a ayıran ve genel pattern raporu çıkaran yapı ekledim |
+| Twitter/X denemesi | Public HTML ve resmi API token yolunu ayırdım; token yoksa neden alınamadığını kaynak hatası olarak raporluyor |
 | Postgres'e JSONB kaydetme | `news_documents` tablosunda tek `payload jsonb` alanı var |
 | Yapı değişebilir | Yeni alanlar tabloyu değiştirmeden `payload` içine eklenebilir |
 
@@ -29,7 +30,9 @@ Sözcü için kontrol ettim: `HEAD` isteği Cloudflare challenge/403 döndürdü
 
 Reddit için de denedim. `www.reddit.com` modern/JS ağırlıklı geldi, `.json` endpoint 403 döndü. Selenium kullanmadan `old.reddit.com/r/Turkey/` üzerinden daha temiz HTML alabildim. Sticky postları atlayıp normal postların comments sayfasına gidiyorum; başlık, post metni ve ilk yorumlardan örnek metin çekiliyor.
 
-Son dry-run sonucunda Reddit dahil 13 kaynak config'te vardı. Toplam 24 payload oluştu ve 4 cluster bulundu. Anadolu Ajansı o denemede header kaynaklı hata verdi; pipeline diğer kaynaklarla devam etti. Çıktı dosyaları:
+Twitter/X için de ilk denemeyi ekledim. Public HTML tarafında post metni server-render gelmediği için normal scraping ile alınamadı. Kodda iki yol bıraktım: `X_BEARER_TOKEN` varsa resmi X API recent search deneniyor, token yoksa public HTML denenip hata raporlanıyor. Bu şekilde Twitter kaynağının neden zor olduğunu da çıktıda görebiliyoruz.
+
+Son dry-run sonucunda Twitter dahil 14 kaynak config'te vardı. Toplam 26 payload oluştu ve 6 cluster bulundu. Twitter/X token olmadığı için public HTML'den post metni alınamadı; pipeline bunu kaynak hatası olarak yazıp diğer kaynaklarla devam etti. Çıktı dosyaları:
 
 ```text
 outputs/latest_payloads.jsonl
@@ -100,7 +103,7 @@ Bunları her seferinde ayrı kolon yapmak yerine tek `payload jsonb` içinde tut
 ```text
 Hocam haber toplama işi için ilk taslağı hazırladım.
 
-Şu an Türkiye'deki haber kaynaklarını config'e aldım: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Sözcü, Bloomberg HT, Mynet Haber, Ensonhaber. Reddit için de r/Turkey'i old.reddit üzerinden denedim. Normal web sayfasından linkleri bulup detay sayfasına girmeye çalışıyorum.
+Şu an Türkiye'deki haber kaynaklarını config'e aldım: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Sözcü, Bloomberg HT, Mynet Haber, Ensonhaber. Reddit için de r/Turkey'i old.reddit üzerinden denedim. Twitter/X tarafında da public HTML ve resmi API token yolunu ayırdım. Token olmadığı durumda public HTML post metni vermediği için kaynak hatası olarak raporluyor. Normal web sayfasından linkleri bulup detay sayfasına girmeye çalışıyorum.
 
 Etiketleme tarafını da sadece kategori seviyesinde bırakmadım. Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem seviyesi ve risk/pattern sinyalleri çıkacak şekilde genişlettim. Benzer haberleri de basit metin benzerliğiyle cluster'a ayıran ilk yapıyı ekledim. Çıktıları Postgres'te tek payload jsonb alanında tutuyorum; çünkü ileride bu alanlar değişebilir.
 

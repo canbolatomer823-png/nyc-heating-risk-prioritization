@@ -1,6 +1,12 @@
 import unittest
 
-from news_pipeline.fetchers import extract_article_from_html, extract_article_links, extract_reddit_post_links
+from news_pipeline.fetchers import (
+    extract_article_from_html,
+    extract_article_links,
+    extract_reddit_post_links,
+    extract_twitter_posts_from_html,
+    raw_items_from_twitter_api_response,
+)
 from news_pipeline.models import NewsSource
 
 
@@ -127,6 +133,79 @@ class CrawlerTest(unittest.TestCase):
         self.assertIn("İlk yorum metni", item.content_text)
         self.assertEqual(item.raw["source_type"], "reddit")
         self.assertEqual(item.raw["comments_sampled"], 2)
+
+    def test_extracts_twitter_posts_from_server_rendered_html(self):
+        source = NewsSource(
+            key="twitter_turkey_news",
+            name="Twitter/X Türkiye Gündemi",
+            homepage="https://x.com",
+            source_type="twitter",
+            crawl_url="https://x.com/search?q=turkiye",
+        )
+        html = """
+        <html>
+          <body>
+            <article>
+              <a href="/haberhesabi/status/123456789">status</a>
+              <time datetime="2026-06-22T14:00:00Z"></time>
+              <div data-testid="tweetText">Ekonomi gündeminde faiz kararı konuşuluyor #ekonomi</div>
+            </article>
+          </body>
+        </html>
+        """
+
+        items = extract_twitter_posts_from_html(html, "https://x.com/search?q=turkiye", source, limit=5)
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].url, "https://x.com/haberhesabi/status/123456789")
+        self.assertEqual(items[0].published_at, "2026-06-22T14:00:00Z")
+        self.assertIn("faiz kararı", items[0].content_text)
+        self.assertEqual(items[0].tags, ["ekonomi"])
+        self.assertEqual(items[0].raw["collector"], "twitter_public_html")
+
+    def test_converts_twitter_api_response_to_raw_items(self):
+        source = NewsSource(
+            key="twitter_turkey_news",
+            name="Twitter/X Türkiye Gündemi",
+            homepage="https://x.com",
+            source_type="twitter",
+            search_query="Türkiye lang:tr -is:retweet",
+        )
+        api_response = {
+            "data": [
+                {
+                    "id": "123456789",
+                    "author_id": "42",
+                    "created_at": "2026-06-22T14:00:00Z",
+                    "text": "Türkiye gündeminde deprem ve ekonomi başlıkları öne çıkıyor #gundem",
+                    "lang": "tr",
+                    "entities": {"hashtags": [{"tag": "gundem"}]},
+                    "public_metrics": {"retweet_count": 5, "reply_count": 2},
+                }
+            ],
+            "includes": {
+                "users": [
+                    {
+                        "id": "42",
+                        "name": "Haber Hesabı",
+                        "username": "haberhesabi",
+                    }
+                ]
+            },
+        }
+
+        items = raw_items_from_twitter_api_response(
+            api_response,
+            source=source,
+            query="Türkiye lang:tr -is:retweet",
+            limit=5,
+        )
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].url, "https://x.com/haberhesabi/status/123456789")
+        self.assertEqual(items[0].author, "Haber Hesabı")
+        self.assertEqual(items[0].tags, ["gundem"])
+        self.assertEqual(items[0].raw["collector"], "twitter_api")
 
 
 if __name__ == "__main__":

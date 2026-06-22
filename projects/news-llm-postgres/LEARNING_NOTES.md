@@ -51,6 +51,7 @@ Kaynaklar burada:
 - Mynet Haber
 - Ensonhaber
 - Reddit r/Turkey
+- Twitter/X Türkiye gündemi
 
 ## 3. Kaynakları Neden Config'e Koyduk?
 
@@ -164,7 +165,24 @@ Pattern bulma da clustering'in üstüne kuruluyor:
 
 Bu bilgiler `outputs/latest_patterns.json` dosyasında özetleniyor.
 
-## 8. JSONB Neden Önemli?
+## 8. Twitter/X Neden Zor?
+
+Twitter/X normal haber sitesi gibi çalışmıyor. Haber sitelerinde çoğu zaman HTML içinde link, başlık ve paragraf bulabiliyoruz. Twitter/X'te ise içerik büyük ölçüde JavaScript, login ve API kuralları üzerinden geliyor.
+
+Bu yüzden iki yol bıraktım:
+
+1. `X_BEARER_TOKEN` varsa resmi X API recent search endpoint'i denenir.
+2. Token yoksa public HTML denenir.
+
+Bu çalıştırmada token yoktu. Public HTML de post metnini vermedi. O yüzden pipeline Twitter kaynağı için şu mantıkta hata verdi:
+
+```text
+Twitter/X public HTML did not expose post text
+```
+
+Bu kötü değil; hocanın "orası baya zor" dediği şeyin teknik sebebini göstermiş oluyor. Diğer kaynaklar çalışmaya devam ediyor. Sonraki adımda ya resmi API token alınır ya da Selenium/browser session ile ayrı bir deneme yapılır.
+
+## 9. JSONB Neden Önemli?
 
 Hocanın söylediği en önemli nokta buydu:
 
@@ -210,7 +228,7 @@ Payload içinde de kabaca şu bölümler var:
 }
 ```
 
-## 9. JSONB'nin Kötü Tarafı Var mı?
+## 10. JSONB'nin Kötü Tarafı Var mı?
 
 Var.
 
@@ -225,7 +243,7 @@ CREATE INDEX idx_news_documents_category
 
 Yani veri esnek kalıyor ama kategoriye göre sorgu da hızlanabiliyor.
 
-## 10. `content_hash` Neden Var?
+## 11. `content_hash` Neden Var?
 
 Aynı haber tekrar gelirse Postgres'e tekrar tekrar eklenmesin diye.
 
@@ -237,7 +255,7 @@ kaynak + haber linki -> hash
 
 Bu hash unique. Aynı haber tekrar gelirse yeni kayıt açmak yerine mevcut kayıt güncellenir.
 
-## 11. Şu Ana Kadar Ne Çalıştı?
+## 12. Şu Ana Kadar Ne Çalıştı?
 
 Test:
 
@@ -248,7 +266,7 @@ make test
 Sonuç:
 
 ```text
-Ran 9 tests
+Ran 11 tests
 OK
 ```
 
@@ -262,36 +280,41 @@ Sözcü için ayrıca baktım. `HEAD` isteği Cloudflare challenge/403 döndürd
 
 Reddit için de deneme yaptım. Normal `www.reddit.com` sayfası modern/JS ağırlıklı, `.json` endpoint de 403 döndü. `old.reddit.com/r/Turkey/` ise Selenium kullanmadan HTML verdi. Oradan post linklerini alıp comments sayfasına gidince başlık, post metni ve yorumlardan örnek metin çekilebildi.
 
+Twitter/X için deneme yaptım. Resmi API tarafı için `X_BEARER_TOKEN` destekli kod ekledim. Token yoksa public HTML deneniyor. Bu denemede public HTML post metnini vermediği için Twitter kaynağı hata olarak raporlandı ama pipeline diğer kaynaklarla devam etti.
+
 Son crawler denemesinde:
 
-- Reddit dahil 13 kaynak config'te vardı.
-- Toplam 24 payload oluştu.
-- 4 cluster bulundu.
-- Anadolu Ajansı o denemede header kaynaklı hata verdi; pipeline diğer kaynaklarla devam etti.
+- Twitter dahil 14 kaynak config'te vardı.
+- Toplam 26 payload oluştu.
+- 6 cluster bulundu.
+- Twitter/X token olmadığı için public HTML'den post metni alınamadı; pipeline diğer kaynaklarla devam etti.
 - Çıktı `outputs/latest_payloads.jsonl` dosyasına yazıldı.
 - Pattern özeti `outputs/latest_patterns.json` dosyasına yazılıyor.
 
-## 12. Şu An Eksikler
+## 13. Şu An Eksikler
 
 - Docker Desktop kapalı olduğu için Postgres yazma adımını canlı denemedim.
 - OpenAI API key ile gerçek LLM çıktısını henüz denemedim.
 - Normal web crawling'e geçti ama her sitenin HTML yapısı farklı olduğu için selector/parser kısmı geliştirilecek.
 - Anadolu Ajansı için ayrı header/parser ayarı gerekiyor.
+- Twitter/X için resmi API token veya kontrollü Selenium/browser session denemesi gerekiyor.
 - Clustering şu an basit kelime benzerliğiyle çalışıyor; embedding tabanlı hale getirilebilir.
 - Kaynakların kullanım şartlarına bakmak lazım.
 - Kategoriler hocayla konuşup netleşmeli.
 
-## 13. Hocaya Nasıl Anlatırım?
+## 14. Hocaya Nasıl Anlatırım?
 
 Kısa anlatım:
 
 ```text
 Hocam kaynakları Türkiye'deki haber sitelerine göre güncelledim: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Sözcü, Bloomberg HT, Mynet Haber ve Ensonhaber. Sözcü'de HEAD isteği Cloudflare'a takılıyor ama normal GET isteğiyle HTML alabildim. RSS yerine normal web sayfasından haber linklerini bulup haber sayfasına giren bir crawler akışı kurdum.
 
+Twitter/X tarafını da denedim. Orası normal HTML vermediği için token'sız public scraping tarafı post metnini çıkarmadı. Kodda resmi API token ile çalışacak yolu ekledim; token yoksa hatayı kaynak bazında raporlayıp diğer kaynaklarla devam ediyor.
+
 Etiketleme tarafını da genişlettim. Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem seviyesi ve risk/pattern sinyalleri çıkıyor. Benzer haberleri de basit metin benzerliğiyle cluster'a ayıran ilk yapıyı ekledim. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
 ```
 
-## 14. Bir Sonraki Adım
+## 15. Bir Sonraki Adım
 
 Sıradaki iş bence şu:
 
@@ -299,5 +322,6 @@ Sıradaki iş bence şu:
 2. OpenAI API key ile `make dry-run-llm` çalıştırmak.
 3. LLM'in 2-3 haber için doğru kategori verip vermediğine bakmak.
 4. Clustering sonucunda aynı olayların doğru gruplanıp gruplanmadığına bakmak.
-5. Hocayla kategori ve pattern alanlarını netleştirmek.
-6. JSONB üzerinden örnek SQL sorguları eklemek.
+5. Twitter/X için API token veya Selenium/browser session kararını vermek.
+6. Hocayla kategori ve pattern alanlarını netleştirmek.
+7. JSONB üzerinden örnek SQL sorguları eklemek.

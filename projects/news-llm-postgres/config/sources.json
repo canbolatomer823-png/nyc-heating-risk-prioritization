@@ -142,5 +142,18 @@
     "exclude_url_patterns": [],
     "language": "tr",
     "enabled": true
+  },
+  {
+    "key": "twitter_turkey_news",
+    "name": "Twitter/X Türkiye Gündemi",
+    "homepage": "https://x.com",
+    "source_type": "twitter",
+    "crawl_url": "https://x.com/search?q=T%C3%BCrkiye%20OR%20ekonomi%20OR%20siyaset%20lang%3Atr%20-is%3Aretweet&src=typed_query&f=live",
+    "allowed_domains": ["x.com", "twitter.com"],
+    "search_query": "(Türkiye OR ekonomi OR siyaset OR deprem OR haber) lang:tr -is:retweet",
+    "article_url_patterns": ["x\\.com/.+/status/\\d+", "twitter\\.com/.+/status/\\d+"],
+    "exclude_url_patterns": [],
+    "language": "tr",
+    "enabled": true
   }
 ]

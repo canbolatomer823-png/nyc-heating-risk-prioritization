@@ -80,6 +80,7 @@ def build_payload(item: RawNewsItem, analysis: AnalysisResult) -> dict[str, Any]
             "source_type": item.source.source_type,
             "crawl_url": item.source.crawl_url,
             "allowed_domains": item.source.allowed_domains,
+            "search_query": item.source.search_query,
             "language": item.source.language,
         },
         "article": {

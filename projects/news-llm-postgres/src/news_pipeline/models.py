@@ -14,6 +14,7 @@ class NewsSource:
     allowed_domains: list[str] = field(default_factory=list)
     article_url_patterns: list[str] = field(default_factory=list)
     exclude_url_patterns: list[str] = field(default_factory=list)
+    search_query: str | None = None
     language: str = "tr"
     enabled: bool = True
     fetch_article: bool = True

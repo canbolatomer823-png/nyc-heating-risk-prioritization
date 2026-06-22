@@ -4,7 +4,7 @@ Bu klasör haber toplama işi için ilk taslak. Bitmiş bir uygulama değil; hoc
 
 Şimdilik yaptığı şey:
 
-- Türkiye merkezli 12 haber kaynağını ve Reddit r/Turkey denemesini config dosyasından okuyor.
+- Türkiye merkezli 12 haber kaynağını, Reddit r/Turkey ve Twitter/X denemesini config dosyasından okuyor.
 - Normal web sayfasından haber linklerini buluyor.
 - Haber sayfasına girip başlık, açıklama, tarih ve paragraf metni çekmeye çalışıyor.
 - LLM varsa kategori, özet, keyword, sentiment, entity, lokasyon, olay tipi, önem ve risk/pattern sinyalleri çıkaracak yapı var.
@@ -31,7 +31,7 @@ Kapsam:
 config/sources.json
         |
         v
-HTML listing crawler
+HTML / Reddit / Twitter source collector
         |
         v
 Article page fetch + text extraction
@@ -54,7 +54,7 @@ Postgres news_documents(payload jsonb)
 
 ## Kaynaklar
 
-Başlangıç config'i Türkiye merkezli 12 haber kaynağı ve 1 Reddit kaynağı içerir:
+Başlangıç config'i Türkiye merkezli 12 haber kaynağı, 1 Reddit kaynağı ve 1 Twitter/X denemesi içerir:
 
 - Habertürk
 - TRT Haber
@@ -69,10 +69,13 @@ Başlangıç config'i Türkiye merkezli 12 haber kaynağı ve 1 Reddit kaynağı
 - Mynet Haber
 - Ensonhaber
 - Reddit r/Turkey
+- Twitter/X Türkiye gündemi
 
 İlk listede BBC Türkçe, Euronews Türkçe ve DW Türkçe gibi Türkçe yayın yapan ama Türkiye merkezli olmayan kaynaklar da vardı. Mentor notundan sonra ana deneme listesi Türkiye'deki haber sitelerine çevrildi.
 
-Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder. Sözcü'de `HEAD` isteği Cloudflare challenge döndürdü ama normal `GET` isteği tarayıcı User-Agent ile HTML verdi. Reddit tarafında `www.reddit.com` modern/JS ağırlıklı, `.json` endpoint 403 döndü; `old.reddit.com/r/Turkey/` ise Selenium kullanmadan HTML verdi. Son dry-run'da Reddit dahil 13 kaynak config'teydi, 24 payload oluştu ve 4 cluster bulundu. Anadolu Ajansı o denemede header kaynaklı hata verdi; diğer kaynaklar devam etti.
+Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder. Sözcü'de `HEAD` isteği Cloudflare challenge döndürdü ama normal `GET` isteği tarayıcı User-Agent ile HTML verdi. Reddit tarafında `www.reddit.com` modern/JS ağırlıklı, `.json` endpoint 403 döndü; `old.reddit.com/r/Turkey/` ise Selenium kullanmadan HTML verdi.
+
+Twitter/X tarafı normal haber sitesi gibi HTML vermiyor. Public HTML denemesinde post metni gelmediği için pipeline bunu kaynak bazında hata olarak raporluyor. `X_BEARER_TOKEN` verilirse resmi X API recent search endpoint'i deneniyor. Son dry-run'da 14 kaynak config'teydi, 26 payload oluştu, 6 cluster bulundu ve Twitter/X için token/public HTML kaynaklı hata raporlandı.
 
 ## Kurulum
 
@@ -117,6 +120,17 @@ make dry-run-llm
 ```
 
 API key yoksa pipeline otomatik olarak fallback analyzer kullanabilir.
+
+## Twitter/X ile Deneme
+
+Twitter/X public HTML çoğu zaman JS/login duvarı nedeniyle post metnini vermiyor. Resmi API ile denemek için token env üzerinden verilir:
+
+```bash
+export X_BEARER_TOKEN="..."
+make dry-run
+```
+
+Token yoksa pipeline Twitter/X kaynağını denemeye çalışır, post metni çıkaramazsa hatayı summary içinde gösterir ve diğer kaynaklarla devam eder.
 
 ## Postgres
 
@@ -214,6 +228,7 @@ Bu taslakta haber kaynaklarını tamamen tek formata zorlamıyorum. Çünkü hab
 - Robots.txt ve site kullanım şartları kaynak bazında kontrol edilmeli.
 - HTML extraction site bazlı selectorlarla güçlendirilmeli.
 - Aynı haberin farklı kaynaklarda duplicate detection'ı yapılmalı.
+- Twitter/X için resmi API token veya kontrollü browser session akışı netleştirilmeli.
 - Clustering tarafı ileride TF-IDF/embedding + KMeans, DBSCAN veya HDBSCAN ile güçlendirilebilir.
 - LLM çıktısı için strict schema validation eklenmeli.
 - Kategori seti mentorla netleştirilmeli.
