@@ -62,6 +62,10 @@ class DashboardTest(unittest.TestCase):
             html = output_path.read_text(encoding="utf-8")
             self.assertEqual(result["status"], "ok")
             self.assertIn("News Pattern Dashboard", html)
+            self.assertIn("İçgörü", html)
+            self.assertIn("Entity / Topic Ağı", html)
+            self.assertIn("Haber İnceleme", html)
+            self.assertIn("Etki skoru", html)
             self.assertIn("Faiz kararı", html)
             self.assertIn("twitter_turkey_news", html)
 

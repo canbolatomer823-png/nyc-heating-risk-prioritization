@@ -205,6 +205,61 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .insight-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .insight-card.high {
+      border-top: 4px solid var(--red);
+    }
+
+    .insight-card.medium {
+      border-top: 4px solid var(--amber);
+    }
+
+    .insight-card.low {
+      border-top: 4px solid var(--teal);
+    }
+
+    .insight-title {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .insight-metric {
+      font-size: 28px;
+      font-weight: 780;
+      line-height: 1;
+    }
+
+    .insight-label {
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    .insight-detail {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
     .kpis {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -352,6 +407,16 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       font-weight: 700;
     }
 
+    .score-line {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr) 48px;
+      gap: 8px;
+      align-items: center;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
     .link-list {
       margin: 10px 0 0;
       padding-left: 18px;
@@ -383,6 +448,33 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
     .article-meta {
       color: var(--muted);
       font-size: 12px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 180px 180px;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .filters input,
+    .filters select {
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font: inherit;
+      background: var(--surface);
+      min-width: 0;
+    }
+
+    .article-table {
+      display: grid;
+      gap: 8px;
+    }
+
+    .article-table .article-row {
+      grid-template-columns: minmax(0, 1fr) 120px 140px 110px;
     }
 
     .map-canvas {
@@ -427,6 +519,92 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       border: 1px solid var(--line);
     }
 
+    .network-canvas {
+      position: relative;
+      min-height: 470px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fbff;
+      overflow: hidden;
+    }
+
+    .network-canvas svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .network-node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--blue);
+      color: #fff;
+      border: 2px solid #fff;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      padding: 4px;
+      overflow: hidden;
+    }
+
+    .network-node.entity {
+      background: var(--teal);
+    }
+
+    .network-node.location {
+      background: var(--amber);
+    }
+
+    .source-health {
+      display: grid;
+      gap: 8px;
+    }
+
+    .health-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 86px 58px;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fbfdff;
+    }
+
+    .status-dot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #eef6ff;
+      color: #174ea6;
+    }
+
+    .status-dot.ok {
+      background: #e7f7ed;
+      color: var(--green);
+    }
+
+    .status-dot.partial,
+    .status-dot.empty {
+      background: #fff4df;
+      color: #8a4b00;
+    }
+
+    .status-dot.blocked {
+      background: #ffe8e5;
+      color: var(--red);
+    }
+
     .empty {
       padding: 24px;
       border: 1px dashed var(--line);
@@ -464,8 +642,12 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       .title-row,
       .grid.two,
       .grid.three,
+      .insight-grid,
       .kpis,
-      .article-row {
+      .article-row,
+      .filters,
+      .article-table .article-row,
+      .health-row {
         grid-template-columns: 1fr;
       }
 
@@ -492,9 +674,12 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
         </div>
         <nav class="tabs" aria-label="Dashboard views">
           <button class="tab active" data-view="overview">Genel</button>
+          <button class="tab" data-view="intelligence">İçgörü</button>
           <button class="tab" data-view="clusters">Kümeler</button>
           <button class="tab" data-view="categories">Kategoriler</button>
+          <button class="tab" data-view="network">Ağ</button>
           <button class="tab" data-view="map">Harita</button>
+          <button class="tab" data-view="articles">Haberler</button>
           <button class="tab" data-view="sources">Kaynaklar</button>
         </nav>
       </div>
@@ -503,6 +688,7 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
     <main>
       <section class="view active" id="overview">
         <div class="kpis" id="kpis"></div>
+        <div class="insight-grid" id="overviewInsightCards"></div>
         <div class="grid two">
           <div class="panel">
             <h2>Öne Çıkan Pattern Notları</h2>
@@ -511,6 +697,20 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
           <div class="panel">
             <h2>Son Haberler</h2>
             <div id="latestArticles"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="intelligence">
+        <div class="insight-grid" id="insightCards"></div>
+        <div class="grid two">
+          <div class="panel">
+            <h2>Öncelikli Clusterlar</h2>
+            <div class="cluster-list" id="priorityClusters"></div>
+          </div>
+          <div class="panel">
+            <h2>Kaynak Sağlığı</h2>
+            <div id="sourceHealth"></div>
           </div>
         </div>
       </section>
@@ -543,6 +743,19 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
         </div>
       </section>
 
+      <section class="view" id="network">
+        <div class="grid two">
+          <div class="panel">
+            <h2>Entity / Topic Ağı</h2>
+            <div class="network-canvas" id="networkCanvas"></div>
+          </div>
+          <div class="panel">
+            <h2>En Görünür Entity ve Topicler</h2>
+            <div id="networkNodes" class="chips"></div>
+          </div>
+        </div>
+      </section>
+
       <section class="view" id="map">
         <div class="grid two">
           <div class="panel">
@@ -561,11 +774,27 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
         </div>
       </section>
 
+      <section class="view" id="articles">
+        <div class="panel">
+          <h2>Haber İnceleme</h2>
+          <div class="filters">
+            <input id="articleSearch" placeholder="Başlık, kaynak, kategori veya topic ara">
+            <select id="categoryFilter"></select>
+            <select id="sourceFilter"></select>
+          </div>
+          <div class="article-table" id="articleTable"></div>
+        </div>
+      </section>
+
       <section class="view" id="sources">
-        <div class="grid two">
+        <div class="grid three">
           <div class="panel">
             <h2>Kaynak Dağılımı</h2>
             <div id="sourceBars"></div>
+          </div>
+          <div class="panel">
+            <h2>Kaynak Sağlığı</h2>
+            <div id="sourceHealthSources"></div>
           </div>
           <div class="panel">
             <h2>Kaynak Hataları</h2>
@@ -581,6 +810,7 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
     const payloads = DASHBOARD_DATA.payloads || [];
     const patterns = DASHBOARD_DATA.patterns || {};
     const pipeline = patterns.pipeline || {};
+    const clusterRankingById = Object.fromEntries((patterns.cluster_rankings || []).map(row => [row.cluster_id, row]));
     const cityCoords = {
       "Türkiye": [50, 48],
       "İstanbul": [26, 43],
@@ -625,8 +855,34 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       return [...new Set(values.filter(Boolean))];
     }
 
+    function countRecordsFromPayloads(pathFn) {
+      const counts = {};
+      payloads.forEach(payload => {
+        const values = pathFn(payload);
+        (Array.isArray(values) ? values : [values]).filter(Boolean).forEach(value => {
+          counts[value] = (counts[value] || 0) + 1;
+        });
+      });
+      return Object.entries(counts)
+        .map(([value, count]) => ({ value, count }))
+        .sort((left, right) => right.count - left.count || left.value.localeCompare(right.value));
+    }
+
+    function optionList(rows, label) {
+      return `<option value="">${esc(label)}</option>` + rows.map(row => `<option value="${esc(row.value || row.key)}">${esc(row.value || row.key)}</option>`).join("");
+    }
+
     function metricCard(label, value, note) {
       return `<div class="kpi"><div class="kpi-label">${esc(label)}</div><div class="kpi-value">${esc(value)}</div><div class="kpi-note">${esc(note || "")}</div></div>`;
+    }
+
+    function insightCard(card) {
+      return `<article class="insight-card ${esc(card.severity || "low")}">
+        <div class="insight-title">${esc(card.title)}</div>
+        <div class="insight-metric">${esc(card.metric)}</div>
+        <div class="insight-label">${esc(card.label || "")}</div>
+        <div class="insight-detail">${esc(card.detail || "")}</div>
+      </article>`;
     }
 
     function renderBars(targetId, rows, color) {
@@ -660,12 +916,22 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       const categoryCount = records("category_counts").length || unique(payloads.map(p => p.analysis?.category)).length;
       const sourceCount = records("source_counts").length || unique(payloads.map(p => p.source?.key)).length;
       const errors = pipeline.errors || [];
+      const highClusters = (patterns.cluster_rankings || []).filter(row => row.impact_level === "high").length;
       byId("kpis").innerHTML = [
         metricCard("Haber", payloads.length, "JSONB payload"),
         metricCard("Cluster", clusters.length, "Benzer haber grubu"),
         metricCard("Kategori", categoryCount, "Aktif sınıf"),
-        metricCard("Kaynak", sourceCount, errors.length ? `${errors.length} hata` : "Temiz")
+        metricCard("Kaynak", sourceCount, errors.length ? `${errors.length} hata` : "Temiz"),
+        metricCard("Yüksek Etki", highClusters, "Öncelikli cluster"),
+        metricCard("Entity", (patterns.entity_network?.nodes || []).length, "Ağ düğümü"),
+        metricCard("Risk", records("risk_flag_counts").length, "Sinyal tipi"),
+        metricCard("Harita", records("geography_counts").length, "Lokasyon")
       ].join("");
+
+      const insightCards = patterns.insight_cards || [];
+      byId("overviewInsightCards").innerHTML = insightCards.length
+        ? insightCards.slice(0, 5).map(insightCard).join("")
+        : `<div class="empty">İçgörü kartı yok</div>`;
 
       byId("observations").innerHTML = (patterns.observations || []).length
         ? `<div class="chips">${patterns.observations.map(item => `<span class="chip warn">${esc(item)}</span>`).join("")}</div>`
@@ -687,16 +953,29 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
     }
 
     function clusterCard(cluster) {
+      const ranking = clusterRankingById[cluster.cluster_id] || {};
       const terms = (cluster.common_terms || []).map(term => `<span class="chip">${esc(term)}</span>`).join("");
       const sources = (cluster.sources || []).map(source => `<span class="chip warn">${esc(source)}</span>`).join("");
       const links = (cluster.urls || []).slice(0, 5).map(url => `<li><a href="${esc(url)}" target="_blank" rel="noreferrer">${esc(url)}</a></li>`).join("");
+      const score = Number(ranking.impact_score || 0);
+      const scoreWidth = Math.max(5, Math.min(100, score));
       return `<article class="cluster-card" data-search="${esc(JSON.stringify(cluster).toLowerCase())}">
         <div class="cluster-head">
           <div class="cluster-title">${esc(cluster.representative_title || cluster.cluster_id)}</div>
-          <div class="cluster-size">${esc(cluster.cluster_size || 1)} haber</div>
+          <div class="cluster-size">${esc(cluster.cluster_size || 1)} haber · ${esc(ranking.impact_level || "low")}</div>
         </div>
         <div class="chips">${sources}</div>
         <div class="chips" style="margin-top:8px">${terms}</div>
+        <div class="score-line">
+          <span>Etki skoru</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${scoreWidth}%;background:var(--amber)"></div></div>
+          <span class="count">${esc(score)}</span>
+        </div>
+        <div class="chips" style="margin-top:8px">
+          ${ranking.dominant_category ? `<span class="chip">${esc(ranking.dominant_category)}</span>` : ""}
+          ${ranking.dominant_event_type ? `<span class="chip">${esc(ranking.dominant_event_type)}</span>` : ""}
+          ${(ranking.risk_flags || []).map(flag => `<span class="chip red">${esc(flag)}</span>`).join("")}
+        </div>
         ${links ? `<ul class="link-list">${links}</ul>` : ""}
       </article>`;
     }
@@ -710,6 +989,144 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       byId("clusterList").innerHTML = filtered.length
         ? filtered.map(clusterCard).join("")
         : `<div class="empty">Eşleşen cluster yok</div>`;
+    }
+
+    function renderIntelligence() {
+      const insightCards = patterns.insight_cards || [];
+      byId("insightCards").innerHTML = insightCards.length
+        ? insightCards.map(insightCard).join("")
+        : `<div class="empty">İçgörü kartı yok</div>`;
+
+      const clusterMap = Object.fromEntries((patterns.clusters || []).map(cluster => [cluster.cluster_id, cluster]));
+      const priority = (patterns.cluster_rankings || [])
+        .slice(0, 5)
+        .map(row => clusterMap[row.cluster_id])
+        .filter(Boolean);
+      byId("priorityClusters").innerHTML = priority.length
+        ? priority.map(clusterCard).join("")
+        : `<div class="empty">Öncelikli cluster yok</div>`;
+
+      renderSourceHealth();
+    }
+
+    function renderSourceHealth(targetId = "sourceHealth") {
+      const rows = patterns.source_health || [];
+      const html = rows.map(row => `<div class="health-row">
+        <div>
+          <div class="article-title">${esc(row.name || row.key)}</div>
+          <div class="article-meta">${esc(row.source_type || "html")}${row.errors?.length ? " · " + esc(row.errors[0]) : ""}</div>
+        </div>
+        <span class="status-dot ${esc(row.status)}">${esc(row.status)}</span>
+        <div class="count">${esc(row.documents)} haber</div>
+      </div>`).join("");
+      byId(targetId).innerHTML = html ? `<div class="source-health">${html}</div>` : `<div class="empty">Kaynak bilgisi yok</div>`;
+    }
+
+    function renderNetwork() {
+      const network = patterns.entity_network || { nodes: [], edges: [] };
+      const canvas = byId("networkCanvas");
+      canvas.innerHTML = "";
+      if (!network.nodes.length) {
+        canvas.innerHTML = `<div class="empty" style="margin:16px">Ağ verisi yok</div>`;
+        byId("networkNodes").innerHTML = `<div class="empty">Entity/topic yok</div>`;
+        return;
+      }
+
+      const width = 900;
+      const height = 470;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = 175;
+      const positions = {};
+      network.nodes.forEach((node, index) => {
+        const angle = (Math.PI * 2 * index) / network.nodes.length - Math.PI / 2;
+        const weight = Math.min(1, Number(node.count || 1) / Math.max(...network.nodes.map(item => Number(item.count || 1))));
+        positions[node.id] = {
+          x: centerX + Math.cos(angle) * (radius - weight * 35),
+          y: centerY + Math.sin(angle) * (radius - weight * 35),
+          size: 34 + weight * 30
+        };
+      });
+
+      const edgeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      edgeSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      (network.edges || []).forEach(edge => {
+        const source = positions[edge.source];
+        const target = positions[edge.target];
+        if (!source || !target) {
+          return;
+        }
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", source.x);
+        line.setAttribute("y1", source.y);
+        line.setAttribute("x2", target.x);
+        line.setAttribute("y2", target.y);
+        line.setAttribute("stroke", "#b8c9d6");
+        line.setAttribute("stroke-width", Math.min(6, 1 + Number(edge.count || 1)));
+        line.setAttribute("opacity", "0.72");
+        edgeSvg.appendChild(line);
+      });
+      canvas.appendChild(edgeSvg);
+
+      network.nodes.forEach(node => {
+        const position = positions[node.id];
+        const element = document.createElement("div");
+        element.className = `network-node ${node.kind || "topic"}`;
+        element.style.left = `${position.x / width * 100}%`;
+        element.style.top = `${position.y / height * 100}%`;
+        element.style.width = `${position.size}px`;
+        element.style.height = `${position.size}px`;
+        element.title = `${node.id} · ${node.count}`;
+        element.textContent = node.id.length > 14 ? node.id.slice(0, 13) + "…" : node.id;
+        canvas.appendChild(element);
+      });
+
+      byId("networkNodes").innerHTML = network.nodes
+        .map(node => `<span class="chip ${node.kind === "entity" ? "warn" : ""}">${esc(node.id)} · ${esc(node.count)}</span>`)
+        .join("");
+    }
+
+    function renderArticleFilters() {
+      const categories = records("category_counts").length
+        ? records("category_counts")
+        : countRecordsFromPayloads(payload => payload.analysis?.category);
+      const sources = records("source_counts").length
+        ? records("source_counts")
+        : countRecordsFromPayloads(payload => payload.source?.key);
+      byId("categoryFilter").innerHTML = optionList(categories, "Tüm kategoriler");
+      byId("sourceFilter").innerHTML = optionList(sources, "Tüm kaynaklar");
+    }
+
+    function renderArticles() {
+      const query = byId("articleSearch").value.trim().toLowerCase();
+      const category = byId("categoryFilter").value;
+      const source = byId("sourceFilter").value;
+      const filtered = payloads.filter(payload => {
+        const haystack = JSON.stringify({
+          title: payload.article?.title,
+          source: payload.source?.key,
+          category: payload.analysis?.category,
+          topics: payload.analysis?.topics,
+          entities: payload.analysis?.entities
+        }).toLowerCase();
+        return (!query || haystack.includes(query))
+          && (!category || payload.analysis?.category === category)
+          && (!source || payload.source?.key === source);
+      });
+      byId("articleTable").innerHTML = filtered.slice(0, 80).map(payload => {
+        const article = payload.article || {};
+        const analysis = payload.analysis || {};
+        const sourceInfo = payload.source || {};
+        return `<div class="article-row">
+          <div>
+            <div class="article-title" title="${esc(article.title)}">${esc(article.title)}</div>
+            <div class="article-meta">${esc(article.url || "")}</div>
+          </div>
+          <span class="chip">${esc(analysis.category || "diger")}</span>
+          <span class="chip warn">${esc(sourceInfo.key || "unknown")}</span>
+          <span class="chip ${payload.cluster?.cluster_size > 1 ? "warn" : ""}">${esc(payload.cluster?.cluster_size || 1)} cluster</span>
+        </div>`;
+      }).join("") || `<div class="empty">Filtreye uyan haber yok</div>`;
     }
 
     function renderMap() {
@@ -755,6 +1172,7 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       byId("sourceErrors").innerHTML = errors.length
         ? `<div class="error-list">${errors.map(error => `<div class="error-item"><strong>${esc(error.source)}</strong><br>${esc(error.error)}</div>`).join("")}</div>`
         : `<div class="empty">Kaynak hatası yok</div>`;
+      renderSourceHealth("sourceHealthSources");
     }
 
     function renderAll() {
@@ -764,10 +1182,14 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
         : `Yerel dashboard`;
       renderOverview();
       renderClusters();
+      renderIntelligence();
       renderBars("categoryBars", records("category_counts"), "var(--teal)");
       renderBars("eventBars", records("event_type_counts"), "var(--blue)");
       renderBars("riskBars", records("risk_flag_counts"), "var(--red)");
       renderChips("topicChips", records("top_topics"));
+      renderNetwork();
+      renderArticleFilters();
+      renderArticles();
       renderMap();
       renderSources();
     }
@@ -783,6 +1205,11 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
 
     byId("clusterSearch").addEventListener("input", event => {
       renderClusters(event.target.value);
+    });
+
+    ["articleSearch", "categoryFilter", "sourceFilter"].forEach(id => {
+      byId(id).addEventListener("input", renderArticles);
+      byId(id).addEventListener("change", renderArticles);
     });
 
     renderAll();

@@ -12,7 +12,7 @@ Bu klasör, haber toplama işi için hazırladığım ilk taslak. Bitmiş bir uy
 | Siyaset, ekonomi vb. ayırma | Kategori listesi var: siyaset, ekonomi, dünya, teknoloji, spor, sağlık, kültür, hukuk, eğitim, diğer |
 | Kapsamlı etiketleme | Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem ve risk/pattern sinyalleri ekledim |
 | Haberlerde pattern bulma | Benzer haberleri basit metin benzerliğiyle cluster'a ayıran ve genel pattern raporu çıkaran yapı ekledim |
-| Dashboard | Cluster, kategori, harita/lokasyon ve kaynak hata ekranları olan tek HTML dashboard ekledim |
+| Dashboard | Insight kartları, cluster önem skoru, entity/topic ağı, filtreli haber tablosu, harita/lokasyon ve kaynak sağlığı ekranları olan tek HTML dashboard ekledim |
 | Twitter/X denemesi | Public HTML ve resmi API token yolunu ayırdım; token yoksa neden alınamadığını kaynak hatası olarak raporluyor |
 | Postgres'e JSONB kaydetme | `news_documents` tablosunda tek `payload jsonb` alanı var |
 | Yapı değişebilir | Yeni alanlar tabloyu değiştirmeden `payload` içine eklenebilir |
@@ -33,7 +33,7 @@ Reddit için de denedim. `www.reddit.com` modern/JS ağırlıklı geldi, `.json`
 
 Twitter/X için de ilk denemeyi ekledim. Public HTML tarafında post metni server-render gelmediği için normal scraping ile alınamadı. Kodda iki yol bıraktım: `X_BEARER_TOKEN` varsa resmi X API recent search deneniyor, token yoksa public HTML denenip hata raporlanıyor. Bu şekilde Twitter kaynağının neden zor olduğunu da çıktıda görebiliyoruz.
 
-Son dry-run sonucunda Twitter dahil 14 kaynak config'te vardı. Toplam 24 payload oluştu ve 5 cluster bulundu. Reddit 403 verdi, Twitter/X token olmadığı için public HTML'den post metni alınamadı; pipeline bunları kaynak hatası olarak yazıp diğer kaynaklarla devam etti. Çıktı dosyaları:
+Son dry-run doğrulamasında Twitter dahil 14 kaynak config'te vardı. Canlı kaynaklara göre payload ve cluster sayısı değişebiliyor. Reddit, Twitter/X veya bazı haber kaynakları zaman zaman erişim hatası verebiliyor; pipeline bunları kaynak hatası olarak yazıp diğer kaynaklarla devam ediyor. Çıktı dosyaları:
 
 ```text
 outputs/latest_payloads.jsonl
@@ -53,7 +53,7 @@ Temel kategoriye ek olarak daha kapsamlı etiketleme de ekledim. Şu an her habe
 
 Clustering tarafında ilk sürüm basit metin benzerliğiyle çalışıyor. Aynı olayı anlatan haberler benzer kelimeler, başlıklar ve topic'ler üzerinden aynı cluster'a düşüyor. Bunu özellikle ilk taslakta anlaşılır tutmak istedim; sonraki adımda embedding tabanlı benzerlik veya KMeans/DBSCAN/HDBSCAN gibi yöntemlerle daha düzgün hale getirilebilir.
 
-Dashboard tarafında tek HTML dosyası üretiyorum. İçinde genel özet, cluster listesi, kategori dağılımı, topic/risk sinyalleri, lokasyon haritası ve kaynak hata ekranı var. Böylece işi sadece kod olarak değil, bakılabilecek küçük bir ürün ekranı gibi gösterebiliyoruz.
+Dashboard tarafında tek HTML dosyası üretiyorum. İçinde genel özet, otomatik insight kartları, öncelikli clusterlar, cluster önem skoru, kategori dağılımı, topic/risk sinyalleri, entity/topic ağı, filtreli haber tablosu, lokasyon haritası ve kaynak sağlığı ekranı var. Böylece işi sadece kod olarak değil, bakılabilecek küçük bir ürün ekranı gibi gösterebiliyoruz.
 
 ## LLM ile Deneme
 
@@ -111,7 +111,7 @@ Hocam haber toplama işi için ilk taslağı hazırladım.
 
 Etiketleme tarafını da sadece kategori seviyesinde bırakmadım. Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem seviyesi ve risk/pattern sinyalleri çıkacak şekilde genişlettim. Benzer haberleri de basit metin benzerliğiyle cluster'a ayıran ilk yapıyı ekledim. Çıktıları Postgres'te tek payload jsonb alanında tutuyorum; çünkü ileride bu alanlar değişebilir.
 
-Bunları görebilmek için de tek dosyalık bir dashboard ekledim. Genel özet, cluster listesi, kategori dağılımı, lokasyon/harita ve kaynak hata ekranları var.
+Bunları görebilmek için de tek dosyalık bir dashboard ekledim. Genel özet, insight kartları, cluster önem skoru, entity/topic ağı, kategori dağılımı, filtreli haber tablosu, lokasyon/harita ve kaynak sağlığı ekranları var.
 
 Bitmiş ürün değil, beraber güncellemek için ilk iskelet.
 ```

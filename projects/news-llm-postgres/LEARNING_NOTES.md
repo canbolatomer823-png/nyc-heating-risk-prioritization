@@ -185,13 +185,17 @@ outputs/dashboard.html
 Dashboard içinde şu ekranlar var:
 
 - Genel özet
+- Otomatik insight kartları
+- Öncelikli clusterlar ve cluster etki skoru
 - Cluster listesi
 - Kategori ve olay tipi dağılımı
 - Topic ve risk sinyalleri
+- Entity/topic ağı
+- Filtreli haber inceleme tablosu
 - Lokasyon/harita görünümü
-- Kaynak dağılımı ve kaynak hataları
+- Kaynak sağlığı, kaynak dağılımı ve kaynak hataları
 
-Bunun amacı şu: "Bu sistem neyi çözüyor?" sorusuna daha ürün gibi cevap vermek. Haberleri topluyor, etiketliyor, benzerlerini grupluyor ve bunu tek ekranda inceletiyor.
+Bunun amacı şu: "Bu sistem neyi çözüyor?" sorusuna daha ürün gibi cevap vermek. Haberleri topluyor, etiketliyor, benzerlerini grupluyor, hangi gündemin daha önemli göründüğünü skorlayıp tek ekranda inceletiyor.
 
 ## 9. Twitter/X Neden Zor?
 
@@ -294,7 +298,7 @@ make test
 Sonuç:
 
 ```text
-Ran 12 tests
+Ran 13 tests
 OK
 ```
 
@@ -313,12 +317,12 @@ Twitter/X için deneme yaptım. Resmi API tarafı için `X_BEARER_TOKEN` destekl
 Son crawler denemesinde:
 
 - Twitter dahil 14 kaynak config'te vardı.
-- Toplam 24 payload oluştu.
-- 5 cluster bulundu.
-- Reddit 403 verdi, Twitter/X token olmadığı için public HTML'den post metni alınamadı; pipeline diğer kaynaklarla devam etti.
+- Payload ve cluster sayısı canlı kaynakların o anki durumuna göre değişiyor.
+- Reddit, Twitter/X veya bazı haber kaynakları zaman zaman erişim hatası verebiliyor; pipeline diğer kaynaklarla devam ediyor.
 - Çıktı `outputs/latest_payloads.jsonl` dosyasına yazıldı.
 - Pattern özeti `outputs/latest_patterns.json` dosyasına yazılıyor.
 - Dashboard `outputs/dashboard.html` dosyasına yazılıyor.
+- Pattern raporunda `insight_cards`, `cluster_rankings`, `source_health`, `entity_network` ve `coverage_matrix` alanları oluşuyor.
 
 ## 14. Şu An Eksikler
 
@@ -329,6 +333,7 @@ Son crawler denemesinde:
 - Twitter/X için resmi API token veya kontrollü Selenium/browser session denemesi gerekiyor.
 - Clustering şu an basit kelime benzerliğiyle çalışıyor; embedding tabanlı hale getirilebilir.
 - Dashboard şu an tek HTML; ileride FastAPI veya React ekranına çevrilebilir.
+- Cluster önem skoru şu an kural bazlı; ileride embedding/LLM skoru ile daha iyi hale getirilebilir.
 - Kaynakların kullanım şartlarına bakmak lazım.
 - Kategoriler hocayla konuşup netleşmeli.
 
@@ -343,7 +348,7 @@ Twitter/X tarafını da denedim. Orası normal HTML vermediği için token'sız 
 
 Etiketleme tarafını da genişlettim. Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem seviyesi ve risk/pattern sinyalleri çıkıyor. Benzer haberleri de basit metin benzerliğiyle cluster'a ayıran ilk yapıyı ekledim. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
 
-Bunları görebilmek için de dashboard ekledim. Genel özet, cluster listesi, kategori dağılımı, lokasyon/harita ve kaynak hata ekranları var.
+Bunları görebilmek için de dashboard ekledim. Genel özet, insight kartları, cluster önem skoru, entity/topic ağı, kategori dağılımı, filtreli haber tablosu, lokasyon/harita ve kaynak sağlığı ekranları var.
 ```
 
 ## 16. Bir Sonraki Adım
