@@ -43,6 +43,12 @@ def run_pipeline(
 
     apply_clusters(payloads)
     pattern_report = build_pattern_report(payloads)
+    pattern_report["pipeline"] = {
+        "generated_at": utc_now_iso(),
+        "sources_enabled": len(sources),
+        "payloads": len(payloads),
+        "errors": errors,
+    }
 
     if patterns_output_path is None:
         patterns_output_path = str(Path(output_path).with_name("latest_patterns.json"))

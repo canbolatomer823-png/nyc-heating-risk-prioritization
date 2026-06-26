@@ -10,6 +10,7 @@ Bu klasör haber toplama işi için ilk taslak. Bitmiş bir uygulama değil; hoc
 - LLM varsa kategori, özet, keyword, sentiment, entity, lokasyon, olay tipi, önem ve risk/pattern sinyalleri çıkaracak yapı var.
 - Benzer haberleri basit metin benzerliğiyle cluster'a ayırıyor.
 - Çalıştırma sonunda ayrıca pattern raporu üretiyor.
+- Pattern ve cluster sonuçlarını tek HTML dashboard olarak gösteriyor.
 - API key yoksa akışı test etmek için basit fallback analyzer çalışıyor.
 - Sonucu Postgres'te tek `payload jsonb` alanına yazacak şekilde tasarlandı.
 
@@ -46,6 +47,9 @@ LLM analyzer + detailed tags
 Clustering + pattern report
         |
         v
+Dashboard HTML
+        |
+        v
 JSONB payload
         |
         v
@@ -75,7 +79,7 @@ Başlangıç config'i Türkiye merkezli 12 haber kaynağı, 1 Reddit kaynağı v
 
 Bazı haber siteleri Cloudflare, header uyumsuzluğu veya bot koruması kullanabilir. Pipeline kaynak bazında hata yakalar ve diğer kaynaklarla devam eder. Sözcü'de `HEAD` isteği Cloudflare challenge döndürdü ama normal `GET` isteği tarayıcı User-Agent ile HTML verdi. Reddit tarafında `www.reddit.com` modern/JS ağırlıklı, `.json` endpoint 403 döndü; `old.reddit.com/r/Turkey/` ise Selenium kullanmadan HTML verdi.
 
-Twitter/X tarafı normal haber sitesi gibi HTML vermiyor. Public HTML denemesinde post metni gelmediği için pipeline bunu kaynak bazında hata olarak raporluyor. `X_BEARER_TOKEN` verilirse resmi X API recent search endpoint'i deneniyor. Son dry-run'da 14 kaynak config'teydi, 26 payload oluştu, 6 cluster bulundu ve Twitter/X için token/public HTML kaynaklı hata raporlandı.
+Twitter/X tarafı normal haber sitesi gibi HTML vermiyor. Public HTML denemesinde post metni gelmediği için pipeline bunu kaynak bazında hata olarak raporluyor. `X_BEARER_TOKEN` verilirse resmi X API recent search endpoint'i deneniyor. Son dry-run'da 14 kaynak config'teydi, 24 payload oluştu ve 5 cluster bulundu. Reddit 403 verdi, Twitter/X için token/public HTML kaynaklı hata raporlandı; diğer kaynaklar devam etti.
 
 ## Kurulum
 
@@ -110,6 +114,28 @@ make dry-run
 outputs/latest_payloads.jsonl
 outputs/latest_patterns.json
 ```
+
+Dashboard üret:
+
+```bash
+make dashboard
+```
+
+Çıktı:
+
+```text
+outputs/dashboard.html
+```
+
+## Dashboard
+
+Dashboard tek dosyalık HTML olarak üretilir. İçinde şu ekranlar var:
+
+- Genel özet: haber, cluster, kategori ve kaynak sayısı
+- Kümeler: benzer haber grupları, kaynaklar, ortak terimler ve linkler
+- Kategoriler: kategori, olay tipi, topic ve risk sinyali dağılımları
+- Harita: lokasyon sayımları ve harita benzeri görünüm
+- Kaynaklar: kaynak dağılımı ve Twitter/Reddit gibi hata veren kaynaklar
 
 ## OpenAI ile Çalıştırma
 

@@ -76,6 +76,7 @@ Yeni site eklemek için config'e yeni kayıt eklemek yeterli.
 - [src/news_pipeline/fetchers.py](src/news_pipeline/fetchers.py): Liste sayfasından linkleri bulur, haber sayfasından metin çeker.
 - [src/news_pipeline/llm.py](src/news_pipeline/llm.py): Haberi analiz eder.
 - [src/news_pipeline/clustering.py](src/news_pipeline/clustering.py): Benzer haberleri cluster'a ayırır ve pattern raporu çıkarır.
+- [src/news_pipeline/dashboard.py](src/news_pipeline/dashboard.py): Payload ve pattern çıktılarından dashboard HTML'i üretir.
 - [src/news_pipeline/pipeline.py](src/news_pipeline/pipeline.py): Bütün akışı sırayla çalıştırır.
 - [src/news_pipeline/storage.py](src/news_pipeline/storage.py): Postgres'e yazar.
 - [src/news_pipeline/cli.py](src/news_pipeline/cli.py): Terminalden komut çalıştırmayı sağlar.
@@ -165,7 +166,34 @@ Pattern bulma da clustering'in üstüne kuruluyor:
 
 Bu bilgiler `outputs/latest_patterns.json` dosyasında özetleniyor.
 
-## 8. Twitter/X Neden Zor?
+## 8. Dashboard Neden Ekledik?
+
+Hocanın "ürün gibi bak" demesi önemli. Sadece terminal çıktısı üretmek yeterli değil; çıkan şeyi bir ekranda görebilmek lazım.
+
+Bu yüzden tek dosyalık dashboard ekledim:
+
+```bash
+make dashboard
+```
+
+Ürettiği dosya:
+
+```text
+outputs/dashboard.html
+```
+
+Dashboard içinde şu ekranlar var:
+
+- Genel özet
+- Cluster listesi
+- Kategori ve olay tipi dağılımı
+- Topic ve risk sinyalleri
+- Lokasyon/harita görünümü
+- Kaynak dağılımı ve kaynak hataları
+
+Bunun amacı şu: "Bu sistem neyi çözüyor?" sorusuna daha ürün gibi cevap vermek. Haberleri topluyor, etiketliyor, benzerlerini grupluyor ve bunu tek ekranda inceletiyor.
+
+## 9. Twitter/X Neden Zor?
 
 Twitter/X normal haber sitesi gibi çalışmıyor. Haber sitelerinde çoğu zaman HTML içinde link, başlık ve paragraf bulabiliyoruz. Twitter/X'te ise içerik büyük ölçüde JavaScript, login ve API kuralları üzerinden geliyor.
 
@@ -182,7 +210,7 @@ Twitter/X public HTML did not expose post text
 
 Bu kötü değil; hocanın "orası baya zor" dediği şeyin teknik sebebini göstermiş oluyor. Diğer kaynaklar çalışmaya devam ediyor. Sonraki adımda ya resmi API token alınır ya da Selenium/browser session ile ayrı bir deneme yapılır.
 
-## 9. JSONB Neden Önemli?
+## 10. JSONB Neden Önemli?
 
 Hocanın söylediği en önemli nokta buydu:
 
@@ -228,7 +256,7 @@ Payload içinde de kabaca şu bölümler var:
 }
 ```
 
-## 10. JSONB'nin Kötü Tarafı Var mı?
+## 11. JSONB'nin Kötü Tarafı Var mı?
 
 Var.
 
@@ -243,7 +271,7 @@ CREATE INDEX idx_news_documents_category
 
 Yani veri esnek kalıyor ama kategoriye göre sorgu da hızlanabiliyor.
 
-## 11. `content_hash` Neden Var?
+## 12. `content_hash` Neden Var?
 
 Aynı haber tekrar gelirse Postgres'e tekrar tekrar eklenmesin diye.
 
@@ -255,7 +283,7 @@ kaynak + haber linki -> hash
 
 Bu hash unique. Aynı haber tekrar gelirse yeni kayıt açmak yerine mevcut kayıt güncellenir.
 
-## 12. Şu Ana Kadar Ne Çalıştı?
+## 13. Şu Ana Kadar Ne Çalıştı?
 
 Test:
 
@@ -266,7 +294,7 @@ make test
 Sonuç:
 
 ```text
-Ran 11 tests
+Ran 12 tests
 OK
 ```
 
@@ -285,13 +313,14 @@ Twitter/X için deneme yaptım. Resmi API tarafı için `X_BEARER_TOKEN` destekl
 Son crawler denemesinde:
 
 - Twitter dahil 14 kaynak config'te vardı.
-- Toplam 26 payload oluştu.
-- 6 cluster bulundu.
-- Twitter/X token olmadığı için public HTML'den post metni alınamadı; pipeline diğer kaynaklarla devam etti.
+- Toplam 24 payload oluştu.
+- 5 cluster bulundu.
+- Reddit 403 verdi, Twitter/X token olmadığı için public HTML'den post metni alınamadı; pipeline diğer kaynaklarla devam etti.
 - Çıktı `outputs/latest_payloads.jsonl` dosyasına yazıldı.
 - Pattern özeti `outputs/latest_patterns.json` dosyasına yazılıyor.
+- Dashboard `outputs/dashboard.html` dosyasına yazılıyor.
 
-## 13. Şu An Eksikler
+## 14. Şu An Eksikler
 
 - Docker Desktop kapalı olduğu için Postgres yazma adımını canlı denemedim.
 - OpenAI API key ile gerçek LLM çıktısını henüz denemedim.
@@ -299,10 +328,11 @@ Son crawler denemesinde:
 - Anadolu Ajansı için ayrı header/parser ayarı gerekiyor.
 - Twitter/X için resmi API token veya kontrollü Selenium/browser session denemesi gerekiyor.
 - Clustering şu an basit kelime benzerliğiyle çalışıyor; embedding tabanlı hale getirilebilir.
+- Dashboard şu an tek HTML; ileride FastAPI veya React ekranına çevrilebilir.
 - Kaynakların kullanım şartlarına bakmak lazım.
 - Kategoriler hocayla konuşup netleşmeli.
 
-## 14. Hocaya Nasıl Anlatırım?
+## 15. Hocaya Nasıl Anlatırım?
 
 Kısa anlatım:
 
@@ -312,9 +342,11 @@ Hocam kaynakları Türkiye'deki haber sitelerine göre güncelledim: Habertürk,
 Twitter/X tarafını da denedim. Orası normal HTML vermediği için token'sız public scraping tarafı post metnini çıkarmadı. Kodda resmi API token ile çalışacak yolu ekledim; token yoksa hatayı kaynak bazında raporlayıp diğer kaynaklarla devam ediyor.
 
 Etiketleme tarafını da genişlettim. Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem seviyesi ve risk/pattern sinyalleri çıkıyor. Benzer haberleri de basit metin benzerliğiyle cluster'a ayıran ilk yapıyı ekledim. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
+
+Bunları görebilmek için de dashboard ekledim. Genel özet, cluster listesi, kategori dağılımı, lokasyon/harita ve kaynak hata ekranları var.
 ```
 
-## 15. Bir Sonraki Adım
+## 16. Bir Sonraki Adım
 
 Sıradaki iş bence şu:
 
@@ -322,6 +354,7 @@ Sıradaki iş bence şu:
 2. OpenAI API key ile `make dry-run-llm` çalıştırmak.
 3. LLM'in 2-3 haber için doğru kategori verip vermediğine bakmak.
 4. Clustering sonucunda aynı olayların doğru gruplanıp gruplanmadığına bakmak.
-5. Twitter/X için API token veya Selenium/browser session kararını vermek.
-6. Hocayla kategori ve pattern alanlarını netleştirmek.
-7. JSONB üzerinden örnek SQL sorguları eklemek.
+5. Dashboard'daki ekranları hocayla konuşup hangi metrikler gerekli netleştirmek.
+6. Twitter/X için API token veya Selenium/browser session kararını vermek.
+7. Hocayla kategori ve pattern alanlarını netleştirmek.
+8. JSONB üzerinden örnek SQL sorguları eklemek.

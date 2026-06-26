@@ -12,6 +12,7 @@ Bu klasör, haber toplama işi için hazırladığım ilk taslak. Bitmiş bir uy
 | Siyaset, ekonomi vb. ayırma | Kategori listesi var: siyaset, ekonomi, dünya, teknoloji, spor, sağlık, kültür, hukuk, eğitim, diğer |
 | Kapsamlı etiketleme | Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem ve risk/pattern sinyalleri ekledim |
 | Haberlerde pattern bulma | Benzer haberleri basit metin benzerliğiyle cluster'a ayıran ve genel pattern raporu çıkaran yapı ekledim |
+| Dashboard | Cluster, kategori, harita/lokasyon ve kaynak hata ekranları olan tek HTML dashboard ekledim |
 | Twitter/X denemesi | Public HTML ve resmi API token yolunu ayırdım; token yoksa neden alınamadığını kaynak hatası olarak raporluyor |
 | Postgres'e JSONB kaydetme | `news_documents` tablosunda tek `payload jsonb` alanı var |
 | Yapı değişebilir | Yeni alanlar tabloyu değiştirmeden `payload` içine eklenebilir |
@@ -32,11 +33,12 @@ Reddit için de denedim. `www.reddit.com` modern/JS ağırlıklı geldi, `.json`
 
 Twitter/X için de ilk denemeyi ekledim. Public HTML tarafında post metni server-render gelmediği için normal scraping ile alınamadı. Kodda iki yol bıraktım: `X_BEARER_TOKEN` varsa resmi X API recent search deneniyor, token yoksa public HTML denenip hata raporlanıyor. Bu şekilde Twitter kaynağının neden zor olduğunu da çıktıda görebiliyoruz.
 
-Son dry-run sonucunda Twitter dahil 14 kaynak config'te vardı. Toplam 26 payload oluştu ve 6 cluster bulundu. Twitter/X token olmadığı için public HTML'den post metni alınamadı; pipeline bunu kaynak hatası olarak yazıp diğer kaynaklarla devam etti. Çıktı dosyaları:
+Son dry-run sonucunda Twitter dahil 14 kaynak config'te vardı. Toplam 24 payload oluştu ve 5 cluster bulundu. Reddit 403 verdi, Twitter/X token olmadığı için public HTML'den post metni alınamadı; pipeline bunları kaynak hatası olarak yazıp diğer kaynaklarla devam etti. Çıktı dosyaları:
 
 ```text
 outputs/latest_payloads.jsonl
 outputs/latest_patterns.json
+outputs/dashboard.html
 ```
 
 Temel kategoriye ek olarak daha kapsamlı etiketleme de ekledim. Şu an her haber için kabaca şu alanlar çıkıyor:
@@ -50,6 +52,8 @@ Temel kategoriye ek olarak daha kapsamlı etiketleme de ekledim. Şu an her habe
 - `risk_flags`: pattern ararken kullanılacak sinyaller
 
 Clustering tarafında ilk sürüm basit metin benzerliğiyle çalışıyor. Aynı olayı anlatan haberler benzer kelimeler, başlıklar ve topic'ler üzerinden aynı cluster'a düşüyor. Bunu özellikle ilk taslakta anlaşılır tutmak istedim; sonraki adımda embedding tabanlı benzerlik veya KMeans/DBSCAN/HDBSCAN gibi yöntemlerle daha düzgün hale getirilebilir.
+
+Dashboard tarafında tek HTML dosyası üretiyorum. İçinde genel özet, cluster listesi, kategori dağılımı, topic/risk sinyalleri, lokasyon haritası ve kaynak hata ekranı var. Böylece işi sadece kod olarak değil, bakılabilecek küçük bir ürün ekranı gibi gösterebiliyoruz.
 
 ## LLM ile Deneme
 
@@ -106,6 +110,8 @@ Hocam haber toplama işi için ilk taslağı hazırladım.
 Şu an Türkiye'deki haber kaynaklarını config'e aldım: Habertürk, TRT Haber, Anadolu Ajansı, NTV, Hürriyet, Milliyet, Sabah, Cumhuriyet, Sözcü, Bloomberg HT, Mynet Haber, Ensonhaber. Reddit için de r/Turkey'i old.reddit üzerinden denedim. Twitter/X tarafında da public HTML ve resmi API token yolunu ayırdım. Token olmadığı durumda public HTML post metni vermediği için kaynak hatası olarak raporluyor. Normal web sayfasından linkleri bulup detay sayfasına girmeye çalışıyorum.
 
 Etiketleme tarafını da sadece kategori seviyesinde bırakmadım. Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem seviyesi ve risk/pattern sinyalleri çıkacak şekilde genişlettim. Benzer haberleri de basit metin benzerliğiyle cluster'a ayıran ilk yapıyı ekledim. Çıktıları Postgres'te tek payload jsonb alanında tutuyorum; çünkü ileride bu alanlar değişebilir.
+
+Bunları görebilmek için de tek dosyalık bir dashboard ekledim. Genel özet, cluster listesi, kategori dağılımı, lokasyon/harita ve kaynak hata ekranları var.
 
 Bitmiş ürün değil, beraber güncellemek için ilk iskelet.
 ```

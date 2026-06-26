@@ -2,7 +2,7 @@ PYTHON ?= python3
 PYTHONPATH := src
 DATABASE_URL ?= postgresql://news:news@localhost:54329/news
 
-.PHONY: install test dry-run dry-run-llm db-up db-down init-db run-db
+.PHONY: install test dry-run dry-run-llm dashboard db-up db-down init-db run-db
 
 install:
 	$(PYTHON) -m pip install -r requirements.txt
@@ -23,6 +23,12 @@ dry-run-llm:
 		--limit-per-source 2 \
 		--analyzer auto \
 		--output outputs/latest_payloads.jsonl
+
+dashboard:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m news_pipeline.dashboard \
+		--payloads outputs/latest_payloads.jsonl \
+		--patterns outputs/latest_patterns.json \
+		--output outputs/dashboard.html
 
 db-up:
 	docker compose up -d postgres
