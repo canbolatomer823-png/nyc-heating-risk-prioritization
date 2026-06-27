@@ -9,6 +9,7 @@ from typing import Any
 
 from .clustering import apply_clusters, build_pattern_report
 from .fetchers import crawl_source_items
+from .impact import apply_macro_impact_analysis
 from .insights import enrich_pattern_report
 from .llm import get_analyzer
 from .models import AnalysisResult, RawNewsItem
@@ -42,6 +43,7 @@ def run_pipeline(
             analysis = analyzer.analyze(item)
             payloads.append(build_payload(item, analysis))
 
+    apply_macro_impact_analysis(payloads)
     apply_clusters(payloads)
     pattern_report = enrich_pattern_report(
         patterns=build_pattern_report(payloads),

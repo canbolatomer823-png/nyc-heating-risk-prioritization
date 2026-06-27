@@ -347,6 +347,154 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       font-variant-numeric: tabular-nums;
     }
 
+    .impact-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .indicator-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr) 56px;
+      gap: 10px;
+      align-items: center;
+      margin: 12px 0;
+    }
+
+    .indicator-label {
+      font-weight: 650;
+    }
+
+    .impact-scale {
+      position: relative;
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #b42318 0%, #f2d3ce 46%, #eef2f6 50%, #cdeedc 54%, #15803d 100%);
+      overflow: hidden;
+    }
+
+    .impact-scale::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background: rgba(23, 32, 42, 0.45);
+    }
+
+    .impact-dot {
+      position: absolute;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: var(--text);
+      border: 2px solid #fff;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.22);
+    }
+
+    .impact-score {
+      font-variant-numeric: tabular-nums;
+      font-weight: 750;
+      text-align: right;
+    }
+
+    .impact-score.positive {
+      color: var(--green);
+    }
+
+    .impact-score.negative {
+      color: var(--red);
+    }
+
+    .impact-article {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #fbfdff;
+    }
+
+    .impact-scores {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .score-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #eef2f6;
+      color: var(--text);
+    }
+
+    .score-pill.positive {
+      background: #e7f7ed;
+      color: var(--green);
+    }
+
+    .score-pill.negative {
+      background: #ffe8e5;
+      color: var(--red);
+    }
+
+    .trend-bars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      align-items: end;
+      min-height: 220px;
+    }
+
+    .trend-col {
+      display: grid;
+      gap: 8px;
+      align-items: end;
+      min-height: 200px;
+    }
+
+    .trend-bar {
+      align-self: end;
+      min-height: 10px;
+      border-radius: 8px 8px 4px 4px;
+      background: var(--blue);
+      color: #fff;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .trend-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      min-height: 32px;
+    }
+
+    .break-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .break-item {
+      border-left: 3px solid var(--blue);
+      border-radius: 6px;
+      background: #f7fbff;
+      padding: 10px 12px;
+    }
+
     .chips {
       display: flex;
       flex-wrap: wrap;
@@ -643,7 +791,9 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       .grid.two,
       .grid.three,
       .insight-grid,
+      .impact-grid,
       .kpis,
+      .indicator-row,
       .article-row,
       .filters,
       .article-table .article-row,
@@ -675,6 +825,7 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
         <nav class="tabs" aria-label="Dashboard views">
           <button class="tab active" data-view="overview">Genel</button>
           <button class="tab" data-view="intelligence">İçgörü</button>
+          <button class="tab" data-view="impact">Etki</button>
           <button class="tab" data-view="clusters">Kümeler</button>
           <button class="tab" data-view="categories">Kategoriler</button>
           <button class="tab" data-view="network">Ağ</button>
@@ -711,6 +862,32 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
           <div class="panel">
             <h2>Kaynak Sağlığı</h2>
             <div id="sourceHealth"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="impact">
+        <div class="kpis" id="impactKpis"></div>
+        <div class="impact-grid">
+          <div class="panel">
+            <h2>Makro Gösterge Etkisi</h2>
+            <div id="indicatorImpact"></div>
+          </div>
+          <div class="panel">
+            <h2>Google Trends Benzeri Trend</h2>
+            <div id="macroTrend"></div>
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="panel">
+            <h2>En Etkili Ekonomi / Siyaset Haberleri</h2>
+            <div id="topImpactArticles"></div>
+          </div>
+          <div class="panel">
+            <h2>Kırılım Analizi ve Hesap Dışı Haberler</h2>
+            <div id="majorBreaks"></div>
+            <div style="height:14px"></div>
+            <div id="excludedImpactArticles"></div>
           </div>
         </div>
       </section>
@@ -811,6 +988,7 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
     const patterns = DASHBOARD_DATA.patterns || {};
     const pipeline = patterns.pipeline || {};
     const clusterRankingById = Object.fromEntries((patterns.cluster_rankings || []).map(row => [row.cluster_id, row]));
+    const macroImpact = patterns.macro_impact || {};
     const cityCoords = {
       "Türkiye": [50, 48],
       "İstanbul": [26, 43],
@@ -883,6 +1061,83 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
         <div class="insight-label">${esc(card.label || "")}</div>
         <div class="insight-detail">${esc(card.detail || "")}</div>
       </article>`;
+    }
+
+    function scoreClass(score) {
+      const numeric = Number(score || 0);
+      if (numeric > 0) {
+        return "positive";
+      }
+      if (numeric < 0) {
+        return "negative";
+      }
+      return "";
+    }
+
+    function signedScore(score) {
+      const numeric = Number(score || 0);
+      return `${numeric > 0 ? "+" : ""}${numeric}`;
+    }
+
+    function scorePill(score) {
+      return `<span class="score-pill ${scoreClass(score.score)}">${esc(score.label)} ${esc(signedScore(score.score))}</span>`;
+    }
+
+    function indicatorScale(row) {
+      const score = Number(row.average_score || 0);
+      const left = Math.max(0, Math.min(100, (score + 5) * 10));
+      return `<div class="indicator-row">
+        <div>
+          <div class="indicator-label">${esc(row.label)}</div>
+          <div class="article-meta">${esc(row.interpretation || "")}</div>
+        </div>
+        <div class="impact-scale" title="-5 / +5">
+          <span class="impact-dot" style="left:${left}%"></span>
+        </div>
+        <div class="impact-score ${scoreClass(score)}">${esc(score > 0 ? "+" + score.toFixed(2) : score.toFixed(2))}</div>
+      </div>`;
+    }
+
+    function impactArticleCard(article) {
+      const scores = article.indicator_scores || [];
+      const scoreHtml = scores.map(scorePill).join("");
+      const dominant = article.dominant_indicator
+        ? `${article.dominant_indicator.label} ${signedScore(article.dominant_indicator.score)}`
+        : "belirgin yön yok";
+      return `<article class="impact-article">
+        <div class="article-title" title="${esc(article.title)}">${esc(article.title)}</div>
+        <div class="article-meta">${esc(article.source)} · ${esc(article.category)} · net ${esc(article.net_abs_impact)} · ${esc(dominant)}</div>
+        <div class="impact-scores">${scoreHtml}</div>
+        <div class="insight-detail" style="margin-top:8px">${esc(article.summary || "")}</div>
+      </article>`;
+    }
+
+    function renderTrendBars() {
+      const trend = macroImpact.trend_report || {};
+      const topTrends = trend.top_trends || [];
+      if (!topTrends.length) {
+        return `<div class="empty">Trend için yeterli makro haber yok</div>`;
+      }
+      const max = Math.max(...topTrends.map(row => Number(row.trend_index || row.count || 0)), 1);
+      return `<div class="trend-bars">${topTrends.slice(0, 8).map(row => {
+        const height = Math.max(12, Number(row.trend_index || row.count || 0) / max * 180);
+        return `<div class="trend-col">
+          <div class="trend-bar" style="height:${height}px">${esc(row.trend_index || row.count)}</div>
+          <div class="trend-label">${esc(row.key)}<br>${esc(row.kind)} · ${esc(row.change >= 0 ? "+" + row.change : row.change)}</div>
+        </div>`;
+      }).join("")}</div>`;
+    }
+
+    function renderMajorBreaks() {
+      const breaks = macroImpact.major_breaks || [];
+      if (!breaks.length) {
+        return `<div class="empty">Şu an belirgin kırılım yok</div>`;
+      }
+      return `<div class="break-list">${breaks.slice(0, 5).map(item => `<div class="break-item">
+        <div class="article-title">${esc(item.key || item.article_title || "Kırılım")}</div>
+        <div class="article-meta">${esc(item.kind)} · değişim ${esc(item.change || 0)} · ${esc(item.analysis_method || "")}</div>
+        <div class="insight-detail" style="margin-top:6px">${esc(item.analysis || "")}</div>
+      </div>`).join("")}</div>`;
     }
 
     function renderBars(targetId, rows, color) {
@@ -1007,6 +1262,44 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
         : `<div class="empty">Öncelikli cluster yok</div>`;
 
       renderSourceHealth();
+    }
+
+    function renderImpact() {
+      const indicatorSummary = macroImpact.indicator_summary || [];
+      const trend = macroImpact.trend_report || {};
+      const topArticles = macroImpact.top_impact_articles || [];
+      const excluded = macroImpact.excluded_examples || [];
+      const strongest = indicatorSummary
+        .slice()
+        .sort((left, right) => Number(right.absolute_average || 0) - Number(left.absolute_average || 0))[0];
+
+      byId("impactKpis").innerHTML = [
+        metricCard("Makro Haber", macroImpact.eligible_documents || 0, "Ekonomi/siyaset etkisi hesaplandı"),
+        metricCard("Hesap Dışı", macroImpact.excluded_documents || 0, "Yüzeysel veya zayıf ilişkili"),
+        metricCard("En Güçlü Gösterge", strongest ? strongest.label : "-", strongest ? signedScore(strongest.average_score) : "Veri yok"),
+        metricCard("Trend Kırılımı", (macroImpact.major_breaks || []).length, "2-3 cümle analiz saklandı"),
+      ].join("");
+
+      byId("indicatorImpact").innerHTML = indicatorSummary.length
+        ? indicatorSummary.map(indicatorScale).join("")
+        : `<div class="empty">Makro gösterge skoru yok</div>`;
+
+      byId("macroTrend").innerHTML = renderTrendBars();
+      byId("topImpactArticles").innerHTML = topArticles.length
+        ? topArticles.slice(0, 8).map(impactArticleCard).join("")
+        : `<div class="empty">Etki hesaplanan haber yok</div>`;
+      byId("majorBreaks").innerHTML = renderMajorBreaks();
+      byId("excludedImpactArticles").innerHTML = excluded.length
+        ? `<h2>Hesap Dışı Bırakılanlar</h2>${excluded.slice(0, 6).map(item => `<div class="impact-article">
+            <div class="article-title">${esc(item.title)}</div>
+            <div class="article-meta">${esc(item.source)} · ${esc(item.category)}</div>
+            <div class="insight-detail" style="margin-top:6px">${esc(item.reason)}</div>
+          </div>`).join("")}`
+        : "";
+
+      if (!trend.series?.length && !indicatorSummary.length) {
+        byId("macroTrend").innerHTML = `<div class="empty">Trend için önce ekonomi/siyaset haberi gerekiyor</div>`;
+      }
     }
 
     function renderSourceHealth(targetId = "sourceHealth") {
@@ -1183,6 +1476,7 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       renderOverview();
       renderClusters();
       renderIntelligence();
+      renderImpact();
       renderBars("categoryBars", records("category_counts"), "var(--teal)");
       renderBars("eventBars", records("event_type_counts"), "var(--blue)");
       renderBars("riskBars", records("risk_flag_counts"), "var(--red)");

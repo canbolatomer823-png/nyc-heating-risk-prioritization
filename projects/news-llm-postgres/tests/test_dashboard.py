@@ -38,6 +38,80 @@ class DashboardTest(unittest.TestCase):
                 }
             ],
             "observations": ["Benzer haber kümeleri bulundu"],
+            "macro_impact": {
+                "eligible_documents": 1,
+                "excluded_documents": 1,
+                "indicator_summary": [
+                    {
+                        "key": "tl",
+                        "label": "TL",
+                        "average_score": -2.0,
+                        "absolute_average": 2.0,
+                        "count": 1,
+                        "interpretation": "TL üzerinde baskı",
+                    },
+                    {
+                        "key": "inflation",
+                        "label": "Enflasyon",
+                        "average_score": 2.0,
+                        "absolute_average": 2.0,
+                        "count": 1,
+                        "interpretation": "enflasyon baskısını artırır",
+                    },
+                ],
+                "top_impact_articles": [
+                    {
+                        "title": "Merkez Bankası faiz kararını açıkladı",
+                        "source": "test",
+                        "category": "ekonomi",
+                        "net_abs_impact": 4,
+                        "dominant_indicator": {"label": "TL", "score": -2},
+                        "indicator_scores": [
+                            {"key": "tl", "label": "TL", "score": -2},
+                            {"key": "inflation", "label": "Enflasyon", "score": 2},
+                        ],
+                        "summary": "Kur ve enflasyon tarafında etki var.",
+                    }
+                ],
+                "excluded_examples": [
+                    {
+                        "title": "Kadir İnanır için başsağlığı mesajı",
+                        "source": "test",
+                        "category": "siyaset",
+                        "reason": "Yüzeysel haber olduğu için hesaplanmadı.",
+                    }
+                ],
+                "trend_report": {
+                    "top_trends": [
+                        {
+                            "bucket": "2026-06-26",
+                            "kind": "category",
+                            "key": "ekonomi",
+                            "count": 1,
+                            "trend_index": 100,
+                            "change": 1,
+                        }
+                    ],
+                    "series": [
+                        {
+                            "bucket": "2026-06-26",
+                            "kind": "category",
+                            "key": "ekonomi",
+                            "count": 1,
+                            "trend_index": 100,
+                        }
+                    ],
+                },
+                "major_breaks": [
+                    {
+                        "kind": "category",
+                        "key": "ekonomi",
+                        "change": 1,
+                        "analysis": "Ekonomi başlığı öne çıktı.",
+                        "analysis_method": "fallback_rules",
+                    }
+                ],
+            },
             "pipeline": {
                 "generated_at": "2026-06-26T10:05:00Z",
                 "errors": [
@@ -65,6 +139,10 @@ class DashboardTest(unittest.TestCase):
             self.assertIn("İçgörü", html)
             self.assertIn("Entity / Topic Ağı", html)
             self.assertIn("Haber İnceleme", html)
+            self.assertIn("Etki", html)
+            self.assertIn("Makro Gösterge Etkisi", html)
+            self.assertIn("TL", html)
+            self.assertIn("Google Trends Benzeri Trend", html)
             self.assertIn("Etki skoru", html)
             self.assertIn("Faiz kararı", html)
             self.assertIn("twitter_turkey_news", html)

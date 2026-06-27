@@ -10,7 +10,10 @@ Bu klasör haber toplama işi için ilk taslak. Bitmiş bir uygulama değil; hoc
 - LLM varsa kategori, özet, keyword, sentiment, entity, lokasyon, olay tipi, önem ve risk/pattern sinyalleri çıkaracak yapı var.
 - Benzer haberleri basit metin benzerliğiyle cluster'a ayırıyor.
 - Çalıştırma sonunda ayrıca pattern raporu üretiyor.
-- Pattern ve cluster sonuçlarını insight kartları olan tek HTML dashboard olarak gösteriyor.
+- Ekonomi/siyaset haberleri için TL, büyüme, enflasyon, faiz baskısı ve piyasa güveni etkisini -5/+5 aralığında hesaplıyor.
+- Magazin, spor, kategori sayfası veya zayıf makro ilişkili yüzeysel haberleri etki hesabına almıyor.
+- Haberlerde Google Trends benzeri zaman/topic trendi ve büyük kırılım kısa analizleri üretiyor.
+- Pattern, cluster, trend ve makro etki sonuçlarını insight kartları olan tek HTML dashboard olarak gösteriyor.
 - API key yoksa akışı test etmek için basit fallback analyzer çalışıyor.
 - Sonucu Postgres'te tek `payload jsonb` alanına yazacak şekilde tasarlandı.
 
@@ -44,7 +47,10 @@ RawNewsItem
 LLM analyzer + detailed tags
         |
         v
-Clustering + pattern report
+Macro impact scoring + surface filtering
+        |
+        v
+Clustering + pattern/trend report
         |
         v
 Dashboard HTML
@@ -133,6 +139,8 @@ Dashboard tek dosyalık HTML olarak üretilir. İçinde şu ekranlar var:
 
 - Genel özet: haber, cluster, kategori, kaynak ve yüksek etki sayısı
 - İçgörü: otomatik insight kartları, öncelikli clusterlar ve kaynak sağlığı
+- Etki: ekonomi/siyaset haberlerinin TL, ekonomik büyüme, enflasyon, faiz baskısı ve piyasa güveni etkisi
+- Trend: Google Trends benzeri topic/sinyal yoğunluğu ve büyük kırılım yorumları
 - Kümeler: benzer haber grupları, etki skoru, kaynaklar, ortak terimler ve linkler
 - Kategoriler: kategori, olay tipi, topic ve risk sinyali dağılımları
 - Ağ: entity/topic ilişkileri
@@ -227,6 +235,19 @@ psql "$DATABASE_URL" -c "select id, payload #>> '{analysis,category}' as categor
     "confidence": 0.74,
     "analyzer": "openai"
   },
+  "content_quality": {
+    "macro_relevance_score": 72,
+    "excluded_from_macro_impact": false,
+    "reason": "Makro etki analizi için yeterli ekonomi/siyaset sinyali var."
+  },
+  "impact_analysis": {
+    "eligible": true,
+    "indicator_scores": [
+      {"key": "tl", "label": "TL", "score": -2},
+      {"key": "inflation", "label": "Enflasyon", "score": 3}
+    ],
+    "summary": "Öne çıkan etki: Enflasyon +3, TL -2."
+  },
   "cluster": {
     "cluster_id": "cluster_...",
     "cluster_size": 2,
@@ -259,6 +280,8 @@ Bu taslakta haber kaynaklarını tamamen tek formata zorlamıyorum. Çünkü hab
 - Aynı haberin farklı kaynaklarda duplicate detection'ı yapılmalı.
 - Twitter/X için resmi API token veya kontrollü browser session akışı netleştirilmeli.
 - Clustering tarafı ileride TF-IDF/embedding + KMeans, DBSCAN veya HDBSCAN ile güçlendirilebilir.
+- Makro etki skorları gerçek piyasa verileriyle geriye dönük test edilebilir.
+- Trend ekranı scheduled run ile günlük geçmiş biriktirdikçe daha anlamlı hale gelir.
 - LLM çıktısı için strict schema validation eklenmeli.
 - Kategori seti mentorla netleştirilmeli.
 - Scheduled run için cron, Airflow veya AWS EventBridge eklenebilir.

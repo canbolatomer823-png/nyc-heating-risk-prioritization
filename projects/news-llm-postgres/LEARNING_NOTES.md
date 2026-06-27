@@ -75,6 +75,7 @@ Yeni site eklemek için config'e yeni kayıt eklemek yeterli.
 
 - [src/news_pipeline/fetchers.py](src/news_pipeline/fetchers.py): Liste sayfasından linkleri bulur, haber sayfasından metin çeker.
 - [src/news_pipeline/llm.py](src/news_pipeline/llm.py): Haberi analiz eder.
+- [src/news_pipeline/impact.py](src/news_pipeline/impact.py): Ekonomi/siyaset haberleri için makro etki skoru, trend ve kırılım analizi üretir.
 - [src/news_pipeline/clustering.py](src/news_pipeline/clustering.py): Benzer haberleri cluster'a ayırır ve pattern raporu çıkarır.
 - [src/news_pipeline/dashboard.py](src/news_pipeline/dashboard.py): Payload ve pattern çıktılarından dashboard HTML'i üretir.
 - [src/news_pipeline/pipeline.py](src/news_pipeline/pipeline.py): Bütün akışı sırayla çalıştırır.
@@ -187,6 +188,11 @@ Dashboard içinde şu ekranlar var:
 - Genel özet
 - Otomatik insight kartları
 - Öncelikli clusterlar ve cluster etki skoru
+- Ekonomi/siyaset etki ekranı
+- TL, büyüme, enflasyon, faiz baskısı ve piyasa güveni için -5/+5 skorlar
+- Google Trends benzeri trend görünümü
+- Büyük kırılımlar için kısa analiz
+- Hesap dışı bırakılan yüzeysel haberler
 - Cluster listesi
 - Kategori ve olay tipi dağılımı
 - Topic ve risk sinyalleri
@@ -197,7 +203,55 @@ Dashboard içinde şu ekranlar var:
 
 Bunun amacı şu: "Bu sistem neyi çözüyor?" sorusuna daha ürün gibi cevap vermek. Haberleri topluyor, etiketliyor, benzerlerini grupluyor, hangi gündemin daha önemli göründüğünü skorlayıp tek ekranda inceletiyor.
 
-## 9. Twitter/X Neden Zor?
+## 9. Ekonomi/Siyaset Etki Analizi Ne Ekledi?
+
+Hocanın son isteği, sadece haberleri etiketlemek değil, ekonomi ve siyaset haberlerinin göstergelere etkisini düşünmekti:
+
+```text
+TL, ekonomik büyüme, enflasyon vb. göstergelere -5 +5 arası etki yap
+```
+
+Bunun için ayrı bir katman ekledim. Her haber için önce şu soru soruluyor:
+
+```text
+Bu haber makro etki hesabına girmeli mi?
+```
+
+Girmeyecek haberler hesap dışı kalıyor. Mesela:
+
+- magazin/kültür ağırlıklı haber
+- spor haberi
+- kategori sayfası
+- metni çok zayıf haber
+- Kadir İnanır örneği gibi makro göstergeyle doğrudan ilişkisi olmayan haber
+
+Uygun haberlerde ise şu göstergeler skorlanıyor:
+
+- `TL`: pozitifse TL'yi destekler, negatifse TL üzerinde baskı demek
+- `Ekonomik büyüme`: pozitifse büyümeyi destekler, negatifse baskılar
+- `Enflasyon`: pozitifse enflasyon baskısını artırır, negatifse azaltır
+- `Faiz baskısı`: pozitifse faiz baskısı artar
+- `Piyasa güveni`: pozitifse güven artar, negatifse zayıflar
+
+Bu skorlar kesin finansal tahmin değil. Haber sinyalini sayısallaştıran ilk taslak. Gerçek proje seviyesinde bunu geçmiş piyasa verileriyle test etmek gerekir.
+
+## 10. Trend Mantığı Ne?
+
+Google Trends gibi düşünmek için haberleri zamana göre bucket'lara ayırıyorum. Şu an günlük bucket kullanılıyor. Her gün için kategori, topic ve makro sinyaller sayılıyor. Sonra en yoğun değer 100 kabul edilip diğerleri ona göre indexleniyor.
+
+Örnek:
+
+```text
+tl signal -> 100
+siyaset category -> 100
+iran signal -> 80
+```
+
+Bu alan tek çalıştırmada bile fikir veriyor ama asıl değeri günlük/saatlik scheduled run ile geçmiş biriktikçe artar. O zaman "hangi topic yükseliyor, hangisi düşüyor?" daha net görünür.
+
+Kırılım analizi de bunun üstüne geliyor. Bir topic aniden artarsa veya bir haber göstergelerde yüksek etki üretirse sistem 2-3 cümlelik kısa yorum saklıyor.
+
+## 11. Twitter/X Neden Zor?
 
 Twitter/X normal haber sitesi gibi çalışmıyor. Haber sitelerinde çoğu zaman HTML içinde link, başlık ve paragraf bulabiliyoruz. Twitter/X'te ise içerik büyük ölçüde JavaScript, login ve API kuralları üzerinden geliyor.
 
@@ -214,7 +268,7 @@ Twitter/X public HTML did not expose post text
 
 Bu kötü değil; hocanın "orası baya zor" dediği şeyin teknik sebebini göstermiş oluyor. Diğer kaynaklar çalışmaya devam ediyor. Sonraki adımda ya resmi API token alınır ya da Selenium/browser session ile ayrı bir deneme yapılır.
 
-## 10. JSONB Neden Önemli?
+## 12. JSONB Neden Önemli?
 
 Hocanın söylediği en önemli nokta buydu:
 

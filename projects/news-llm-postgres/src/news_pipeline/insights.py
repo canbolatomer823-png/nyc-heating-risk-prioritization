@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from typing import Any
 
+from .impact import build_macro_impact_report
 from .models import NewsSource
 
 
@@ -17,6 +18,7 @@ def enrich_pattern_report(
     enriched["cluster_rankings"] = rank_clusters(payloads, enriched.get("clusters", []))
     enriched["entity_network"] = build_entity_network(payloads)
     enriched["coverage_matrix"] = build_coverage_matrix(payloads)
+    enriched["macro_impact"] = build_macro_impact_report(payloads)
     enriched["insight_cards"] = build_insight_cards(enriched, payloads)
     return enriched
 
@@ -88,13 +90,26 @@ def rank_clusters(payloads: list[dict[str, Any]], clusters: list[dict[str, Any]]
             for member in members
             if member.get("analysis", {}).get("importance") in {"high", "critical"}
         )
+        macro_members = [
+            member
+            for member in members
+            if member.get("impact_analysis", {}).get("eligible")
+        ]
+        surface_members = len(members) - len(macro_members)
+        macro_impact = sum(
+            int(member.get("impact_analysis", {}).get("net_abs_impact", 0))
+            for member in macro_members
+        )
         impact_score = (
             len(members) * 10
             + len(sources) * 5
             + len(risk_flags) * 4
             + len(locations) * 2
             + high_importance_count * 4
+            + macro_impact
+            - surface_members * 8
         )
+        impact_score = max(0, impact_score)
         ranked.append(
             {
                 "cluster_id": cluster_id,
@@ -102,6 +117,8 @@ def rank_clusters(payloads: list[dict[str, Any]], clusters: list[dict[str, Any]]
                 "cluster_size": len(members) or int(cluster.get("cluster_size", 0)),
                 "impact_score": impact_score,
                 "impact_level": impact_level(impact_score),
+                "macro_documents": len(macro_members),
+                "surface_documents": surface_members,
                 "dominant_category": most_common_value(categories, "diger"),
                 "dominant_event_type": most_common_value(event_types, "general"),
                 "sources": sources,
@@ -166,6 +183,7 @@ def build_insight_cards(patterns: dict[str, Any], payloads: list[dict[str, Any]]
     categories = patterns.get("category_counts", [])
     risks = patterns.get("risk_flag_counts", [])
     geo = patterns.get("geography_counts", [])
+    macro_impact = patterns.get("macro_impact", {})
 
     if clusters:
         top_cluster = clusters[0]
@@ -181,6 +199,42 @@ def build_insight_cards(patterns: dict[str, Any], payloads: list[dict[str, Any]]
                 ),
             }
         )
+
+    if macro_impact:
+        cards.append(
+            {
+                "title": "Makro etki analizi",
+                "metric": str(macro_impact.get("eligible_documents", 0)),
+                "label": "haber",
+                "severity": "medium" if macro_impact.get("eligible_documents", 0) else "low",
+                "detail": (
+                    f"{macro_impact.get('excluded_documents', 0)} yüzeysel/düşük ilişkili haber "
+                    "TL, büyüme ve enflasyon hesabına alınmadı."
+                ),
+            }
+        )
+
+        top_indicator = next(
+            (
+                row
+                for row in sorted(
+                    macro_impact.get("indicator_summary", []),
+                    key=lambda item: -float(item.get("absolute_average", 0)),
+                )
+                if float(row.get("absolute_average", 0)) > 0
+            ),
+            None,
+        )
+        if top_indicator:
+            cards.append(
+                {
+                    "title": "En güçlü gösterge",
+                    "metric": f"{top_indicator['average_score']:+.2f}",
+                    "label": top_indicator["label"],
+                    "severity": "medium",
+                    "detail": top_indicator["interpretation"],
+                }
+            )
 
     if categories and total_documents:
         top_category = categories[0]
