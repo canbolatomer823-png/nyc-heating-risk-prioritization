@@ -1,0 +1,1149 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>News Pattern Dashboard</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --line: #d9e2ec;
+      --text: #17202a;
+      --muted: #667085;
+      --teal: #0f766e;
+      --blue: #2563eb;
+      --amber: #b7791f;
+      --red: #b42318;
+      --green: #15803d;
+      --shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(245, 247, 251, 0.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 16px 24px 14px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+      font-weight: 750;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .run-meta {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+      min-width: 220px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font: inherit;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      border-color: var(--teal);
+      background: #e7f5f1;
+      color: #0b5f59;
+    }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 22px 24px 40px;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two {
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    }
+
+    .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .insight-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .insight-card.high {
+      border-top: 4px solid var(--red);
+    }
+
+    .insight-card.medium {
+      border-top: 4px solid var(--amber);
+    }
+
+    .insight-card.low {
+      border-top: 4px solid var(--teal);
+    }
+
+    .insight-title {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .insight-metric {
+      font-size: 28px;
+      font-weight: 780;
+      line-height: 1;
+    }
+
+    .insight-label {
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    .insight-detail {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .panel,
+    .kpi,
+    .cluster-card,
+    .article-row {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .kpi {
+      padding: 14px;
+      min-height: 92px;
+    }
+
+    .kpi-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .kpi-value {
+      margin-top: 8px;
+      font-size: 30px;
+      font-weight: 760;
+      line-height: 1;
+    }
+
+    .kpi-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .panel {
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .panel h2 {
+      margin: 0 0 14px;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr) 40px;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .bar-label {
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .bar-track {
+      height: 10px;
+      background: #edf2f7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--teal);
+      border-radius: inherit;
+    }
+
+    .count {
+      color: var(--muted);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eef6ff;
+      color: #174ea6;
+      font-size: 12px;
+      max-width: 100%;
+    }
+
+    .chip.warn {
+      background: #fff4df;
+      color: #8a4b00;
+    }
+
+    .chip.red {
+      background: #ffe8e5;
+      color: var(--red);
+    }
+
+    .cluster-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .cluster-card {
+      padding: 14px;
+    }
+
+    .cluster-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .cluster-title {
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .cluster-size {
+      flex: 0 0 auto;
+      border-radius: 8px;
+      background: #e7f5f1;
+      color: #0b5f59;
+      padding: 5px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .score-line {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr) 48px;
+      gap: 8px;
+      align-items: center;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .link-list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .link-list li {
+      margin: 4px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .article-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 118px 110px;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      box-shadow: none;
+    }
+
+    .article-title {
+      font-weight: 650;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .article-meta {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 180px 180px;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .filters input,
+    .filters select {
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font: inherit;
+      background: var(--surface);
+      min-width: 0;
+    }
+
+    .article-table {
+      display: grid;
+      gap: 8px;
+    }
+
+    .article-table .article-row {
+      grid-template-columns: minmax(0, 1fr) 120px 140px 110px;
+    }
+
+    .map-canvas {
+      position: relative;
+      min-height: 360px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #eaf1f7;
+      overflow: hidden;
+    }
+
+    .map-canvas svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .marker {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.86);
+      color: #fff;
+      border: 2px solid #fff;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .marker-label {
+      position: absolute;
+      transform: translate(-50%, 16px);
+      padding: 3px 6px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--text);
+      font-size: 12px;
+      white-space: nowrap;
+      border: 1px solid var(--line);
+    }
+
+    .network-canvas {
+      position: relative;
+      min-height: 470px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fbff;
+      overflow: hidden;
+    }
+
+    .network-canvas svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .network-node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--blue);
+      color: #fff;
+      border: 2px solid #fff;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      padding: 4px;
+      overflow: hidden;
+    }
+
+    .network-node.entity {
+      background: var(--teal);
+    }
+
+    .network-node.location {
+      background: var(--amber);
+    }
+
+    .source-health {
+      display: grid;
+      gap: 8px;
+    }
+
+    .health-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 86px 58px;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fbfdff;
+    }
+
+    .status-dot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #eef6ff;
+      color: #174ea6;
+    }
+
+    .status-dot.ok {
+      background: #e7f7ed;
+      color: var(--green);
+    }
+
+    .status-dot.partial,
+    .status-dot.empty {
+      background: #fff4df;
+      color: #8a4b00;
+    }
+
+    .status-dot.blocked {
+      background: #ffe8e5;
+      color: var(--red);
+    }
+
+    .empty {
+      padding: 24px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: #fafcff;
+    }
+
+    .search {
+      width: 100%;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+      font: inherit;
+      background: var(--surface);
+    }
+
+    .error-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .error-item {
+      border-left: 3px solid var(--red);
+      background: #fff7f6;
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: #7a271a;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 900px) {
+      .title-row,
+      .grid.two,
+      .grid.three,
+      .insight-grid,
+      .kpis,
+      .article-row,
+      .filters,
+      .article-table .article-row,
+      .health-row {
+        grid-template-columns: 1fr;
+      }
+
+      .title-row {
+        align-items: flex-start;
+      }
+
+      .run-meta {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="title-row">
+          <div>
+            <h1>News Pattern Dashboard</h1>
+            <div class="subtitle">Kümeleme, kategori, lokasyon ve kaynak sinyalleri</div>
+          </div>
+          <div class="run-meta" id="runMeta"></div>
+        </div>
+        <nav class="tabs" aria-label="Dashboard views">
+          <button class="tab active" data-view="overview">Genel</button>
+          <button class="tab" data-view="intelligence">İçgörü</button>
+          <button class="tab" data-view="clusters">Kümeler</button>
+          <button class="tab" data-view="categories">Kategoriler</button>
+          <button class="tab" data-view="network">Ağ</button>
+          <button class="tab" data-view="map">Harita</button>
+          <button class="tab" data-view="articles">Haberler</button>
+          <button class="tab" data-view="sources">Kaynaklar</button>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="view active" id="overview">
+        <div class="kpis" id="kpis"></div>
+        <div class="insight-grid" id="overviewInsightCards"></div>
+        <div class="grid two">
+          <div class="panel">
+            <h2>Öne Çıkan Pattern Notları</h2>
+            <div id="observations"></div>
+          </div>
+          <div class="panel">
+            <h2>Son Haberler</h2>
+            <div id="latestArticles"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="intelligence">
+        <div class="insight-grid" id="insightCards"></div>
+        <div class="grid two">
+          <div class="panel">
+            <h2>Öncelikli Clusterlar</h2>
+            <div class="cluster-list" id="priorityClusters"></div>
+          </div>
+          <div class="panel">
+            <h2>Kaynak Sağlığı</h2>
+            <div id="sourceHealth"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="clusters">
+        <input class="search" id="clusterSearch" placeholder="Cluster, kaynak veya ortak terim ara">
+        <div class="cluster-list" id="clusterList"></div>
+      </section>
+
+      <section class="view" id="categories">
+        <div class="grid two">
+          <div class="panel">
+            <h2>Kategori Dağılımı</h2>
+            <div id="categoryBars"></div>
+          </div>
+          <div class="panel">
+            <h2>Olay Tipleri</h2>
+            <div id="eventBars"></div>
+          </div>
+        </div>
+        <div class="grid two" style="margin-top:16px">
+          <div class="panel">
+            <h2>Topic Yoğunluğu</h2>
+            <div id="topicChips" class="chips"></div>
+          </div>
+          <div class="panel">
+            <h2>Risk Sinyalleri</h2>
+            <div id="riskBars"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="network">
+        <div class="grid two">
+          <div class="panel">
+            <h2>Entity / Topic Ağı</h2>
+            <div class="network-canvas" id="networkCanvas"></div>
+          </div>
+          <div class="panel">
+            <h2>En Görünür Entity ve Topicler</h2>
+            <div id="networkNodes" class="chips"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="map">
+        <div class="grid two">
+          <div class="panel">
+            <h2>Lokasyon Haritası</h2>
+            <div class="map-canvas" id="mapCanvas">
+              <svg viewBox="0 0 900 360" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M74 180 L118 140 L204 132 L270 104 L348 120 L438 98 L542 124 L650 116 L780 152 L830 202 L752 236 L620 250 L510 234 L414 260 L306 236 L210 242 L132 218 Z" fill="#d8e7f0" stroke="#9db4c4" stroke-width="3"></path>
+                <path d="M152 242 L210 274 L318 286 L428 278 L536 294 L690 268 L776 236" fill="none" stroke="#b8c9d6" stroke-width="2"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Lokasyon Sayımları</h2>
+            <div id="geoBars"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="articles">
+        <div class="panel">
+          <h2>Haber İnceleme</h2>
+          <div class="filters">
+            <input id="articleSearch" placeholder="Başlık, kaynak, kategori veya topic ara">
+            <select id="categoryFilter"></select>
+            <select id="sourceFilter"></select>
+          </div>
+          <div class="article-table" id="articleTable"></div>
+        </div>
+      </section>
+
+      <section class="view" id="sources">
+        <div class="grid three">
+          <div class="panel">
+            <h2>Kaynak Dağılımı</h2>
+            <div id="sourceBars"></div>
+          </div>
+          <div class="panel">
+            <h2>Kaynak Sağlığı</h2>
+            <div id="sourceHealthSources"></div>
+          </div>
+          <div class="panel">
+            <h2>Kaynak Hataları</h2>
+            <div id="sourceErrors"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const DASHBOARD_DATA = {"payloads": [{"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "diger", "confidence": 0.35, "entities": {"locations": [], "organizations": ["BIST", "ENDEKSİ"], "persons": ["ENDEKSİ XU", "Hisse Fiyatları"]}, "error": null, "event_type": "general", "geography": [], "importance": "normal", "keywords": ["bist", "endeksi", "bilgiler", "finansal", "fiyatları", "haberler", "hisse", "ilgili"], "language": "tr", "model": null, "risk_flags": [], "sentiment": "neutral", "subcategory": "diger", "summary": "XU100 Hisse Fiyatları | BIST 100 ENDEKSİ ile ilgili finansal bilgiler ve haberler.", "topics": ["diger", "general", "bist", "endeksi", "bilgiler", "finansal", "fiyatları"]}, "article": {"author": null, "content_text": "", "published_at": null, "summary": "XU100 Hisse Fiyatları | BIST 100 ENDEKSİ ile ilgili finansal bilgiler ve haberler.", "tags": ["xu100", "bist 100 endeksi̇"], "title": "BIST 100 ENDEKSİ", "url": "https://www.haberturk.com/ekonomi/piyasa/1-bist-100"}, "cluster": {"cluster_id": "cluster_57a167672c", "cluster_size": 1, "common_terms": ["bist", "endeksi", "fiyat", "finansal", "bilgi", "100", "hisse", "ilgili"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "BIST 100 ENDEKSİ", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:15Z", "content_hash": "f24a2eac750684cc9fac3561aabed85de5f46c35c29a09d13d308e09752e8e24"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 0, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["haberturk.com"], "crawl_url": "https://www.haberturk.com", "homepage": "https://www.haberturk.com", "key": "haberturk", "language": "tr", "name": "Habertürk", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "siyaset", "confidence": 0.71, "entities": {"locations": ["Antalya"], "organizations": ["Türk", "Allah", "İnanır", "Sanatı", "Mekanı", "Kültür", "Seni", "Sinema", "Çevre", "Şehircilik"], "persons": ["Cumhurbaşkanı Recep Tayyip Erdoğan", "Kadir İnanır", "Türk Sineması", "Cumhurbaşkanı Erdoğan", "Sayın Kadir İnanır", "Cumhurbaşkanı Yardımcısı Cevdet Yılmaz", "Turizm Bakanı Mehmet Nuri Ersoy", "Selvi Boylum Al Yazmalım", "Tatar Ramazan", "Yılanların Öcü"]}, "error": null, "event_type": "social_discussion", "geography": ["Antalya"], "importance": "high", "keywords": ["nanır", "kadir", "allah", "başsağlığı", "rahmet", "türk", "ailesine", "sevenlerine"], "language": "tr", "model": null, "risk_flags": ["public_safety", "market_pressure"], "sentiment": "neutral", "subcategory": "social_discussion", "summary": "Türk Sineması'nın efsane oyuncusu Kadir İnanır'ın vefatını üzüntüyle öğrendiğini ifade eden Cumhurbaşkanı Recep Tayyip Erdoğan'dan başsağlığı mesajı", "topics": ["siyaset", "social_discussion", "nanır", "kadir", "allah", "başsağlığı", "rahmet", "antalya", "public_safety", "market_pressure"]}, "article": {"author": null, "content_text": "Cumhurbaşkanı Recep Tayyip Erdoğan, Türk sinemasının usta oyuncularından Kadir İnanır’ın vefatı dolayısıyla taziye mesajı yayımladı.\nCumhurbaşkanı Erdoğan, sosyal medya hesabından yaptığı paylaşımda, Kadir İnanır’ın vefatını büyük bir üzüntüyle öğrendiğini belirtti.\nCumhurbaşkanı Erdoğan mesajında, “Türk sinemasının usta aktörlerinden Kadir İnanır’ın vefat ettiğini büyük bir üzüntüyle öğrendim. Sayın Kadir İnanır’a Allah’tan rahmet niyaz ediyor; ailesine, yakınlarına, sevenlerine ve tüm sanat camiamıza başsağlığı dileklerimi iletiyorum” ifadelerini kullandı.\nİnanır'ın hayatını kaybetmesiyle ilgili diğer başsağlığı mesajları şöyle:\nCumhurbaşkanı Yardımcısı Cevdet Yılmaz: Türk sinemasının unutulmaz isimlerinden Kadir İnanır'ın vefatını üzüntüyle öğrendim. Sanatı, duruşu ve eserleriyle kuşaklar boyunca toplumsal hafızamıza derin izler bırakan değerli sanatçımıza Allah'tan rahmet, ailesine, sanat camiasına ve tüm sevenlerine başsağlığı diliyorum. Mekanı cennet olsun.\nKültür ve Turizm Bakanı Mehmet Nuri Ersoy: Selvi Boylum Al Yazmalım, Tatar Ramazan, Yılanların Öcü, Kara Gözlüm, Bitirim Kardeşler, Dila Hanım... Saymakla bitmeyecek, canlandırdığı karakterle unutulmayacak bir efsaneyi, Kadir İnanır'ı kaybetmenin derin üzüntüsü içindeyiz. Türk sinemasının usta ismi hafızalarımızda ve gönlümüzde yaşamaya devam edecek. Seni unutmayacağız... Allah rahmet eylesin, mekânı cennet olsun.\nSağlık Bakanı Kemal Memişoğlu: \"Sinema sanatçısı Kadir İnanır’ın vefatını üzüntüyle öğrendim. Kendisine Allah’tan rahmet; ailesine, sevenlerine ve sanat camiamıza başsağlığı dilerim. Mekanı cennet olsun\" ifadelerini kullandı.\nÇevre, Şehircilik ve İklim Değişikliği Bakanı Murat Kurum: Asya’nın İlyas’ı, Türk sinemasının Tatar Ramazan’ıydı… Usta oyuncu Kadir İnanır’ın vefatını derin bir üzüntüyle öğrendim. Kendisine Allah’tan rahmet; ailesine ve tüm sevenlerine başsağlığı diliyorum. Mekanı cennet olsun.\nİletişim Başkanı Burhanettin Duran: Türk sinemasının efsane isimlerinden Sayın Kadir İnanır’ın vefatını derin bir teessürle öğrendim. Kıymetli sanatçımıza Allah’tan rahmet; ailesine, yakınlarına, sanat camiasına ve tüm sevenlerine sabır ve başsağlığı diliyorum.\nCHP Genel Başkanı Kemal Kılıçdaroğlu: Türk sineması yeri doldurulamayacak, çok kıymetli bir çınarını yitirdi. Ömrünü sanatına adayan, duruşu ve eserleriyle milyonların hafızasında iz bırakan Kadir İnanır’ı kaybetmenin derin üzüntüsünü yaşıyoruz. Kendisine Allah’tan rahmet; ailesine, sanat camiamıza ve tüm sevenlerine sabır diliyorum.\nCHP Grup Başkanı Özgür Özel: Yeşilçam’ın büyük ustası Kadir İnanır’ı kaybetmenin derin üzüntüsünü yaşıyoruz. Halktan, emekten yana duruşuyla, sanatına kattığı değerle gönüllerimizde silinmeyecek bir iz bıraktı. Kendisine Allah’tan rahmet; ailesine, sevenlerine, sanat camiamıza ve tüm ülkemize başsağlığı diliyorum.\nAntalya'nın Serik ilçesinde aniden başlayan hortum sebebiyle iş yerinin tenteleri ve şemsiyeleri müşterilerin üzerine savruldu. (AA)", "published_at": "2026-06-26T21:38:58+03:00", "summary": "Türk Sineması'nın efsane oyuncusu Kadir İnanır'ın vefatını üzüntüyle öğrendiğini ifade eden Cumhurbaşkanı Recep Tayyip Erdoğan'dan başsağlığı mesajı", "tags": [], "title": "Cumhurbaşkanı Recep Tayyip Erdoğan: Kadir İnanır'ın vefatını büyük üzüntüyle öğrendim", "url": "https://www.haberturk.com/cumhurbaskani-recep-tayyip-erdogan-kadir-inanir-in-vefatini-buyuk-uzuntuyle-ogrendim-3894453"}, "cluster": {"cluster_id": "cluster_ef573cb9d7", "cluster_size": 3, "common_terms": ["nanır", "kadir", "başsağlığı", "vefat", "usta", "allah", "rahmet", "sanat"], "method": "token_cosine_v1", "related_urls": ["https://www.milliyet.com.tr/magazin/son-dakika-olumuyle-yasa-bogdu-kadir-inanirin-cenaze-programi-belli-oldu-7612917", "https://www.sabah.com.tr/gundem/2026/06/26/siyasilerden-kadir-inanir-icin-pes-pese-taziye-mesajlari"], "representative_title": "Başkan Erdoğan ve siyasilerden Kadir İnanır için taziye mesajları: Büyük bir üzüntüyle öğrendim", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:15Z", "content_hash": "d7bd98c07e94d62f1b97faecead1dc0e6cf90bbf9a648ae046c41d95cc553679"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 2948, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["haberturk.com"], "crawl_url": "https://www.haberturk.com", "homepage": "https://www.haberturk.com", "key": "haberturk", "language": "tr", "name": "Habertürk", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "teknoloji", "confidence": 0.47, "entities": {"locations": [], "organizations": [], "persons": ["Gündem Gündeme", "TRT Haber Gündem"]}, "error": null, "event_type": "teknoloji_news", "geography": [], "importance": "critical", "keywords": ["gündem", "alan", "bulabilirsiniz", "dair", "gelişmeleri", "güncel", "gündemde", "gündeme"], "language": "tr", "model": null, "risk_flags": [], "sentiment": "neutral", "subcategory": "teknoloji_news", "summary": "Gündeme dair güncel haberleri, son dakika gündem haberlerini, gündemde yer alan sıcak gelişmeleri TRT Haber Gündem sayfamızda bulabilirsiniz.", "topics": ["teknoloji", "teknoloji_news", "gündem", "alan", "bulabilirsiniz", "dair", "gelişmeleri"]}, "article": {"author": null, "content_text": "", "published_at": null, "summary": "Gündeme dair güncel haberleri, son dakika gündem haberlerini, gündemde yer alan sıcak gelişmeleri TRT Haber Gündem sayfamızda bulabilirsiniz.", "tags": [], "title": "Gündem", "url": "https://www.trthaber.com/haber/gundem/"}, "cluster": {"cluster_id": "cluster_9ae04ecc5c", "cluster_size": 2, "common_terms": ["haber", "dair", "türkiye", "gündem", "güncel", "teknoloji", "yerel", "alan"], "method": "token_cosine_v1", "related_urls": ["https://www.trthaber.com/haber/turkiye/"], "representative_title": "Gündem", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:16Z", "content_hash": "0f12ff70221db953412649ea5fcd04272f4c8c1edc8538c4158aa0e4d94da693"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 0, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["trthaber.com"], "crawl_url": "https://www.trthaber.com", "homepage": "https://www.trthaber.com", "key": "trt_haber", "language": "tr", "name": "TRT Haber", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "teknoloji", "confidence": 0.47, "entities": {"locations": ["Türkiye Türkiye", "Türkiye", "TRT Haber Türkiye"], "organizations": [], "persons": []}, "error": null, "event_type": "teknoloji_news", "geography": ["Türkiye"], "importance": "critical", "keywords": ["türkiye", "haberler", "yerel", "dair", "güncel", "haberleri", "haritamızda", "sayfamızda"], "language": "tr", "model": null, "risk_flags": [], "sentiment": "neutral", "subcategory": "teknoloji_news", "summary": "Türkiye’ye dair güncel haberler, son dakika Türkiye haberleri, tüm yerel haberler TRT Haber Türkiye sayfamızda ve yerel haberler haritamızda.", "topics": ["teknoloji", "teknoloji_news", "türkiye", "haberler", "yerel", "dair", "güncel"]}, "article": {"author": null, "content_text": "", "published_at": null, "summary": "Türkiye’ye dair güncel haberler, son dakika Türkiye haberleri, tüm yerel haberler TRT Haber Türkiye sayfamızda ve yerel haberler haritamızda.", "tags": [], "title": "Türkiye", "url": "https://www.trthaber.com/haber/turkiye/"}, "cluster": {"cluster_id": "cluster_9ae04ecc5c", "cluster_size": 2, "common_terms": ["haber", "dair", "türkiye", "gündem", "güncel", "teknoloji", "yerel", "alan"], "method": "token_cosine_v1", "related_urls": ["https://www.trthaber.com/haber/gundem/"], "representative_title": "Gündem", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:16Z", "content_hash": "d985e1052864cb24cef8d63ea8325e64f0b29c9a6a21874fc01153381f1cbdb9"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 0, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["trthaber.com"], "crawl_url": "https://www.trthaber.com", "homepage": "https://www.trthaber.com", "key": "trt_haber", "language": "tr", "name": "TRT Haber", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "diger", "confidence": 0.35, "entities": {"locations": [], "organizations": ["İlkleri"], "persons": ["Dev Stadyumları", "Dikkat Çeken İstatistikleriyle", "FIFA Dünya Kupası İlkleri", "FIFA Dünya Kupası", "Anadolu Ajansı"]}, "error": null, "event_type": "general", "geography": [], "importance": "normal", "keywords": ["dikkat", "dünya", "fifa", "kupası", "lkleri", "stadyumları", "statistikleriyle", "çeken"], "language": "tr", "model": null, "risk_flags": [], "sentiment": "neutral", "subcategory": "diger", "summary": "İlkleri, Dev Stadyumları ve Dikkat Çeken İstatistikleriyle 2026 FIFA Dünya Kupası | Anadolu Ajansı", "topics": ["diger", "general", "dikkat", "dünya", "fifa", "kupası", "lkleri"]}, "article": {"author": null, "content_text": "", "published_at": "2026-06-11T12:53:54.9", "summary": "İlkleri, Dev Stadyumları ve Dikkat Çeken İstatistikleriyle 2026 FIFA Dünya Kupası | Anadolu Ajansı", "tags": ["fotoğraf", "video", "haber", "anadolu ajansı", "son dakika", "ekonomi", "spor", "politika", "kültür sanat", "sinema", "muhabir", "video haber"], "title": "İlkleri, Dev Stadyumları ve Dikkat Çeken İstatistikleriyle 2026 FIFA Dünya Kupası", "url": "https://www.aa.com.tr/tr/spor/ilkleri-dev-stadyumlari-ve-dikkat-ceken-istatistikleriyle-2026-fifa-dunya-kupasi/3938616"}, "cluster": {"cluster_id": "cluster_07ee50572e", "cluster_size": 2, "common_terms": ["dünya", "kupası", "fifa", "lkleri", "dikkat", "2026", "durumu", "fikstür"], "method": "token_cosine_v1", "related_urls": ["https://www.ensonhaber.com/dunya-kupasi-2026"], "representative_title": "Dünya Kupası 2026 - Puan Durumu, Fikstür, Canlı Skor | Ensonhaber", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:17Z", "content_hash": "37b013dd6e61d10c6190d1ede3a5994e7e7240d7d6587746bd4035cad8c25646"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 0, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["aa.com.tr"], "crawl_url": "https://www.aa.com.tr/tr", "homepage": "https://www.aa.com.tr/tr", "key": "anadolu_ajansi", "language": "tr", "name": "Anadolu Ajansı", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "siyaset", "confidence": 0.47, "entities": {"locations": [], "organizations": ["Venezuela"], "persons": ["Venezuela Sağlık Bakanı Carlos Alvarado", "Anadolu Ajansı"]}, "error": null, "event_type": "incident", "geography": [], "importance": "high", "keywords": ["venezuela", "ajansı", "alvarado", "anadolu", "ardışık", "bakanı", "bildirdi", "büyüklüğünde"], "language": "tr", "model": null, "risk_flags": ["public_safety"], "sentiment": "neutral", "subcategory": "incident", "summary": "Venezuela Sağlık Bakanı Carlos Alvarado, ülkedeki depremlerde hayatını kaybedenlerin sayısının 235'e yükseldiğini, 4 bin 300'den fazla kişinin ise yaralandığını bildirdi. | Anadolu Ajansı", "topics": ["siyaset", "incident", "venezuela", "ajansı", "alvarado", "anadolu", "ardışık", "public_safety"]}, "article": {"author": null, "content_text": "", "published_at": "2026-06-25T01:38:26.063", "summary": "Venezuela Sağlık Bakanı Carlos Alvarado, ülkedeki depremlerde hayatını kaybedenlerin sayısının 235'e yükseldiğini, 4 bin 300'den fazla kişinin ise yaralandığını bildirdi. | Anadolu Ajansı", "tags": ["fotoğraf", "video", "haber", "anadolu ajansı", "son dakika", "ekonomi", "spor", "politika", "kültür sanat", "sinema", "muhabir", "video haber"], "title": "Venezuela'da 7,2 ve 7,5 büyüklüğünde ardışık iki deprem meydana geldi", "url": "https://www.aa.com.tr/tr/dunya/venezuelada-7-2-ve-7-5-buyuklugunde-ardisik-iki-deprem-meydana-geldi/3977220"}, "cluster": {"cluster_id": "cluster_294c11f38f", "cluster_size": 1, "common_terms": ["venezuela", "ardışık", "alvarado", "anadolu", "ajansı", "büyüklüğü", "bakanı", "bildirdi"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "Venezuela'da 7,2 ve 7,5 büyüklüğünde ardışık iki deprem meydana geldi", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:17Z", "content_hash": "663a07200f7f9f0eff5d8e00366606b4707f57742bff64f9d53d04f8d34bd3ee"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 0, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["aa.com.tr"], "crawl_url": "https://www.aa.com.tr/tr", "homepage": "https://www.aa.com.tr/tr", "key": "anadolu_ajansi", "language": "tr", "name": "Anadolu Ajansı", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "siyaset", "confidence": 0.59, "entities": {"locations": [], "organizations": ["ABD", "İsrail-Lübnan", "İsrail", "Lübnan", "Washington", "Dışişleri Bakanlığı Müsteşarı Holler", "ABD Dışişleri Bakanlığı", "Rubio", "Önümüzde", "NETANYAHU"], "persons": ["ABD Dışişleri Bakanı Marco Rubio", "ABD Büyükelçisi Leiter", "ABD Büyükelçisi Hamadeh ABD", "Washington Büyükelçisi Nada Hamadeh", "Washington Büyükelçisi Yechiel Leiter", "Amerika Birleşik Devletleri", "DAN İLK AÇIKLAMA İsrail Başbakanı", "Binyamin Netanyahu", "Ancak Hizbullah", "LÜBNAN CUMHURBAŞKANI"]}, "error": null, "event_type": "incident", "geography": [], "importance": "high", "keywords": ["lübnan", "srail", "dışişleri", "çerçeve", "arasında", "rubio", "washington", "bakanlığı"], "language": "tr", "model": null, "risk_flags": ["public_safety"], "sentiment": "neutral", "subcategory": "incident", "summary": "İsrail ve Lübnan arasında yürütülen doğrudan müzakerelerin 5. turu Washington'da tamamlandı. ABD, İsrail ve Lübnan arasında bir çerçeve anlaşma imzalandığı duyurldu.", "topics": ["siyaset", "incident", "lübnan", "srail", "dışişleri", "çerçeve", "arasında", "public_safety"]}, "article": {"author": null, "content_text": "ABD Dışişleri Bakanı Marco Rubio, Dışişleri Bakanlığı Müsteşarı Holler, İsrail'in ABD Büyükelçisi Leiter ve Lübnan'ın ABD Büyükelçisi Hamadeh\nABD 'nin başkenti Washington'da İsrail ile Lübnan arasında yürütülen doğrudan müzakerelerin 5. tur görüşmelerinin ardından Lübnan ve İsrail arasında çerçeve anlaşması imzalandı.\nABD Dışişleri Bakanlığı'nda düzenlenen törene, ABD Dışişleri Bakanı Marco Rubio, Lübnan'ın Washington Büyükelçisi Nada Hamadeh ve İsrail'in Washington Büyükelçisi Yechiel Leiter katıldı.\nABD Dışişleri Bakanı Marco Rubio, imza töreninde yaptığı konuşmada, anlaşmayı \"uzun ve zorlu bir sürecin ilk adımı\" olarak nitelendirdi.\nRubio, \"Bugün egemen Lübnan hükümeti ile İsrail hükümeti arasında, Amerika Birleşik Devletleri'nin arabuluculuğu ve desteğiyle bir çerçeve anlaşmasını duyuruyor olmaktan memnuniyet duyuyoruz. Bu, kalıcı barış ve güvenlik için bir çerçeve oluşturmaya başlayan bir süreçtir.\" ifadesini kullandı.\nLübnan halkının uzun yıllardır dış müdahaleler nedeniyle büyük acılar yaşadığını belirten Rubio, ülkenin yeniden barış ve refah içinde bir yapıya kavuşmasının hedeflendiğini söyledi.\nRubio, \"Bugün söylediğim gibi bu sürecin en başındayız. Önümüzde uzun bir yol var ama bu ilk adım çok kritik.\" dedi. NETANYAHU'DAN İLK AÇIKLAMA\nİsrail Başbakanı Binyamin Netanyahu, imzalanan çerçeve anlaşmasının Lübnan ordusunun belirlenen pilot bölgelere yerleştirilmelerine izin verdiğini söyledi. Netanyahu, “Uygulama iki aşamada gerçekleştirilecek. Ancak Hizbullah silahsızlandırılmadan İsrail bölgeden çekilmeyecek” dedi.\nLÜBNAN CUMHURBAŞKANI: EGEMENLİĞİ YENİDEN KAZANMA YOLUNDA İLK ADIM\nLübnan Cumhurbaşkanı Joseph Avn, \"Çerçeve anlaşması, Lübnan'ın tam egemenliğini yeniden kazanma yolunda ilk adım.\" değerlendirmesinde bulundu.\nAvn, anlaşmanın İsrail saldırıları sırasında fedakarlık yapan ve yerinden edilen Lübnanlıların topraklarına ve yeniden inşa edilecek evlerine dönüşünün önünü açacağını kaydetti.\n\"Artık işgalin, esirlerin, bağımlılığın ve vesayetin olmadığı bir Lübnan için çalışmayı sürdüreceğiz.\" ifadesini kullanarak, ülkenin egemenliğini tam anlamıyla hayata geçirinceye kadar çalışmalarını sürdüreceklerini vurguladı.\nSALI GÜNÜ BAŞLAYAN GÖRÜŞMELER BUGÜN DEVAM ETTİ\nTarafların, Salı günü başlayan görüşmelerin 4. gününde sabah Bakanlık'ta bir araya geldiği belirtildi.\nABD'li Dışişleri Bakanlığı yetkilisi, açıklamasında, \"Taraflar, bir anlaşmaya varmak, çalışmalarını sürdürmek üzere bugün yeniden bir araya geldi. İsrail ile Lübnan, uzun vadeli barış ve güvenliği sağlama hedefiyle iki egemen devlet olarak müzakerelerine devam ediyor.\" değerlendirmesini yaptı.\nABD Dışişleri Bakanlığı, 23-25 Haziran tarihlerinde Washington'da İsrail-Lübnan doğrudan müzakerelerinin 5. turunun düzenleneceğini duyurmuş, daha sonra görüşmeler 1 gün daha uzatılmıştı.\nGörüşmeler, ABD Başkanı Donald Trump ve İran Cumhurbaşkanı Mesud Pezeşkiyan tarafından imzalanmasının ardından 18 Haziran’da yürürlüğe giren ABD-İran mutabakat metni sonrası gerçekleşiyor.\n©Copyright 2026 | Tüm Hakları Saklıdır.", "published_at": null, "summary": "İsrail ve Lübnan arasında yürütülen doğrudan müzakerelerin 5. turu Washington'da tamamlandı. ABD, İsrail ve Lübnan arasında bir çerçeve anlaşma imzalandığı duyurldu.", "tags": ["ABD İsrail Lübnan anlaşması", "ABD'de İsrail Lübnan görüşmeleri", "İsrail Lübnan ateşkes"], "title": "ABD’de İsrail-Lübnan görüşmeleri. ABD, İsrail ve Lübnan arasında üçlü çerçeve anlaşması imzalandı", "url": "https://www.ntv.com.tr/dunya/abdde-israil-lubnan-gorusmeleri-abd-israil-ve-lubnan-arasinda-uclu-cerceve-anlasmasi-imzalandi-1730286"}, "cluster": {"cluster_id": "cluster_ba4773e33b", "cluster_size": 1, "common_terms": ["lübnan", "srail", "abd", "çerçeve", "dışiş", "arası", "rubio", "washington"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "ABD’de İsrail-Lübnan görüşmeleri. ABD, İsrail ve Lübnan arasında üçlü çerçeve anlaşması imzalandı", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:18Z", "content_hash": "8cb7d817b0055abe3c94104f34477aa5be7ce7b147a4c0bab199549d76fc3447"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 3023, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["ntv.com.tr"], "crawl_url": "https://www.ntv.com.tr", "homepage": "https://www.ntv.com.tr", "key": "ntv", "language": "tr", "name": "NTV", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "saglik", "confidence": 0.83, "entities": {"locations": [], "organizations": ["Niğde", "Patlamada", "Aynı", "Bor", "İhbar", "Yaralılar", "Araştırma", "Patlamanın", "Akmeşe", "İmalat"], "persons": ["Bor Devlet", "Niğde Eğitim", "BİR KİŞİ HAYATINI KAYBETTİ Vali", "Nedim Akmeşe", "Emniyet Genel Müdürlüğü Özel Güvenlik", "Tüm Hakları Saklıdır"]}, "error": null, "event_type": "incident", "geography": [], "importance": "high", "keywords": ["hayatını", "fişek", "havai", "meydana", "niğde", "patlama", "patlamada", "fabrikasında"], "language": "tr", "model": null, "risk_flags": ["public_safety"], "sentiment": "neutral", "subcategory": "incident", "summary": "Niğde'de bir havai fişek fabrikasında patlama meydana geldi. Patlamada 1 kişi hayatını kaybetti.", "topics": ["saglik", "incident", "hayatını", "fişek", "havai", "meydana", "niğde", "public_safety"]}, "article": {"author": null, "content_text": "Aynı fabrikada 2018'de de bir patlama meydana gelmişti.\nNiğde 'nin Bor ilçesinde özel bir firmaya ait havai fişek fabrikasında, saat 16.45 sıralarında, henüz bilinmeyen nedenle patlama oldu.\nİhbar üzerine bölgeye sağlık ekipleri sevk edildi. Yaralılar ambulanslarla Bor Devlet ve Niğde Eğitim ve Araştırma hastanelerine götürüldü. Patlamanın ardından çıkan yangın ise büyümeden söndürüldü.\nBİR KİŞİ HAYATINI KAYBETTİ Vali Nedim Akmeşe, havai fişek fabrikasındaki patlamada 1 vatandaşın hayatını kaybettiğini, 1 vatandaşın da yaralandığını bildirdi.\nPatlamanın ardından çıkan yangının söndürüldüğünü belirten Akmeşe, \"Bu yerler güvenlik önlemleri alınmış şekilde konumlandırılıyor. İmalat bütün halde değil, parça parça yerlerde yapılıyor. Şu anda devam eden bir durum yok. Hayatını kaybeden vatandaşımıza başsağlığı, yaralı işçimize de geçmiş olsun dileklerimizi iletiyoruz. Vali yardımcısı başkanlığındaki komisyon da çalışmalarına başladı. Nedenine ilişkin çalışmalar ile adli ve idari işlemler yürütülecek.\" ifadelerini kullandı.\nİçişleri Bakanlığı, meydana gelen patlamaya ilişkin müfettiş görevlendirildiğini bildirdi.\n\"Bu kapsamda 1 mülkiye başmüfettişi ile Emniyet Genel Müdürlüğü Özel Güvenlik Denetleme Başkanlığı'nda görevli 1 polis başmüfettişi görevlendirilmiştir. Olaya ilişkin inceleme ve çalışmalar ilgili birimler tarafından titizlikle sürdürülmektedir. Patlamada hayatını kaybeden vatandaşımıza Allah'tan rahmet, ailesi ve yakınlarına başsağlığı, yaralı vatandaşımıza acil şifalar diliyoruz.\"\nAynı fabrikada 27 Ocak 2018'de meydana gelen patlamada 2 kişi hayatını kaybetmişti.\n©Copyright 2026 | Tüm Hakları Saklıdır.", "published_at": null, "summary": "Niğde'de bir havai fişek fabrikasında patlama meydana geldi. Patlamada 1 kişi hayatını kaybetti.", "tags": ["Niğde'de fabrikada patlama", "Niğde'de hava fişek fabrikası", "Niğde'de patlama"], "title": "Niğde'de havai fişek fabrikasında patlama", "url": "https://www.ntv.com.tr/yerel-haberler/nigdede-havai-fisek-fabrikasinda-patlama-1730274"}, "cluster": {"cluster_id": "cluster_aef21a4deb", "cluster_size": 2, "common_terms": ["hayat", "havai", "fişek", "niğde", "patlama", "fabrikası", "meydana", "patlamada"], "method": "token_cosine_v1", "related_urls": ["https://haber.mynet.com/nigde-de-havai-fisek-fabrikasinda-patlama-yaralilar-var-110107299447"], "representative_title": "Niğde'de havai fişek fabrikasında patlama! Vali Akmeşe acı haberi duyurdu", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:18Z", "content_hash": "e13f4633cf72db9dade0bc17bc39d6e30275887021da53b525782583bb24a8eb"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 1633, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["ntv.com.tr"], "crawl_url": "https://www.ntv.com.tr", "homepage": "https://www.ntv.com.tr", "key": "ntv", "language": "tr", "name": "NTV", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "saglik", "confidence": 0.71, "entities": {"locations": ["Türkiye"], "organizations": ["Böcek", "İlaçlama", "Almanya", "Mahkeme", "DSS", "Haziran", "Fatih", "Kasım", "Yapılan", "İstanbul"], "persons": ["Zeki Kışı", "Serkan Kışı", "Güncelleme Tarihi", "Çiğdem Böcek", "Servet Böcek", "Kadir Muhammet Böcek", "Masal Böcek", "DSS İlaçlama Şirketinin", "Doğan Caferoğlu", "Harbour Suit Otel"]}, "error": null, "event_type": "legal_case", "geography": ["Türkiye"], "importance": "critical", "keywords": ["böcek", "benim", "kışı", "otel", "sahibi", "sanık", "serkan", "zeki"], "language": "tr", "model": null, "risk_flags": ["public_safety", "legal_process"], "sentiment": "neutral", "subcategory": "legal_case", "summary": "Son Dakika Haberler - Almanya'dan Türkiye'ye tatile gelen ve kaldıkları oteldeki ilaçlama yüzünden zehirlenerek hayatını kaybeden dört kişilik Böcek ailesinin ölümüne ilişkin davada karar açıklandı. Mahkeme, DSS ilaç firmasının sahibi Zeki Kışı ve oğlu Serkan Kışı’yı alt sınırdan uzaklaşarak iyi hal indirimi...", "topics": ["saglik", "legal_case", "böcek", "benim", "kışı", "otel", "sahibi", "türkiye", "public_safety", "legal_process"]}, "article": {"author": null, "content_text": "Güncelleme Tarihi: Haziran 26, 2026 16:56\nAlmanya’dan Türkiye’ye tatile gelen ve Fatih’te konakladıkları oteldeki ilaçlama yüzünden anne Çiğdem Böcek ve baba Servet Böcek iki çocukları 6 yaşındaki Kadir Muhammet Böcek ve 3 yaşındaki Masal Böcek 13 Kasım 2025 tarihinde ‘zehirlenme' şüphesiyle tedavi altına alınmış, ardından da hayatlarını kaybetmişlerdi.\nYapılan soruşturma neticesinde, DSS İlaçlama Şirketinin sahibi Zeki Kışı, otelde ilaçlamayı yapan DSS firmasının çalışanı Doğan Caferoğlu, DSS firması çalışanı Serkan Kışı, Harbour Suit Otel çalışanı Muhammad Moeen Ud Dın Chıshtı, Harbour Suit Otel sahibi Hakan Oğlak hakkında, ‘bilinçli taksirle birden fazla kişinin ölümüne neden olma’ suçundan 2 yıl 8 aydan 22,5 yıla kadar, Harbour Suit Otel çalışanı Rustemsha Batyrov hakkında da ‘taksirle birden fazla kişinin ölümüne neden olma’ suçundan 2 yıldan 15 yıla kadar hapis istemiyle dava açılmıştı.\nİstanbul 30’uncu Ağır Ceza Mahkemesi’nde görülen duruşmaya, tutuklu sanıklar Zeki Kışı, Doğan Caferoğlu, Serkan Kışı, Hakan Oğlak ve tutuksuz sanıklar Muhammad Moeen Ud Dın Chıshtı, Rustemsha Batyrov ile tarafların avukatları katıldı. Ayrıca, Böcek ailesinin yakınları da duruşmaya katıldı.\nDuruşmada, sanıklar ve müştekiler esas hakkındaki mütalaaya karşı beyanda bulundu.\nÖlen Çiğdem Böcek’in annesi Aysu Çelik beyanında sanıklara bakarak, “Gereken adaleti sağlayın, onu toprağa koyduğumuz gün biz de öldük. Ne suçu vardı benim çocuklarımın. Benim evimde yemek pişmiyor artık, nasıl bir vicdanınız vardı. Benim çocuğum çiçek gibiydi. Para uğruna değdi mi bu? Benim kızım sağ olsaydı şimdi tatile gelecekti. Onlar geri gelmeyecek benim acımı hiçbir şey dindirmeyecek. Nasıl kıydınız? ‘Biz burayı ilaçladık’ deyip geri gönderebilirdiniz. Damadım karısını buraya bir hayalle doğum gününe getirmiş buraya, cenazeleri kaldı. Yüksek adaletinize güveniyorum başka canlar yanmasın. Bir annenin gözyaşını bırakmayın. Siz toprak öpmeyi biliyor musunuz? Çıkarmayın bunları en ağır cezayı verin. Neden yaptınız bunu? Değdi mi yalan dünyanın malı için. Yaşayacak mısınız bu vicdanla devlet sizi serbest bıraksa, bile bile ilaçladınız o odaya soktunuz çocuklarımı. Benim kızım sağlık okudu, ‘biz zehirlendik herhalde’ diyor, çocuğum resepsiyonda söylemiş. Oğlum kustu demiş, biriniz de demiyorki ilaçtan oldu, damadım giderdi başka otele belki kurulurlardı.” dedi.\nÇiğdem Böcek’in babası Mustafa Çelik de, “Türk adaletine güveniyorum. Cezalarını çeksinler. İçimize ateş düştü. En yüksek oranda cezalandırılsınlar.” dedi.\nÖlen Servet Böcek’in ağabeyi Mustafa Böcek de sanıkların en yüksek cezayla cezalandırılmalarını talep etti. Baba Yılmaz Böcek ise, “Bu karşınızda oturan zanlılar benim evlatlarımı bilerek ve görerek ölüme gönderdiler, benim evlatlarımın torunlarımın geleceği vardı. Torunlarım büyüyecekti, evlenecekti. Yaşadıklarını yaşamadan ölmesinler, evlat acısı nedir görsünler, dilerim daha beter olsunlar.” dedi.\nÖLÜMLERİN İLAÇLAMADAN OLMADIĞINI SAVUNDUAR\nTutuksuz sanık Rustemsha Batyrov mütalaaya karşı savunmasında, “beraatimi talep ediyorum, ailelere de başsağlığı diliyorum.” dedi. Tutuksuz sanık Muhammad Moeen Ud In Chıshtı, “başları sağolsun, mekanları cennet olsun. Beraatimi istiyorum.” dedi.\nTutuklu sanık Hakan Oğlak savunmasında, “Başları sağolsun, çok üzgünüm, mekanları cennet olsun. Benim param pulum feda olsun da o insanlar ölmeseydi. Yaşadığım sağlık problemden dolayı, acı olay yaşandığı dönemde otele sık sık gidip gelemiyordum. İlaçlama bilgim ve onayım dahilinde yapıldı. İlaçlama yapılınca sordum ne yapılması gerektiğini. 2 gün beklenmesini, havalandırılmasını ve ondan sonra kiraya verilmesini söyledim. Hangi ilaç kullanıldığını bilmiyorum. Bize oteli kapatmamızı ve tahliye etmemizi söylemediler. İlacın zarar vermediği yönünde bize iddialı konuşma yaptılar. Ben bu kişilerin ilaçtan etkilendikleri için vefat ettiklerini düşünmüyorum. Daha önce de ilaçlama yaptırmıştık, kimseye zarar gelmemişti. Benim olayda kusurum yada ihmalim yok. Tahliyemi ve beraatimi talep ediyorum.”\nTutuklu sanık Serkan Kışı, başsağlığı dileyerek, “başladığımız noktadayız, ilaçlamadan olmadığını düşünüyoruz. Bilirkişi raporları, ATK raporları vs. çelişkiler var.” dedi. Aileye müdahaleyi yapan sağlık çalışanlarının gerekli ve yeterli müdahaleyi yapmadıkları yönünde suçlayarak, “olay yeri inceleme raporlarında ilaç kalıntısı yok. Raporlarda kesinlik yok. ‘Olabilir’ deniliyor. Ben olaydan bin kilometre uzaktaydım.” dedi.\nTutuklu sanık Zeki Kışı da, “Konuşan annenin canı nasıl yandıysa benim de öyle yanıyor. Çok üzgünüm.” dedi.\nKararını açıklayan mahkeme, DSS ilaç firmasının sahibi Zeki Kışı ve oğlu Serkan Kışı’yı alt sınırdan uzaklaşarak iyi hal indirimi yapmadan 18 yıl hapis cezasına çarptırdı. Otel sahibi Hakan Oğlak 13 yıl 4 ay hapis cezasına çarptırıldı. İlaçlamayı yapan Doğan Caferoğlu ise 12 yıl 2 ay 20 gün hapis cezasına çarptırıldı. Otel çalışanları Muhammad Moeen Ud Dın Chıshtı ve Rustemsha Batyrov’nın ise beraatine karar verildi.\nTürkiye gündeminden son dakika haberleri, bugün yaşanan en son gelişmeler, siyaset gündeminden güncel haberler ve bütün son dakika haberleri için Hürriyet'in internet haber sitesi hurriyet.com.tr; Hurriyet.com.tr haber içerikleri kaynak gösterilmeden alıntı yapılamaz, Kanuna aykırı ve izinsiz olarak kopyalanamaz, başka yerde yayınlanamaz.", "published_at": "2026-06-26T16:56:15+03:00", "summary": "Son Dakika Haberler - Almanya'dan Türkiye'ye tatile gelen ve kaldıkları oteldeki ilaçlama yüzünden zehirlenerek hayatını kaybeden dört kişilik Böcek ailesinin ölümüne ilişkin davada karar açıklandı. Mahkeme, DSS ilaç firmasının sahibi Zeki Kışı ve oğlu Serkan Kışı’yı alt sınırdan uzaklaşarak iyi hal indirimi...", "tags": ["Böcek ailesi", "dava", "Böcek ailes"], "title": "Böcek ailesinin ölümüne ilişkin davada karar çıktı: İlaçlama firması sahiplerine 18 yıl, otel sahibine 13 yıl ceza", "url": "https://www.hurriyet.com.tr/gundem/bocek-ailesinin-olumune-iliskin-davada-mutalaa-aciklandi-43219177"}, "cluster": {"cluster_id": "cluster_6dd83d35ca", "cluster_size": 1, "common_terms": ["böcek", "benim", "kışı", "sanık", "otel", "sahibi", "yıl", "ilaç"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "Böcek ailesinin ölümüne ilişkin davada karar çıktı: İlaçlama firması sahiplerine 18 yıl, otel sahibine 13 yıl ceza", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:19Z", "content_hash": "5e02aa5d68dbb5f9a47fc02bdb941158f4b17452728f2a9d17337c2e0b7ecbe3"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 5307, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["hurriyet.com.tr"], "crawl_url": "https://www.hurriyet.com.tr", "homepage": "https://www.hurriyet.com.tr", "key": "hurriyet", "language": "tr", "name": "Hürriyet", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "spor", "confidence": 0.95, "entities": {"locations": ["Türkiye"], "organizations": ["Fenerbahçe", "Greenwood", "Marsilya", "UEFA", "Haziran", "Sarı-lacivertlilerin", "Fransız", "Fanatik", "İngiliz", "Haberde"], "persons": ["Spor Haberleri", "Mason Greenwood", "Güncelleme Tarihi", "İsmail Kartal", "LOOKMAN TRANSFERİNDE DE BENZER KRİZ", "YAŞANMIŞTI Geçtiğimiz", "Sadettin Saran"]}, "error": null, "event_type": "sports_result", "geography": ["Türkiye"], "importance": "critical", "keywords": ["fenerbahçe", "marsilya", "transfer", "fransız", "greenwood", "teminat", "banka", "bonservis"], "language": "tr", "model": null, "risk_flags": ["market_pressure"], "sentiment": "neutral", "subcategory": "sports_result", "summary": "Spor Haberleri - Fenerbahçe'nin Mason Greenwood transferinde banka teminatı krizi yaşadığı iddia edildi. Marsilya'nın, UEFA cezasını gerekçe göstererek sarı-lacivertlilerden bonservis bedeli için teminat talep ettiği öne sürüldü.", "topics": ["spor", "sports_result", "fenerbahçe", "marsilya", "transfer", "fransız", "greenwood", "türkiye", "market_pressure"]}, "article": {"author": null, "content_text": "Güncelleme Tarihi: Haziran 26, 2026 18:39\nİsmail Kartal yönetiminde yeni sezonun kadro planlamasını sürdüren Fenerbahçe 'de transfer çalışmaları tüm hızıyla devam ediyor.\nSarı-lacivertlilerin gündemindeki isimlerden biri olan Mason Greenwood için Fransız ekibi Marsilya ile temaslarını sürdürdüğü öne sürülürken, görüşmelerde dikkat çeken bir pürüz yaşandığı iddia edildi.\nFanatik'in haberine göre Marsilya, İngiliz yıldızın transferi için Fenerbahçe'den banka teminatı talep etti. Fransız kulübünün, bonservis bedelinin yaklaşık yüzde 70'lik bölümünü güvence altına almak istediği ifade edildi.\nHaberde, Fenerbahçe'nin 24 yaşındaki futbolcu için 35 milyon euro seviyesinde bir teklif sunduğu, Marsilya'nın ise 50 milyon euroluk bonservis beklentisini koruduğu belirtildi.\nTaraflar arasındaki pazarlıkların devam ettiği de aktarıldı.\nMarsilya'nın banka teminatı istemesinin arkasındaki nedenin ise Fenerbahçe'nin UEFA'dan aldığı para cezası olduğu öne sürüldü.\nFransız temsilcisinin, bu durumu ödeme garantisi konusunda temkinli davranmasının gerekçesi olarak gösterdiği kaydedildi.\nGeride kalan sezonda Marsilya formasıyla 45 resmi maçta görev yapan Mason Greenwood , 26 gol ve 11 asistlik dikkat çeken bir performans ortaya koymuştu.\nİngiliz futbolcunun Fransız ekibiyle olan sözleşmesi 30 Haziran 2029 tarihine kadar devam ediyor.\nLOOKMAN TRANSFERİNDE DE BENZER KRİZ YAŞANMIŞTI\nGeçtiğimiz kış transfer döneminde kadrosunu güçlendirmek isteyen Fenerbahçe, Sadettin Saran başkanlığında Lookman'ı transfer etmek istemişti. Ancak transfer, Atalanta'nın teminat mektubu istemesi üzerine iptal olmuştu.\nKonuyla ilgili ise Saran, \"Teminat mektubunu vermiş olsak da vermesek de o transfer yürümeyecekti, olmayacaktı.\" açıklamasında bulunmuştu.\nTürkiye'den ve Dünya’dan son dakika haberleri, köşe yazıları, magazinden siyasete, spordan seyahate bütün konuların tek adresi Hurriyet.com.tr haber içerikleri izin alınmadan, kaynak gösterilerek dahi iktibas edilemez. Kanuna aykırı ve izinsiz olarak kopyalanamaz, başka yerde yayınlanamaz.", "published_at": "2026-06-26T18:39:57+03:00", "summary": "Spor Haberleri - Fenerbahçe'nin Mason Greenwood transferinde banka teminatı krizi yaşadığı iddia edildi. Marsilya'nın, UEFA cezasını gerekçe göstererek sarı-lacivertlilerden bonservis bedeli için teminat talep ettiği öne sürüldü.", "tags": ["Fenerbahçe", "Mason Greenwood", "Transfer haberleri", "Transfer"], "title": "Fenerbahçe'ye Greenwood transferinde teminat krizi: Marsilya'dan dikkat çeken talep! UEFA detayı...", "url": "https://www.hurriyet.com.tr/sporarena/fenerbahceye-greenwood-transferinde-teminat-krizi-marsilyadan-dikkat-ceken-talep-uefa-detayi-43220018"}, "cluster": {"cluster_id": "cluster_2f3d64e8ed", "cluster_size": 1, "common_terms": ["fenerbahçe", "marsilya", "transfer", "greenwood", "fransız", "teminat", "transferi", "banka"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "Fenerbahçe'ye Greenwood transferinde teminat krizi: Marsilya'dan dikkat çeken talep! UEFA detayı...", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:19Z", "content_hash": "7ac19bf321eac81e0f4d736d80f6228a07c53620a0195687f97096761c5d55be"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 2029, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["hurriyet.com.tr"], "crawl_url": "https://www.hurriyet.com.tr", "homepage": "https://www.hurriyet.com.tr", "key": "hurriyet", "language": "tr", "name": "Hürriyet", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "saglik", "confidence": 0.83, "entities": {"locations": ["Türkiye"], "organizations": ["Türk", "Bir", "İnanır", "Mayıs", "Yeşilçam", "Sanatçı", "Törenin", "Annemin", "Seni", "Haziran"], "persons": ["Kadir İnanır", "Haziran Pazar", "Atatürk Kültür Merkezi", "Barbaros Hayrettin Paşa Camii", "Ulus Mezarlığı", "İLGİNİZİ ÇEKEBİLİR Kadir İnanır", "Haberi Görüntüle GÜNLER ÖNCE ABLASINI", "KAYBETMİŞTİ Sanatçı Soner Arıca", "Levent İnanır", "Erdoğan Arıca"]}, "error": null, "event_type": "policy_decision", "geography": ["Türkiye"], "importance": "critical", "keywords": ["nanır", "arıca", "kadir", "haziran", "cenaze", "hayatını", "yolculuğuna", "fatsa"], "language": "tr", "model": null, "risk_flags": ["market_pressure"], "sentiment": "neutral", "subcategory": "policy_decision", "summary": "Kadir İnanır'ın cenaze töreni programı ne zaman, nerede?", "topics": ["saglik", "policy_decision", "nanır", "arıca", "kadir", "haziran", "cenaze", "türkiye", "market_pressure"]}, "article": {"author": null, "content_text": "26.06.2026 - 19:41 | Son Güncellenme: 26.06.2026 - 20:23\nTürk sinemasının usta ismi Kadir İnanır , tedavi gördüğü hastanede hayatını kaybetti. Bir süredir sağlık sorunlarıyla mücadele eden İnanır, 14 Mayıs'ta zatürre teşhisiyle hastaneye kaldırılmış, akciğerindeki enfeksiyon nedeniyle yoğun bakıma alınmıştı. 22 Mayıs'ta durumunun ağırlaşması üzerine entübe edilen usta oyuncu, yapılan tüm müdahalelere rağmen kurtarılamadı.\nYeşilçam 'ın vefat eden unutulmaz oyuncusu Kadir İnanır, 28 Haziran Pazar günü son yolculuğuna uğurlanacak. Sanatçı için söz konusu tarihte, saat 13.00'da Atatürk Kültür Merkezi'nde tören düzenlenecek.\nTörenin ardından İnanır'ın cenaze namazı, Barbaros Hayrettin Paşa Camii'nde kılınacak. 77 yaşında İnanır, Ulus Mezarlığı'na defnedilecek. İLGİNİZİ ÇEKEBİLİR Kadir İnanır hayatını kaybetti! 'Annemin sözü hayatımı belirledi: Seni düşürmek için her yolu denedim ama...' Haberi Görüntüle GÜNLER ÖNCE ABLASINI KAYBETMİŞTİ Sanatçı Soner Arıca ile Levent İnanır ve merhum milli futbolcu Erdoğan Arıca'nın annesi, aktör Kadir İnanır'ın ablası Altun Arıca, 23 Haziran'da hayatını kaybetmişti. Haberin Devamı Arıca, 24 Haziran'da Ordu'nun Fatsa ilçesinde gözyaşları içinde son yolculuğuna uğurlanmıştı.\nTörenin ardından İnanır'ın cenaze namazı, Barbaros Hayrettin Paşa Camii'nde kılınacak. 77 yaşında İnanır, Ulus Mezarlığı'na defnedilecek.\nSanatçı Soner Arıca ile Levent İnanır ve merhum milli futbolcu Erdoğan Arıca'nın annesi, aktör Kadir İnanır'ın ablası Altun Arıca, 23 Haziran'da hayatını kaybetmişti.\nArıca, 24 Haziran'da Ordu'nun Fatsa ilçesinde gözyaşları içinde son yolculuğuna uğurlanmıştı.\nArıca, 24 Haziran'da Ordu'nun Fatsa ilçesinde gözyaşları içinde son yolculuğuna uğurlanmıştı.\nTürkiye'den ve Dünya’dan son dakika haberler, köşe yazıları, magazinden siyasete, spordan seyahate bütün konuların tek adresi http://milliyet.com.tr ; Milliyet.com.tr haber içerikleri izin alınmadan, kaynak gösterilerek dahi iktibas edilemez. Kanuna aykırı ve izinsiz olarak kopyalanamaz, başka yerde yayınlanamaz.", "published_at": "2026-06-26T20:23:28+03:00", "summary": "Kadir İnanır'ın cenaze töreni programı ne zaman, nerede?", "tags": ["kadir inanir", "cenaze toreni", "yesilcam", "cenaze programi", "vefat", "kadir inanir cenaze ne zaman"], "title": "Kadir İnanır'ın cenaze programı belli oldu", "url": "https://www.milliyet.com.tr/magazin/son-dakika-olumuyle-yasa-bogdu-kadir-inanirin-cenaze-programi-belli-oldu-7612917"}, "cluster": {"cluster_id": "cluster_ef573cb9d7", "cluster_size": 3, "common_terms": ["nanır", "kadir", "başsağlığı", "vefat", "usta", "allah", "rahmet", "sanat"], "method": "token_cosine_v1", "related_urls": ["https://www.haberturk.com/cumhurbaskani-recep-tayyip-erdogan-kadir-inanir-in-vefatini-buyuk-uzuntuyle-ogrendim-3894453", "https://www.sabah.com.tr/gundem/2026/06/26/siyasilerden-kadir-inanir-icin-pes-pese-taziye-mesajlari"], "representative_title": "Başkan Erdoğan ve siyasilerden Kadir İnanır için taziye mesajları: Büyük bir üzüntüyle öğrendim", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:20Z", "content_hash": "addd4b85f5dcbb02ee25d2ecd72bacb0a279416ba910feb4cc057eca0bc0ff6a"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 2028, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["milliyet.com.tr"], "crawl_url": "https://www.milliyet.com.tr", "homepage": "https://www.milliyet.com.tr", "key": "milliyet", "language": "tr", "name": "Milliyet", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "dunya", "confidence": 0.47, "entities": {"locations": ["Türkiye"], "organizations": ["Trump", "İran", "Diğer", "ABD", "Açıkçası", "Dünya", "Milliyet.com.tr"], "persons": ["Hürmüz Boğazı", "ABD Başkanı Donald Trump", "ABD Başkanı Trump"]}, "error": null, "event_type": "policy_decision", "geography": ["Türkiye"], "importance": "critical", "keywords": ["trump", "aptalca", "boğazı", "hürmüz", "tankerin", "başkanı", "hedef", "ndan"], "language": "tr", "model": null, "risk_flags": [], "sentiment": "neutral", "subcategory": "policy_decision", "summary": "ABD Başkanı Donald Trump, Hürmüz Boğazı'ndan geçiş yapan uluslararası bir tankerin İran'a ait 4 dron tarafından hedef alındığını belirterek, bu eylemi iki ülke arasındaki mevcut anlaşmanın aptalca bir ihlali olarak nitelendirdi.", "topics": ["dunya", "policy_decision", "trump", "aptalca", "boğazı", "hürmüz", "tankerin", "türkiye"]}, "article": {"author": null, "content_text": "26.06.2026 - 19:18 | Son Güncellenme: 26.06.2026 - 22:43\nABD Başkanı Donald Trump, İran'a ait dronların Hürmüz Boğazı 'ndan geçen bir tankeri hedef aldığını ve bunun \"ateşkesin aptalca ihlali\" olduğunu savundu.\nABD Başkanı Trump, sosyal medya hesabından yaptığı paylaşımda, İran'ı \"ateşkesi ihlal etmekle\" suçladı.\nTrump, açıklamasında, Hürmüz Boğazı'ndan geçen bir tankerin İran'a ait 4 dron tarafından hedef alındığını, bu dronlardan birinin tankerin üst güvertesine isabet ettiğini ancak tankerin yoluna devam ettiğini belirtti.\nDiğer 3 dronun ise ABD ordusu tarafından düşürüldüğünü aktaran Trump, \"Açıkçası bu, ateşkes anlaşmamızın aptalca bir ihlalidir.\" ifadesini kullandı.\nTürkiye'den ve Dünya’dan son dakika haberler, köşe yazıları, magazinden siyasete, spordan seyahate bütün konuların tek adresi milliyet.com.tr; Milliyet.com.tr haber içerikleri izin alınmadan, kaynak gösterilerek dahi iktibas edilemez, kanuna aykırı ve izinsiz olarak kopyalanamaz, başka yerde yayınlanamaz.", "published_at": "2026-06-26T22:43:25+03:00", "summary": "ABD Başkanı Donald Trump, Hürmüz Boğazı'ndan geçiş yapan uluslararası bir tankerin İran'a ait 4 dron tarafından hedef alındığını belirterek, bu eylemi iki ülke arasındaki mevcut anlaşmanın aptalca bir ihlali olarak nitelendirdi.", "tags": ["hurmuz bogazi", "abd-iran gerilimi", "dron saldirisi", "trump aciklamasi", "ateskes ihlali"], "title": "Hürmüz Boğazı'nda sıcak saatler! Trump: İran ateşkesi 'aptalca' ihlal etti", "url": "https://www.milliyet.com.tr/dunya/hurmuz-bogazinda-tansiyon-tekrar-yukseliyor-trump-iran-ateskesi-aptalca-ihlal-etti-7612907"}, "cluster": {"cluster_id": "cluster_cd0d04bfab", "cluster_size": 2, "common_terms": ["trump", "boğazı", "aptalca", "hürmüz", "ran", "hedef", "abd", "ndan"], "method": "token_cosine_v1", "related_urls": ["https://www.bloomberght.com/trump-iran-i-ateskesi-ihlal-etmekle-sucladi-3781345"], "representative_title": "Hürmüz Boğazı'nda sıcak saatler! Trump: İran ateşkesi 'aptalca' ihlal etti", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:20Z", "content_hash": "766ad4deba28b2ac49ee855c4d037eb38428408a678799bddec3e0118a8e37a8"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 987, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["milliyet.com.tr"], "crawl_url": "https://www.milliyet.com.tr", "homepage": "https://www.milliyet.com.tr", "key": "milliyet", "language": "tr", "name": "Milliyet", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "siyaset", "confidence": 0.83, "entities": {"locations": ["Türkiye"], "organizations": ["Büyük", "Türk", "İnanır", "Usta", "İstanbul", "Zatürreye", "HAZİRAN", "Haziran", "Törenin", "Allah"], "persons": ["Başkan Erdoğan", "Kadir İnanır", "Başkan Recep Tayyip Erdoğan", "Acıbadem Fulya Hastanesi", "DA SON YOLCULUĞUNA UĞURLANACAK Sanatçı", "Atatürk Kültür Merkezi", "Barbaros Hayrettin Paşa Camii", "Ulus Mezarlığı", "SİYASİLERDEN PEŞ PEŞE TAZİYE MESAJLARI", "BAŞKAN ERDOĞAN"]}, "error": null, "event_type": "social_discussion", "geography": ["Türkiye"], "importance": "critical", "keywords": ["nanır", "kadir", "başsağlığı", "usta", "sanat", "ailesine", "allah", "hastanede"], "language": "tr", "model": null, "risk_flags": ["public_safety", "market_pressure", "political_tension"], "sentiment": "neutral", "subcategory": "social_discussion", "summary": "Son dakika haberler - Türk sinemasında canlandırdığı karakterlerle hafızalara kazınan usta oyuncu Kadir İnanır, bir süredir tedavi gördüğü hastanede 77 yaşında hayatını kaybetti. Başkan Recep Tayyip Erdoğan başta olmak üzere çok sayıda siyasi isim yayımladıkları taziye mesajları ile İnanır'ın...", "topics": ["siyaset", "social_discussion", "nanır", "kadir", "başsağlığı", "usta", "sanat", "türkiye", "public_safety", "market_pressure", "political_tension"]}, "article": {"author": null, "content_text": "Son dakika haberleri: Usta oyuncu Kadir İnanır, İstanbul'da tedavi gördüğü hastanede yaşamını yitirdi.\nZatürreye bağlı solunum sıkıntısı nedeniyle Acıbadem Fulya Hastanesi'ne kaldırılan 77 yaşındaki Kadir İnanır'ın durumu kötüleşti.\nİnanır, hastanede yapılan tüm müdahalelere rağmen kurtarılamadı.\n28 HAZİRAN'DA SON YOLCULUĞUNA UĞURLANACAK\nSanatçı için 28 Haziran tarihinde saat 13.00'da Atatürk Kültür Merkezi'nde tören düzenlenecek. Törenin ardından İnanır'ın cenaze namazı, Barbaros Hayrettin Paşa Camii'nde kılınacak.\nZatürreye bağlı solunum sıkıntısı nedeniyle kaldırıldığı Acıbadem Fulya Hastanesi'nde hayata veda eden 77 yaşında İnanır, Ulus Mezarlığı'na defnedilecek.\nSİYASİLERDEN PEŞ PEŞE TAZİYE MESAJLARI\nBaşkan Recep Tayyip Erdoğan başta olmak üzere çok sayıda siyasi isim yayımladıkları taziye mesajları ile İnanır'ın ailesine, yakınlarına ve sanat camiasına başsağlığı dileklerini iletti.\nBAŞKAN ERDOĞAN: BÜYÜK BİR ÜZÜNTÜYLE ÖĞRENDİM\nBaşkan Recep Tayyip Erdoğan, tedavi gördüğü hastanede hayatını kaybeden usta oyuncu Kadir İnanır'a Allah'tan rahmet, ailesine, sevenlerine ve sanat camiasına başsağlığı diledi.\nBaşkan Erdoğan, NSosyal hesabından yaptığı paylaşımda, \"Türk sinemasının usta aktörlerinden Kadir İnanır'ın vefat ettiğini büyük bir üzüntüyle öğrendim. Sayın Kadir İnanır'a Allah'tan rahmet niyaz ediyor, ailesine, yakınlarına, sevenlerine ve tüm sanat camiamıza başsağlığı dileklerimi iletiyorum.\" ifadelerini kullandı.\nBAKAN MEMİŞOĞLU: SANAT CAMİAMIZA BAŞSAĞLIĞI DİLERİM\nSağlık Bakanı Kemal Memişoğlu, İstanbul'da tedavi gördüğü hastanede vefat eden usta oyuncu Kadir İnanır için başsağlığı diledi.\nMemişoğlu, NSosyal hesabından yayımladığı mesajında, \"Sinema sanatçısı Kadir İnanır'ın vefatını üzüntüyle öğrendim. Kendisine Allah'tan rahmet, ailesine, sevenlerine ve sanat camiamıza başsağlığı dilerim. Mekanı cennet olsun.\" ifadelerini kullandı.\nÇevre, Şehircilik ve İklim Değişikliği Bakanı Murat Kurum, İstanbul'da tedavi gördüğü hastanede vefat eden usta oyuncu Kadir İnanır için başsağlığı diledi.\nBakan Kurum, NSosyal hesabından yayımladığı mesajında, \"Asya'nın İlyas'ı, Türk sinemasının Tatar Ramazan'ıydı… Usta oyuncu Kadir İnanır'ın vefatını derin bir üzüntüyle öğrendim. Kendisine Allah'tan rahmet, ailesine ve tüm sevenlerine başsağlığı diliyorum. Mekanı cennet olsun.\" ifadelerini kullandı.\nKültür ve Turizm Bakanı Mehmet Nuri Ersoy, İstanbul'da tedavi gördüğü hastanede vefat eden usta oyuncu Kadir İnanır için başsağlığı diledi.\nErsoy, NSosyal hesabından yayımladığı mesajında, şunları kaydetti:\n\"Selvi Boylum Al Yazmalım, Tatar Ramazan, Yılanların Öcü, Kara Gözlüm, Bitirim Kardeşler, Dila Hanım... Saymakla bitmeyecek, canlandırdığı karakterle unutulmayacak bir efsaneyi, Kadir İnanır'ı kaybetmenin derin üzüntüsü içindeyiz. Türk sinemasının usta ismi hafızalarımızda ve gönlümüzde yaşamaya devam edecek. Seni unutmayacağız. Allah rahmet eylesin, mekanı cennet olsun.\"\nCUMHURBAŞKANI YARDIMCISI YILMAZ: KUŞAKLAR BOYUNCA TOPLUMSAL HAFIZAMIZA DERİN İZLER BIRAKTI\nCumhurbaşkanı Yardımcısı Cevdet Yılmaz, İstanbul'da tedavi gördüğü hastanede vefat eden usta oyuncu Kadir İnanır için başsağlığı diledi.\nYılmaz, NSosyal hesabından yayımladığı mesajında, \"Türk sinemasının unutulmaz isimlerinden Kadir İnanır'ın vefatını üzüntüyle öğrendim. Sanatı, duruşu ve eserleriyle kuşaklar boyunca toplumsal hafızamıza derin izler bırakan değerli sanatçımıza Allah'tan rahmet, ailesine, sanat camiasına ve tüm sevenlerine başsağlığı diliyorum. Mekanı cennet olsun.\" ifadelerini kullandı.\nBAKAN GÖKTAŞ: KIYMETLİ OYUNCUMUZU UNUTULMAZ FİLMLERİYLE DAİMA HATIRLAYACAĞIZ\nAile ve Sosyal Hizmetler Bakanı Mahinur Özdemir Göktaş, İstanbul'da tedavi gördüğü hastanede vefat eden usta oyuncu Kadir İnanır için başsağlığı diledi.\nBakan Göktaş, NSosyal hesabından yayımladığı mesajında, \"Türk sinemasının müstesna isimlerinden Kadir İnanır'a Allah'tan rahmet, ailesine ve sanat camiamıza başsağlığı diliyorum. Kıymetli oyuncumuzu unutulmaz filmleriyle daima hatırlayacağız. Mekanı cennet olsun.\" ifadelerini kullandı.\nİLETİŞİM BAŞKANI DURAN: TÜM SEVENLERİNE SABIR VE BAŞSAĞLIĞI DİLİYORUM\nCumhurbaşkanlığı İletişim Başkanı Burhanettin Duran, Kadir İnanır için paylaştığı taziye mesajında, \"Türk sinemasının efsane isimlerinden Sayın Kadir İnanır'ın vefatını derin bir teessürle öğrendim. Kıymetli sanatçımıza Allah'tan rahmet; ailesine, yakınlarına, sanat camiasına ve tüm sevenlerine sabır ve başsağlığı diliyorum.\" ifadelerini kullandı.\nAK PARTİLİ HÜSEYİN YAYMAN: HER ZAMAN SAYGIYLA HATIRLANACAKTIR\nAK Parti Genel Başkan Yardımcısı ve Kültür ve Sanat Politikaları Başkanı Hüseyin Yayman Yeşilçam efsanesi Kadir İnanır'ın vefatı sonrası taziye mesajı yayınladı.\n\"Türk sinemasının usta ismi Kadir İnanır'ın vefatını büyük bir üzüntüyle öğrendim. 2013 yılında Akil İnsanlar Heyeti'nde uzun süre birlikte çalışmıştık. Türkiye'nin sorunlarına olan ilgisi, Demokrat tavrı ve yapıcı yaklaşımıyla daima çözüme inanıyordu. Ülkenin farklı kesimlerini bir araya getirme çabasındaki duruşu, katkısı ve sanat hayatındaki yeri her zaman saygıyla hatırlanacaktır. Allah rahmet eylesin mekanı cennet olsun. Ailesine, sevenlerine ve sanat camiasına başsağlığı diliyorum.\"\nTBMM BAŞKANI KURTULMUŞ: MİLYONLARIN GÖNLÜNDE TAHT KURDU\nTBMM Başkanı Numan Kurtulmuş, İstanbul'da tedavi gördüğü hastanede vefat eden usta oyuncu Kadir İnanır için başsağlığı diledi.\nKurtulmuş, sosyal medya hesabından yayımladığı mesajında, şu ifadeleri kullandı:\n\"Yeşilçam'ın unutulmaz isimlerinden, güçlü oyunculuğu ve sanatına kattığı eşsiz değerlerle milyonların gönlünde taht kuran Kadir İnanır'a Allah'tan rahmet, ailesine, sevenlerine ve sanat camiasına başsağlığı diliyorum.\"", "published_at": null, "summary": "Son dakika haberler - Türk sinemasında canlandırdığı karakterlerle hafızalara kazınan usta oyuncu Kadir İnanır, bir süredir tedavi gördüğü hastanede 77 yaşında hayatını kaybetti. Başkan Recep Tayyip Erdoğan başta olmak üzere çok sayıda siyasi isim yayımladıkları taziye mesajları ile İnanır'ın...", "tags": [], "title": "Başkan Erdoğan ve siyasilerden Kadir İnanır için taziye mesajları: Büyük bir üzüntüyle öğrendim", "url": "https://www.sabah.com.tr/gundem/2026/06/26/siyasilerden-kadir-inanir-icin-pes-pese-taziye-mesajlari"}, "cluster": {"cluster_id": "cluster_ef573cb9d7", "cluster_size": 3, "common_terms": ["nanır", "kadir", "başsağlığı", "vefat", "usta", "allah", "rahmet", "sanat"], "method": "token_cosine_v1", "related_urls": ["https://www.haberturk.com/cumhurbaskani-recep-tayyip-erdogan-kadir-inanir-in-vefatini-buyuk-uzuntuyle-ogrendim-3894453", "https://www.milliyet.com.tr/magazin/son-dakika-olumuyle-yasa-bogdu-kadir-inanirin-cenaze-programi-belli-oldu-7612917"], "representative_title": "Başkan Erdoğan ve siyasilerden Kadir İnanır için taziye mesajları: Büyük bir üzüntüyle öğrendim", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:20Z", "content_hash": "5801fca145eff2bf22a67c0381d73d3ab601027bc259d5de63bc3ea2088b5e6d"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 5651, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["sabah.com.tr"], "crawl_url": "https://www.sabah.com.tr", "homepage": "https://www.sabah.com.tr", "key": "sabah", "language": "tr", "name": "Sabah", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "ekonomi", "confidence": 0.95, "entities": {"locations": ["Türkiye", "Türkiye İhracatçılar Meclisinin", "Başkan Erdoğan Türkiye"], "organizations": ["Reeskont", "TİM", "Genel Kurulu", "Olağan Genel Kurulu", "İhracat", "Erdoğan", "Sizler", "Yol", "Konjonktürel", "Küresel"], "persons": ["Başkan Erdoğan", "Başkan Recep Tayyip Erdoğan", "Haliç Kongre Merkezi", "İhracat Şampiyonları Ödül Töreni", "İhracatın Şampiyonları Ödül Töreni", "TİM Başkanı", "Video Başkan Recep Tayyip Erdoğan", "NOTLARIMDA İHRACATÇILARIMIZIN", "YATIRIMCILARIMIZIN TALEPLERİ HEP ÜST SIRALARDADIR", "İslam İşbirliği Teşkilatı"]}, "error": null, "event_type": "incident", "geography": ["Türkiye"], "importance": "critical", "keywords": ["milyar", "erdoğan", "başkan", "türkiye", "yüzde", "ticaret", "yılında", "dolar"], "language": "tr", "model": null, "risk_flags": ["public_safety", "legal_process", "market_pressure", "political_tension", "international_conflict"], "sentiment": "neutral", "subcategory": "incident", "summary": "Son dakika haberler - Son dakika haberi: Başkan Recep Tayyip Erdoğan, Haliç Kongre Merkezi'nde 'TİM 33. Genel Kurulu ve İhracat Şampiyonları Ödül Töreni'nde konuştu. Başkan Erdoğan, 'Türkiye dünün kendi içine kapanık Türkiye’si değil, artık her alanda büyük devletlerin saygı duyduğu bir Türkiye var'...", "topics": ["ekonomi", "incident", "milyar", "erdoğan", "başkan", "türkiye", "yüzde", "public_safety", "legal_process", "market_pressure"]}, "article": {"author": null, "content_text": "Başkan Erdoğan, Haliç Kongre Merkezi'nde düzenlenen TİM 33. Olağan Genel Kurulu ve İhracatın Şampiyonları Ödül Töreni'nde yaptığı konuşmada, genel kurulun ülke, ekonomi ve ihracatçılar için hayırlı olmasını diledi.\nİhracat şampiyonları olarak ödül alacak firmaları ve sektör birincisi iş insanlarını tebrik eden Erdoğan, aktaracağı rakamların her kuruşunun nasıl kazanıldığını, hangi zorlu mücadelelerin verildiğini ancak bunun derdiyle dertlenenlerin bilebileceğini belirterek, ticaretten gelen biri olarak bu başarıların öyle kolay elde edilmediğini, azim, sabır, gayret, kabiliyet ve kararlılık gerektirdiğini çok iyi bildiğini dile getirdi.\nErdoğan, özellikle ihracatın artık sadece mal alıp başka bir yere satmanın ötesinde olduğuna işaret ederek, \"Sizler, kimi zaman bir ihracatçı kimi zaman bir gönül elçisi kimi zaman da Türkiye'nin önüne çıkarılan engelleri aşmak için mücadele eden birer serdengeçti olarak ülkemizin yükünü omuzluyorsunuz. Bu vesileyle TİM Başkanı'na, yönetim kurulu üyelerine ve bugüne kadar TİM çatısı altında hizmet etmiş tüm kardeşlerime teşekkür ediyorum. Yol, dava ve kader arkadaşlarım olarak gördüğüm ihracatçılarımızın daima yanında oldum, bundan sonra da yanınızda olmayı sürdüreceğim.\" ifadelerini kullandı.\nTürkiye'deki 27 sektörü, 61 ihracatçı birliğini ve 140 bini aşkın ihracatçıyı çatısı altında toplayan Türkiye İhracatçılar Meclisinin amacının dış ticaret fazlası veren Türkiye hedefine ulaşmak olduğunu dile getiren Erdoğan, dünyanın en ücra köşelerinden en rekabetçi pazarlarına kadar üzerinde Türkiye mührü taşıyan her üründe bu devasa ailenin alın terinin, dinamizminin ve küresel vizyonunun bulunduğunu ifade etti.\nErdoğan, Türkiye'nin yıldan yıla artan başarı grafiğinin ortada olduğunu, karşılaştığı çeşitli güçlüklere rağmen nereden nereye geldiğini dünyayı takip eden, ufku ve gözleri açık herkesin görebildiğini belirterek, şunları kaydetti:\n\"Konjonktürel gerilimlerin gölgesinde 2025 yılında yüzde 3,6'lık büyüme ve 2026 yılının ilk çeyreğinde ise yüzde 2,5 oranında büyüme kaydettik ve kesintisiz büyüme performansımızı son 23 çeyreğe taşıdık. Küresel pazarlarda bayrağımızın dalgalanmadığı tek bir gümrük kapısı bırakmama şiarıyla gerçekleştirdiğimiz ihracattaki başarılarımız, artık milli motivasyon kaynağımız haline gelmiş durumda. 2025 yılında mal ve hizmet ihracatımız, 395,9 milyar dolarla cumhuriyet tarihimizin rekorunu kırdı. 2002 yılında yalnızca 36 milyar dolar olan mal ihracatımız, 2025 itibarıyla 273,3 milyar dolara yükseldi. Hizmet ihracatımız ise 2002 yılındaki 14 milyar dolardan geçen yıl 122,6 milyar dolara çıktı. Küresel mal ihracatındaki payımız, binde 55'ten yüzde 1,04'e, hizmet ihracatımızdaki payımız da binde 89'dan yüzde 1,28'e ulaştı. İhracatta yakaladığımız ivme, hamdolsun 2026 yılında da kaldığı yerden devam ediyor.\nMayıs ayında tatil etkisiyle dış ticaret verilerimizde geçici bir yavaşlama oldu ama 22 Mayıs tarihinde günlük ihracatta 2,4 milyar dolar ile tüm zamanların en yüksek değerine ulaştık.\"\nBaşkan Erdoğan'dan ihracatçılara müjde: Reeskont kredileri günlük limiti 5 milyar liraya çıkarıldı | Video\nBaşkan Recep Tayyip Erdoğan , \"Daha önce 300 milyon lira olan reeskont kredilerinin günlük limitini 4,5 milyar liraya yükseltmiştik. Bu defa ilave 500 milyon lira ile bu rakamı 5 milyar liraya çıkarıyoruz. Bir diğer ifadeyle, 3 yıl önce 300 milyon lira olan reeskont kredileri günlük limitini yaklaşık 17 kat artırarak 5 milyar liraya yükseltmiş oluyoruz.\" dedi.\nHaliç Kongre Merkezi'nde düzenlenen TİM 33. Olağan Genel Kurulu ve İhracatın Şampiyonları Ödül Töreni'nde konuşan Başkan Erdoğan Türkiye'nin ihracatındaki artışın sadece nicelik olarak değil nitelik olarak da büyük bir gelişim gösterdiğini söyledi.\nErdoğan, 2002 yılında 10 milyar dolar olan orta yüksek ve yüksek teknolojili ürün ihracatının 2025 yılında 112 milyar dolara yükseldiğini, yıllıklandırılmış orta yüksek ve yüksek teknolojili imalat sanayi ürünleri ihracatının ise 114,4 milyar doları bulduğunu dile getirdi.\nSon verilere göre savunma ve havacılık ihracatının Ocak-Mayıs döneminde yüzde 29 artışla 3 milyar 863 milyon dolar olarak gerçekleştiğini kaydeden Başkan Erdoğan, \"Böylece savunma ihracatımızda yılın ilk 5 ayında yüzde 29,5 artış oldu. Yıllık 248 milyon dolar savunma sanayi ihracatından bugün aynı sektörde aylık 992 milyon dolar ihracat yapan seviyeye geldik. Yani bir yılda yaptığımız ihracatı, hamdolsun, artık bir haftada yapıyoruz.\" ifadelerini kullandı.\nBaşkan Erdoğan, bu rakamların Türkiye'nin teknoloji yoğun ürünlere olan yöneliminin bir sonucu olarak gerçekleştiğini ve bu payın daha da artırılmasını hedeflediklerini kaydetti.\nBir diğer gündemlerinin ihracatı ülke sathına yaymak olduğunu dile getiren Başkan Erdoğan, \"Bunda da hamdolsun önemli ilerlemeler kaydettik. Ocak-Mayıs döneminde 21 ilimiz, 1 milyar doların üzerinde ihracat yaptı. Daha fazla ilimizi ihracatta pay sahibi kılmak için çalışmalarımız sürüyor. Şunu bir defa herkesin bilmesini temenni ederim. Etrafındaki onca sıkıntıya, çatışmaya, krize rağmen dünyada ülkemizin ihracattaki bu hızlı yükselişiyle mukayese edilebilecek pek az örnek vardır.\" diye konuştu.\nBaşkan Erdoğan, \"Elbette buralarda durmayacağız, mevcutla yetinmeyeceğiz. Yakın coğrafyalarda yoğunlaşan ihracat ağımızı daha uzak coğrafyalara doğru genişleterek, ihracatçımızın yeni ihtiyaçlarını karşılayacak yeni imkanlar geliştirerek, artan ihracatımızın hızına ve ihtiyaçlarına uygun finansmanı sağlayacak yeni mekanizmalarla bu başarı hikayesini daha da ileriye taşıyacağız. İnşallah bunu da 23 yıldır olduğu gibi yine sizlerle birlikte başaracağız.\" sözlerini sarf etti.\n\"NOTLARIMDA İHRACATÇILARIMIZIN, YATIRIMCILARIMIZIN TALEPLERİ HEP ÜST SIRALARDADIR\"\nLimanlardan kalkan gemilerin, sınırlardan çıkan tırların Türkiye'de üretilen ürünleri taşıması, kargo uçaklarının iş insanları için çalışması için üzerlerine düşeni yaptıklarını belirten Erdoğan, \"İhracatçımız için yeri geldi kendi bürokrasimizi hızlandırdık, yeri geldi diğer ülkelerle müzakere ederek engelleri kaldırdık. Ne zaman bir devlet ve hükümet başkanıyla bir araya gelsem notlarımda ihracatçılarımızın, yatırımcılarımızın talepleri hep üst sıralardadır.\" dedi.\nErdoğan, konuyu mutlaka muhatabıyla masaya yatırdığını ve çözüm iradesinin ticaret yollarına yansıması için de arkadaşlarını görevlendirdiğini anlatarak, \"Daha sonra da bu görevlerin takibini çok sıkı bir şekilde yaparım. Diğer ülke liderleri de bizim bu tutumumuzu bildikleri için iş insanlarımıza kapılarını açmış, Türk iş dünyasını bağırlarına basmışlardır. Serbest ticaret anlaşmalarından tercihli ticaret anlaşmalarına, yatırımların karşılıklı teşvikinden çifte vergilendirmenin önlenmesine kadar sizleri teşvik edecek her türlü hukuki altyapıyı kurduk, kuruyoruz.\" açıklamalarında bulundu.\nÖzellikle uzak ülkelere ihracatı 2028 yılına kadar 50 milyar dolara ulaştırmayı hedeflediklerini bildiren Başkan Erdoğan, \"Ciddi potansiyel barındıran İslam İşbirliği Teşkilatı üyesi ülkelerin toplam ihracatımızdaki payını ise yüzde 30 seviyesine çıkarmak için çalışıyoruz.\" diye konuştu.\nErdoğan, taşımayı kolaylaştırmak için dijitalleşmenin tüm imkanlarını kullanarak gümrük süreçlerini sürekli hızlandırdıklarının altını çizerek, finansman araçlarının çeşitlendirilmesi ve erişilebilirliğinin artırılması için önemli adımlar attıklarını söyledi.\n\"EXİMBANK'IN SERMAYESİNİ 13,8 MİLYAR LİRADAN 100 MİLYAR LİRAYA ÇIKARDIK\"\nTürk Eximbank, Türk Ticaret Bankası ve İhracatı Geliştirme Anonim Şirketi eliyle ihracat menzilini genişletecek destekleri kesintisiz sağladıklarını ifade eden Başkan Erdoğan, şunları kaydetti:\n\"Eximbank'ın sermayesini 13,8 milyar liradan 100 milyar liraya çıkardık. Bankamızın kredi ve sigorta desteği bu yılın ilk 5 ayında yüzde 31 artışla 26 milyar dolara ulaştı. İnşallah yıl sonunda bankamız 60 milyar dolarlık destekle rekor kıracak. Öte yandan faaliyetlerine yakın zamanda başlayan Türk Ticaret Bankası 2025 yılında ihracatçılarımıza 76,3 milyar lira finansman desteği verdi. İhracatı Geliştirme Anonim Şirketi ise", "published_at": null, "summary": "Son dakika haberler - Son dakika haberi: Başkan Recep Tayyip Erdoğan, Haliç Kongre Merkezi'nde 'TİM 33. Genel Kurulu ve İhracat Şampiyonları Ödül Töreni'nde konuştu. Başkan Erdoğan, 'Türkiye dünün kendi içine kapanık Türkiye’si değil, artık her alanda büyük devletlerin saygı duyduğu bir Türkiye var'...", "tags": [], "title": "Son dakika | Başkan Erdoğan'dan ihracatçılara müjde: Reeskont kredileri günlük limiti 5 milyar liraya çıkarıldı", "url": "https://www.sabah.com.tr/gundem/2026/06/26/son-dakika-baskan-erdogandan-onemli-aciklamalar"}, "cluster": {"cluster_id": "cluster_d84ef3fea0", "cluster_size": 1, "common_terms": ["milyar", "erdoğan", "başkan", "türkiye", "yüzde", "ticaret", "yılı", "dolar"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "Son dakika | Başkan Erdoğan'dan ihracatçılara müjde: Reeskont kredileri günlük limiti 5 milyar liraya çıkarıldı", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:20Z", "content_hash": "f82989574b266712f738e5387f98fe32ba4a05aa8f4c58ef8d599d89b20a68a5"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 8000, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["sabah.com.tr"], "crawl_url": "https://www.sabah.com.tr", "homepage": "https://www.sabah.com.tr", "key": "sabah", "language": "tr", "name": "Sabah", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "ekonomi", "confidence": 0.59, "entities": {"locations": ["Konya"], "organizations": ["Ehliyet", "Soruşturma", "Yazılı", "Operasyonda", "Kimlikleri"], "persons": ["Beyşehir Cumhuriyet Başsavcılığı"]}, "error": null, "event_type": "legal_case", "geography": ["Konya"], "importance": "high", "keywords": ["ehliyet", "usulsüzlük", "ilde", "yönelik", "adayların", "belirlenen", "gözaltı", "soruşturma"], "language": "tr", "model": null, "risk_flags": ["legal_process", "market_pressure"], "sentiment": "neutral", "subcategory": "legal_case", "summary": "Konya merkezli 24 ilde ehliyet sınavlarında adayların üzerlerine teknik ekipman yerleştirerek usulsüzlük yapan suç örgütüne yönelik operasyon düzenlendi. Beyşehir Cumhuriyet Başsavcılığı tarafından yürütülen soruşturma kapsamında, hakkında gözaltı kararı bulunan 262 şüpheliden 98'i yakalanarak gözaltına alındı.", "topics": ["ekonomi", "legal_case", "ehliyet", "usulsüzlük", "ilde", "yönelik", "adayların", "konya", "legal_process", "market_pressure"]}, "article": {"author": null, "content_text": "Konya merkezli 24 ilde ehliyet sınavlarında usulsüzlük yaptıkları belirlenen suç örgütüne yönelik operasyonda 262 şüpheliden 98'i gözaltına alındı.\nBeyşehir Cumhuriyet Başsavcılığı tarafından, yazılı ehliyet sınavlarına giren adayların üzerlerine teknik ekipman yerleştirerek usulsüzlük yaptıkları tespit edilen çıkar amaçlı suç örgütüne yönelik soruşturma başlatıldı.\nSoruşturma kapsamında, 24 ilde belirlenen adreslere eş zamanlı operasyon düzenlendi.\nYazılı ehliyet sınavına giren adayların üzerlerine ve kıyafetlerinin altına özel teknik ekipmanlar yerleştirilerek usulsüzlük yapıldığı belirlendi.\nOperasyonda hakkında gözaltı kararı bulunan 262 şüpheliden 98'i yakalanarak emniyete götürüldü. Kimlikleri belirlenen diğer şüphelilerin yakalanmasına yönelik çalışmaların devam ettiği bildirildi.", "published_at": "2026-06-26T22:41:00+03:00", "summary": "Konya merkezli 24 ilde ehliyet sınavlarında adayların üzerlerine teknik ekipman yerleştirerek usulsüzlük yapan suç örgütüne yönelik operasyon düzenlendi. Beyşehir Cumhuriyet Başsavcılığı tarafından yürütülen soruşturma kapsamında, hakkında gözaltı kararı bulunan 262 şüpheliden 98'i yakalanarak gözaltına alındı.", "tags": [], "title": "Ehliyet sınavında usulsüzlük operasyonu: 24 ilde 98 gözaltı", "url": "https://www.cumhuriyet.com.tr/turkiye/ehliyet-sinavinda-usulsuzluk-operasyonu-24-ilde-98-gozalti-2515785"}, "cluster": {"cluster_id": "cluster_5e11bbe225", "cluster_size": 1, "common_terms": ["ehliyet", "usulsüzlük", "ilde", "yönelik", "adayların", "gözaltı", "soruşturma", "belirlenen"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "Ehliyet sınavında usulsüzlük operasyonu: 24 ilde 98 gözaltı", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:22Z", "content_hash": "3677721868426fadef74e5dc0a9b5d703c65e68dbfa80f71e51c444d4c09c197"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 798, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["cumhuriyet.com.tr"], "crawl_url": "https://www.cumhuriyet.com.tr", "homepage": "https://www.cumhuriyet.com.tr", "key": "cumhuriyet", "language": "tr", "name": "Cumhuriyet", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "hukuk", "confidence": 0.59, "entities": {"locations": ["Ankara", "Ankara İl Emniyet Müdürlüğünden", "Ankara Cumhuriyet Başsavcılığı", "Ankara İl Tarım"], "organizations": ["Başkentte", "Altındağ", "Bozulmuş", "İdari", "Açıklamada", "Halk"], "persons": ["Kaçakçılık Suçlarıyla Mücadele Şube Müdürlüğü", "Orman Müdürlüğü"]}, "error": null, "event_type": "legal_case", "geography": ["Ankara"], "importance": "high", "keywords": ["ankara", "bozuk", "geçirildi", "ürünü", "altındağ", "ilçesindeki", "müdürlüğü", "yapılan"], "language": "tr", "model": null, "risk_flags": ["legal_process"], "sentiment": "neutral", "subcategory": "legal_case", "summary": "Başkentte 9 ton bozuk süt ve süt ürünü ele geçirildi", "topics": ["hukuk", "legal_case", "ankara", "bozuk", "geçirildi", "ürünü", "altındağ", "legal_process"]}, "article": {"author": null, "content_text": "Ankara'nın Altındağ ilçesindeki bir işletmeye yönelik denetimde 9 ton bozuk süt ve süt ürünü ele geçirildi, 1 şüpheli gözaltına alındı.\nAnkara İl Emniyet Müdürlüğünden yapılan açıklamaya göre, Ankara Cumhuriyet Başsavcılığı koordinesinde, Kaçakçılık Suçlarıyla Mücadele Şube Müdürlüğü ve Ankara İl Tarım ve Orman Müdürlüğü ekipleri, Altındağ ilçesindeki süt ürünleri üreten bir işletmeyi denetledi.\n\"Bozulmuş, değiştirilmiş gıda veya ilaçların ticareti\" suçuna yönelik yapılan denetimlerde yakalanan şüpheli hakkında adli işlem başlatıldı.\nİdari para cezası uygulanarak faaliyetten men edilen işletmede, 9 ton bozuk süt ve süt ürünü ele geçirildi.\nAçıklamada, \"Halk sağlığını tehdit eden faaliyetlere karşı mücadelemiz kararlılıkla devam edecektir.\" ifadesine yer verildi.", "published_at": "2026-06-26T22:31:00+03:00", "summary": "Başkentte 9 ton bozuk süt ve süt ürünü ele geçirildi", "tags": [], "title": "Ankara'da süt skandalı: 9 ton bozuk süt ve süt ürünü ele geçirildi", "url": "https://www.cumhuriyet.com.tr/turkiye/ankara-da-sut-skandali-9-ton-bozuk-sut-ve-sut-urunu-ele-gecirildi-2515782"}, "cluster": {"cluster_id": "cluster_925a11c40c", "cluster_size": 1, "common_terms": ["süt", "ankara", "bozuk", "ürünü", "geçirildi", "ton", "ele", "altındağ"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "Ankara'da süt skandalı: 9 ton bozuk süt ve süt ürünü ele geçirildi", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:22Z", "content_hash": "0262546a2d21da352309df00739aa2245a4af9c79fdf7b7a4082c127885cfe1c"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 772, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["cumhuriyet.com.tr"], "crawl_url": "https://www.cumhuriyet.com.tr", "homepage": "https://www.cumhuriyet.com.tr", "key": "cumhuriyet", "language": "tr", "name": "Cumhuriyet", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "hukuk", "confidence": 0.59, "entities": {"locations": ["Kocaeli"], "organizations": ["İBB", "İstanbul Büyükşehir Belediyesi", "Maltepe", "Karaal", "Hakimlik", "Başsavcılık", "Ekiplerin", "Tuzla", "Soruşturma", "Soruşturmanın"], "persons": ["Erhan Karaal", "İBB Kültür AŞ Genel Müdür", "Yardımcısı Erhan Karaal", "Kültür AŞ Genel Müdür Yardımcısı", "İstanbul Anadolu Cumhuriyet Başsavcılığınca", "Anadolu Adalet Sarayı", "İstanbul Emniyet Müdürlüğü Asayiş Şubesi", "Gasp Büro Amirliği", "Mega Ajans"]}, "error": null, "event_type": "legal_case", "geography": ["Kocaeli"], "importance": "high", "keywords": ["karaal", "ilişkin", "erhan", "gözaltına", "kaçırılmasına", "soruşturma", "stanbul", "alınmış"], "language": "tr", "model": null, "risk_flags": ["public_safety", "legal_process"], "sentiment": "neutral", "subcategory": "legal_case", "summary": "İBB Kültür AŞ Genel Müdür Yardımcısı Erhan Karaal'ın kaçırılmasına ilişkin soruşturmada gözaltına alınan 10 şüpheli tutuklandı.", "topics": ["hukuk", "legal_case", "karaal", "ilişkin", "erhan", "gözaltına", "kaçırılmasına", "kocaeli", "public_safety", "legal_process"]}, "article": {"author": null, "content_text": "İstanbul Büyükşehir Belediyesi (İBB) Kültür AŞ Genel Müdür Yardımcısı Erhan Karaal'ın Maltepe'de kaçırılmasına ilişkin soruşturmada yeni gelişme yaşandı.\nİstanbul Anadolu Cumhuriyet Başsavcılığınca, Karaal'ın kaçırıldığı iddiasına ilişkin soruşturma kapsamında yakalanan 10 zanlının emniyetteki işlemleri tamamlandı.\nAnadolu Adalet Sarayı'na götürülen şüpheliler, cumhuriyet savcılığındaki ifadelerinin alınmasının ardından \"yol kesmek suretiyle yağma\" suçundan tutuklanmaları talebiyle nöbetçi sulh ceza hakimliğine sevk edildi.\nHakimlik, 10 şüphelinin tutuklanmasına karar verdi.\nKaraal'ın Maltepe'de kaçırıldığı iddiasına ilişkin soruşturma başlatan Başsavcılık, mağdurun bulunması ve şüphelilerin yakalanması için polise talimat vermişti.\nEkiplerin çalışmalarının ardından Tuzla'daki inşaat alanında bulunan Karaal'ın sağlık durumunun iyi olduğu öğrenilmişti.\nSoruşturma kapsamında olayla bağlantılı olduğu değerlendirilen 12 şüpheli gözaltına alınmış, 6'sı tutuklanmış, 6'sı adli kontrol şartıyla serbest bırakılmıştı.\nSoruşturmanın devamında Kocaeli'deki ormanlık alanda bulunan villaya düzenlenen operasyonda 5 zanlı daha gözaltına alınmış, şüphelilerden 4'ünün olay günü kaçırma organizasyonunun içinde bulunduğu tespit edilmişti.\nİstanbul Emniyet Müdürlüğü Asayiş Şubesi Gasp Büro Amirliği ekiplerince 5 şüphelinin daha yakalanmasıyla gözaltı sayısı 10'a yükselmişti.\nwww.sozcu.com.tr internet sitesinde yayınlanan yazı, haber ve fotoğrafların her türlü telif hakkı Mega Ajans ve Rek. Tic. A.Ş'ye aittir. İzin alınmadan, kaynak gösterilerek dahi iktibas edilemez.", "published_at": "2026-06-26T21:58:00+03:00", "summary": "İBB Kültür AŞ Genel Müdür Yardımcısı Erhan Karaal'ın kaçırılmasına ilişkin soruşturmada gözaltına alınan 10 şüpheli tutuklandı.", "tags": [], "title": "İBB yöneticisi Erhan Karaal'ın kaçırılmasına ilişkin 10 kişi tutuklandı", "url": "https://www.sozcu.com.tr/erhan-karaal-in-kacirilmasina-iliskin-yeni-tutuklamalar-2026-06-26-p331513"}, "cluster": {"cluster_id": "cluster_b8c45295b4", "cluster_size": 1, "common_terms": ["karaal", "ilişkin", "erhan", "kaçırılmasına", "gözaltına", "soruşturma", "şüpheli", "stanbul"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "İBB yöneticisi Erhan Karaal'ın kaçırılmasına ilişkin 10 kişi tutuklandı", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:23Z", "content_hash": "11813119184d13e9392fee7b7165e797033f40ef7f9798da6756c3d0a81704d2"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 1572, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["sozcu.com.tr"], "crawl_url": "https://www.sozcu.com.tr", "homepage": "https://www.sozcu.com.tr", "key": "sozcu", "language": "tr", "name": "Sözcü", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "spor", "confidence": 0.95, "entities": {"locations": [], "organizations": ["ABD", "Grubu", "Avustralya", "Paraguay", "Üçüncü", "Galatasaray", "Kaptan", "Rek. Tic. A.Ş", "İzin"], "persons": ["Kaan Ayhan", "Milli Takım", "Dünya Kupası", "Aylin Betül Ayhan", "Hakan Çalhanoğlu", "Arda Güler", "Barış Alper", "Mega Ajans"]}, "error": null, "event_type": "sports_result", "geography": [], "importance": "normal", "keywords": ["ayhan", "kaan", "aylin", "betül", "alan", "beğenmesi", "dünya", "galibiyet"], "language": "tr", "model": null, "risk_flags": [], "sentiment": "neutral", "subcategory": "sports_result", "summary": "2026 Dünya Kupası'nda ABD'yi 3-2 yendiğimiz karşılaşmada galibiyet golünü atan Kaan Ayhan'ın eşi Aylin Betül Ayhan'ın maç sonu Hakan Çalhanoğlu'nu hedef alan paylaşımı beğenmesi, sosyal medyada gündem oldu.", "topics": ["spor", "sports_result", "ayhan", "kaan", "aylin", "betül", "alan"]}, "article": {"author": null, "content_text": "2026 Dünya Kupası'nda ABD'yi 3-2 yendiğimiz karşılaşmada galibiyet golünü atan Kaan Ayhan'ın eşi Aylin Betül Ayhan'ın maç sonu Hakan Çalhanoğlu'nu hedef alan paylaşımı beğenmesi, sosyal medyada gündem oldu.\n2026 Dünya Kupası D Grubu'nda önce Avustralya'ya 2-0, ardından Paraguay'a 1-0 yenilerek üçüncü maçın sonucuna bakılmaksızın 24 yıl sonra katıldığımız turnuvadan elendik... Üçüncü ve son maçta ise ev sahibi ve grup lideri ABD'yi Arda Güler, Barış Alper ve Kaan Ayhan'ın golleriyle 3-2 mağlup ettik.\n90+8'de Kaan Ayhan'ın galibiyet golü birçok farklı duyguyu bir arada yaşatırken, karşılaşmanın ardından deneyimli futbolcunun eşi Aylin Betül Ayhan'ın, Hakan Çalhanoğlu'nu hedef alan bir paylaşımı beğenmesi sosyal medyada gündeme oturdu.\nKaan Ayhan'ın eşi Aylin Betül Ayhan'ın beğendiği paylaşımda, eşinin Galatasaray formalı fotoğrafının üzerine yazılan \"Kaptan dediğin Milli Takım kampında transfer görüşmesi yapmaz, çıkar golünü atar\" şeklindeki ifadeler dikkat çekti.\nwww.sozcu.com.tr internet sitesinde yayınlanan yazı, haber ve fotoğrafların her türlü telif hakkı Mega Ajans ve Rek. Tic. A.Ş'ye aittir. İzin alınmadan, kaynak gösterilerek dahi iktibas edilemez.", "published_at": "2026-06-26T18:08:49+03:00", "summary": "2026 Dünya Kupası'nda ABD'yi 3-2 yendiğimiz karşılaşmada galibiyet golünü atan Kaan Ayhan'ın eşi Aylin Betül Ayhan'ın maç sonu Hakan Çalhanoğlu'nu hedef alan paylaşımı beğenmesi, sosyal medyada gündem oldu.", "tags": [], "title": "Kaan Ayhan'ın eşinden Milli Takım'ı karıştıracak beğeni", "url": "https://www.sozcu.com.tr/kaan-ayhan-in-esinden-milli-takim-i-karistiracak-begeni-p331488"}, "cluster": {"cluster_id": "cluster_18406ddcca", "cluster_size": 1, "common_terms": ["ayhan", "kaan", "aylin", "betül", "alan", "dünya", "galibiyet", "eşi"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "Kaan Ayhan'ın eşinden Milli Takım'ı karıştıracak beğeni", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:23Z", "content_hash": "49ed6121477832d3e098083d06c7ed36bf062723484b757020f8eea92b9a8887"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 1172, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["sozcu.com.tr"], "crawl_url": "https://www.sozcu.com.tr", "homepage": "https://www.sozcu.com.tr", "key": "sozcu", "language": "tr", "name": "Sözcü", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "dunya", "confidence": 0.59, "entities": {"locations": [], "organizations": ["Trump", "Avrupa", "Amerikan", "ABD"], "persons": ["ABD Başkanı Donald Trump", "Bazı Avrupa"]}, "error": null, "event_type": "policy_decision", "geography": [], "importance": "normal", "keywords": ["trump", "vergisi", "gümrük", "yüzde", "amerikan", "avrupa", "başkanı", "dijital"], "language": "tr", "model": null, "risk_flags": [], "sentiment": "neutral", "subcategory": "policy_decision", "summary": "ABD Başkanı Donald Trump, Amerikan şirketlerine dijital hizmet vergisi uygulayan ülkelerin ABD'ye ihraç ettiği tüm mallara yüzde 100 gümrük vergisi uygulanacağını açıkladı.", "topics": ["dunya", "policy_decision", "trump", "vergisi", "gümrük", "yüzde", "amerikan"]}, "article": {"author": null, "content_text": "ABD Başkanı Donald Trump, Amerikan şirketlerine dijital hizmet vergisi uygulayan ülkelerin, ABD'ye gönderdiği tüm mallar için \"derhal\" yüzde 100 gümrük vergisi ile karşı karşıya kalacağını söyledi.\nTrump, sosyal medya hesabından konuya ilişkin bir paylaşım yaptı.\nBazı Avrupa ülkelerinin söz konusu uygulamayı hayata geçirmeye çok yakın olduğunu belirten Trump, yüzde 100'lük gümrük vergisinin daha önce kararlaştırılan oranların yerini alacağını ifade etti.", "published_at": "2026-06-26T20:04:59+03:00", "summary": "ABD Başkanı Donald Trump, Amerikan şirketlerine dijital hizmet vergisi uygulayan ülkelerin ABD'ye ihraç ettiği tüm mallara yüzde 100 gümrük vergisi uygulanacağını açıkladı.", "tags": [], "title": "Trump'tan Avrupa ülkelerine yüzde 100 gümrük vergisi tehdidi", "url": "https://www.bloomberght.com/trump-tan-avrupa-ulkelerine-yuzde-100-gumruk-vergisi-tehdidi-3781346"}, "cluster": {"cluster_id": "cluster_1cbbe46269", "cluster_size": 1, "common_terms": ["trump", "vergisi", "yüzde", "gümrük", "100", "abd", "amerikan", "avrupa"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "Trump'tan Avrupa ülkelerine yüzde 100 gümrük vergisi tehdidi", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:24Z", "content_hash": "7a950d8d644957ceb16e6f075d6669f3d1d980b965860c3c579fe145f6064bb2"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 458, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["bloomberght.com"], "crawl_url": "https://www.bloomberght.com", "homepage": "https://www.bloomberght.com", "key": "bloomberg_ht", "language": "tr", "name": "Bloomberg HT", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "dunya", "confidence": 0.47, "entities": {"locations": [], "organizations": ["Trump", "İran", "ABD", "Dronlardan", "Diğer", "Açıkçası"], "persons": ["ABD Başkanı Donald Trump", "Hürmüz Boğazı"]}, "error": null, "event_type": "social_discussion", "geography": [], "importance": "normal", "keywords": ["trump", "aptalca", "boğazı", "geçen", "hedef", "hürmüz", "ndan", "tarafından"], "language": "tr", "model": null, "risk_flags": [], "sentiment": "neutral", "subcategory": "social_discussion", "summary": "ABD Başkanı Donald Trump, İran'a ait 4 dronun Hürmüz Boğazı'ndan geçen bir tankeri hedef aldığını öne sürerek, dronlardan üçünün ABD ordusu tarafından düşürüldüğünü ve yaşanan olayın \"ateşkesin aptalca ihlali\" olduğunu savundu.", "topics": ["dunya", "social_discussion", "trump", "aptalca", "boğazı", "geçen", "hedef"]}, "article": {"author": null, "content_text": "ABD Başkanı Donald Trump, İran'a ait insansız hava araçlarının Hürmüz Boğazı'ndan geçen bir tankeri hedef aldığını öne sürerek, bunun \"ateşkesin aptalca ihlali\" olduğunu savundu.\nTrump, sosyal medya hesabından yaptığı paylaşımda İran'ı ateşkesi ihlal etmekle suçladı.\nTrump, Hürmüz Boğazı'ndan geçen bir tankerin İran'a ait dört dron tarafından hedef alındığını ileri sürdü. Dronlardan birinin tankerin üst güvertesine isabet ettiğini, ancak geminin seyrini sürdürdüğünü belirtti.\nDiğer üç dronun ise ABD ordusu tarafından düşürüldüğünü ifade eden Trump, \"Açıkçası bu, ateşkes anlaşmamızın aptalca bir ihlalidir\" dedi.", "published_at": "2026-06-26T19:32:49+03:00", "summary": "ABD Başkanı Donald Trump, İran'a ait 4 dronun Hürmüz Boğazı'ndan geçen bir tankeri hedef aldığını öne sürerek, dronlardan üçünün ABD ordusu tarafından düşürüldüğünü ve yaşanan olayın \"ateşkesin aptalca ihlali\" olduğunu savundu.", "tags": [], "title": "Trump, İran'ı ateşkesi ihlal etmekle suçladı", "url": "https://www.bloomberght.com/trump-iran-i-ateskesi-ihlal-etmekle-sucladi-3781345"}, "cluster": {"cluster_id": "cluster_cd0d04bfab", "cluster_size": 2, "common_terms": ["trump", "boğazı", "aptalca", "hürmüz", "ran", "hedef", "abd", "ndan"], "method": "token_cosine_v1", "related_urls": ["https://www.milliyet.com.tr/dunya/hurmuz-bogazinda-tansiyon-tekrar-yukseliyor-trump-iran-ateskesi-aptalca-ihlal-etti-7612907"], "representative_title": "Hürmüz Boğazı'nda sıcak saatler! Trump: İran ateşkesi 'aptalca' ihlal etti", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:24Z", "content_hash": "b882eb4ce9b18f8b412d58b2822be8133c17bf97469fce52ded7d931418f7b20"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 618, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["bloomberght.com"], "crawl_url": "https://www.bloomberght.com", "homepage": "https://www.bloomberght.com", "key": "bloomberg_ht", "language": "tr", "name": "Bloomberg HT", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "teknoloji", "confidence": 0.59, "entities": {"locations": [], "organizations": ["Çanakkale", "Uzunluğu", "Şeytan", "Gökçeada", "Kılıçbalığı", "Birkaç", "Gözlerken", "Favorilerime", "Sarıkaya", "Bizim"], "persons": ["Fırat Sarıkaya", "Recep Demircan"]}, "error": null, "event_type": "statement", "geography": [], "importance": "normal", "keywords": ["manta", "vatozu", "sarıkaya", "şeytan", "balığı", "güzel", "kılıç", "diye"], "language": "tr", "model": null, "risk_flags": [], "sentiment": "neutral", "subcategory": "statement", "summary": "Çanakkale'nin Gökçeada ilçesi açıklarında uzunluğu 2 metreye yaklaşan manta (şeytan) vatozu görüntülendi. Kılıçbalığı avcılığı yapan Fırat Sarıkaya, \"Birkaç gün önce kılıç balığı avı için çıktığımızda dürbünle şöyle teknelerin üstündeki kulelere çıkıyoruz, oradan kılıç balığı gözlüyoruz deniz üzerinde. Gözlerken karşımıza nadir türlerden olan manta vatozu, diğer adıyla şeytan mantası çıktı\" dedi.", "topics": ["teknoloji", "statement", "manta", "vatozu", "sarıkaya", "şeytan", "balığı"]}, "article": {"author": null, "content_text": "Favorilerime ekle ( ) ikonuna tıklayarak dilediğin özelliği favorilerine ekleyebilirsin.\nGökçeada açıklarında kılıçbalığı avcılığı yapan Fırat Sarıkaya, avlanmak için denize açıldığında manta vatozu ile karşılaştı. Sarıkaya, vatozun kaçmadığını fark edince o anları cep telefonu kamerası ile görüntüledi. Sarıkaya, \"Bu canlıları burada denizlerimizde görmemiz çok güzel. Bizim sularımızın ne kadar verimli, temiz, güzel olduğunun belirtisi bu\" dedi.\nManta vatozu ile karşılaşmasını anlatan Sarıkaya, \"Gökçeada'da kılıç balığı avcılığı yapan kişilerden bir tanesiyim. Birkaç gün önce kılıç balığı avı için çıktığımızda dürbünle şöyle teknelerin üstündeki kulelere çıkıyoruz, oradan kılıç balığı gözlüyoruz deniz üzerinde. Gözlerken karşımıza nadir türlerden olan manta vatozu, diğer adıyla şeytan mantası çıktı. Biz de yavaşça yanına doğru gidelim bakalım, ürkmezse bir çekim yapalım, gösterelim vatozu istedik. Şansınıza o da bizim gibi meraklı çıktı. Yavaşça yanına gittik, takip etmeye başladık onu. O da bizi merak etmeye başladı. İki üç tur falan birlikte döndük. Biz onu izledik, o bizi izledi. Çok güzel görüntüler verdi bize\" ifadelerini kullandı.\nYaklaşık 1 hafta önce daha büyük bir manta vatozuna rastladıklarını söyleyen Sarıkaya, \"1 hafta, 10 gün önce de kanat açıklığı 3-3,5 metre civarında olan bu çektiğimiz videodaki iki katı büyüklüğünde olanına denk geldik. Çok devasa büyüklükte bir şeydi. Ama o aynı fırsatı vermedi bize. Bu canlıları burada denizlerimizde görmemiz çok güzel. Bizim sularımızın ne kadar verimli, temiz, güzel olduğunun belirtisi bu\" diye konuştu.\nManta vatozunun insanlara zararsız bir tür olduğunu belirten Sarıkaya, sözlerine şöyle devam etti:\n\"Bu manta, sağında ve solundaki boynuz gibi gözüken çıkıntıları yüzünden şeytan diye adlandırılıyor. Aslında manta vatozu diye geçiyor ama şeytan vatozu da deniyor. Bunlar insanlar için zararsız. Denizdeki planktonlar ve küçük balıklarla beslenen canlıdır. Olur da bir gün denizde karşılaşırsanız, korkmayın yani zararsız hayvanlardır.\" Kaynak: İHA | Bu içerik Recep Demircan tarafından yayına alınmıştır\nCopyright © MYNET A.Ş. Telif Hakları MYNET A.Ş.'ye Aittir.", "published_at": null, "summary": "Çanakkale'nin Gökçeada ilçesi açıklarında uzunluğu 2 metreye yaklaşan manta (şeytan) vatozu görüntülendi. Kılıçbalığı avcılığı yapan Fırat Sarıkaya, \"Birkaç gün önce kılıç balığı avı için çıktığımızda dürbünle şöyle teknelerin üstündeki kulelere çıkıyoruz, oradan kılıç balığı gözlüyoruz deniz üzerinde. Gözlerken karşımıza nadir türlerden olan manta vatozu, diğer adıyla şeytan mantası çıktı\" dedi.", "tags": [], "title": "Çanakkale'de görüldü! Uzunluğu 2 metre: \"Şeytan diye adlandırılıyor\"", "url": "https://haber.mynet.com/canakkale-de-goruldu-uzunlugu-2-metre-seytan-diye-adlandiriliyor-110107299456"}, "cluster": {"cluster_id": "cluster_7cfe40e090", "cluster_size": 1, "common_terms": ["manta", "vatozu", "sarıkaya", "şeytan", "balığı", "kılıç", "güzel", "gün"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "Çanakkale'de görüldü! Uzunluğu 2 metre: \"Şeytan diye adlandırılıyor\"", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:24Z", "content_hash": "f0665c179dda8a85b834cdb4c756c03c2392860bb6124db878ddde7d9ae3be36"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 2146, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["mynet.com"], "crawl_url": "https://www.mynet.com/haber", "homepage": "https://www.mynet.com/haber", "key": "mynet_haber", "language": "tr", "name": "Mynet Haber", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "saglik", "confidence": 0.83, "entities": {"locations": [], "organizations": ["Niğde", "Bor", "Yaralıların", "Favorilerime", "Kemerhisar", "Patlamada", "İhbar", "Yaralılar", "Araştırma", "Patlamanın"], "persons": ["Vali Akmeşe", "Vali Nedim Akmeşe", "Bor Devlet", "Niğde Eğitim", "Mülkiye Başmüfettişi", "Emniyet Genel Müdürlüğü Özel Güvenlik", "Polis Başmüfettişi", "Recep Demircan"]}, "error": null, "event_type": "statement", "geography": [], "importance": "high", "keywords": ["fişek", "havai", "akmeşe", "fabrikasında", "hayatını", "niğde", "vali", "meydana"], "language": "tr", "model": null, "risk_flags": ["public_safety"], "sentiment": "neutral", "subcategory": "statement", "summary": "Niğde'nin Bor ilçesindeki bir havai fişek fabrikasında patlama meydana geldi. Yaralıların olduğu bildirildi. Vali Nedim Akmeşe 1 işçinin hayatını kaybettiğini, 1 işçinin yaralandığını açıkladı.", "topics": ["saglik", "statement", "fişek", "havai", "akmeşe", "fabrikasında", "hayatını", "public_safety"]}, "article": {"author": null, "content_text": "Favorilerime ekle ( ) ikonuna tıklayarak dilediğin özelliği favorilerine ekleyebilirsin.\nKemerhisar beldesindeki özel bir firmaya ait havai fişek fabrikasında, saat 16.45 sıralarında, henüz bilinmeyen nedenle patlama oldu. Patlamada bazı işçiler yaralandı. İhbar üzerine bölgeye sağlık ekipleri sevk edildi.\nYaralılar ambulanslarla Bor Devlet ve Niğde Eğitim ve Araştırma hastanelerine götürüldü.\nVali Nedim Akmeşe, AA muhabirine, havai fişek fabrikasındaki patlamada 1 vatandaşın hayatını kaybettiğini, 1 vatandaşın da yaralandığını bildirdi.\nPatlamanın ardından çıkan yangının söndürüldüğünü belirten Akmeşe, \"Bu yerler güvenlik önlemleri alınmış şekilde konumlandırılıyor. İmalat bütün halde değil, parça parça yerlerde yapılıyor. Şu anda devam eden bir durum yok. Hayatını kaybeden vatandaşımıza başsağlığı, yaralı işçimize de geçmiş olsun dileklerimizi iletiyoruz. Vali yardımcısı başkanlığındaki komisyon da çalışmalarına başladı. Nedenine ilişkin çalışmalar ile adli ve idari işlemler yürütülecek.\" ifadelerini kullandı.\nİçişleri Bakanlığı, \"Niğde’nin Bor ilçesinde özel bir firmaya ait havai fişek fabrikasında meydana gelen patlamaya ilişkin 1 Mülkiye Başmüfettişi ile Emniyet Genel Müdürlüğü Özel Güvenlik Denetleme Başkanlığında görevli 1 Polis Başmüfettişi görevlendirilmiştir.\" açıklamasını yaptı.\nAynı fabrikada 27 Ocak 2018'de meydana gelen patlamada 2 kişi hayatını kaybetmişti Kaynak: DHA | Bu içerik Recep Demircan tarafından yayına alınmıştır\nCopyright © MYNET A.Ş. Telif Hakları MYNET A.Ş.'ye Aittir.", "published_at": null, "summary": "Niğde'nin Bor ilçesindeki bir havai fişek fabrikasında patlama meydana geldi. Yaralıların olduğu bildirildi. Vali Nedim Akmeşe 1 işçinin hayatını kaybettiğini, 1 işçinin yaralandığını açıkladı.", "tags": [], "title": "Niğde'de havai fişek fabrikasında patlama! Vali Akmeşe acı haberi duyurdu", "url": "https://haber.mynet.com/nigde-de-havai-fisek-fabrikasinda-patlama-yaralilar-var-110107299447"}, "cluster": {"cluster_id": "cluster_aef21a4deb", "cluster_size": 2, "common_terms": ["hayat", "havai", "fişek", "niğde", "patlama", "fabrikası", "meydana", "patlamada"], "method": "token_cosine_v1", "related_urls": ["https://www.ntv.com.tr/yerel-haberler/nigdede-havai-fisek-fabrikasinda-patlama-1730274"], "representative_title": "Niğde'de havai fişek fabrikasında patlama! Vali Akmeşe acı haberi duyurdu", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:24Z", "content_hash": "129813d078a0c2c3d9e22406fcd855f984bfc4268c88874447629b8ceb1a22b4"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 1520, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["mynet.com"], "crawl_url": "https://www.mynet.com/haber", "homepage": "https://www.mynet.com/haber", "key": "mynet_haber", "language": "tr", "name": "Mynet Haber", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "spor", "confidence": 0.59, "entities": {"locations": [], "organizations": ["Fikstür"], "persons": ["Dünya Kupası", "Puan Durumu", "Canlı Skor", "Ensonhaber FIFA Dünya Kupası"]}, "error": null, "event_type": "sports_result", "geography": [], "importance": "normal", "keywords": ["canlı", "durumu", "dünya", "fikstür", "kupası", "puan", "ensonhaber", "fifa"], "language": "tr", "model": null, "risk_flags": [], "sentiment": "neutral", "subcategory": "sports_result", "summary": "FIFA Dünya Kupası 2026 puan durumu, fikstür, canlı maç sonuçları, gol kralları ve takım kadroları.", "topics": ["spor", "sports_result", "canlı", "durumu", "dünya", "fikstür", "kupası"]}, "article": {"author": null, "content_text": "", "published_at": null, "summary": "FIFA Dünya Kupası 2026 puan durumu, fikstür, canlı maç sonuçları, gol kralları ve takım kadroları.", "tags": [], "title": "Dünya Kupası 2026 - Puan Durumu, Fikstür, Canlı Skor | Ensonhaber", "url": "https://www.ensonhaber.com/dunya-kupasi-2026"}, "cluster": {"cluster_id": "cluster_07ee50572e", "cluster_size": 2, "common_terms": ["dünya", "kupası", "fifa", "lkleri", "dikkat", "2026", "durumu", "fikstür"], "method": "token_cosine_v1", "related_urls": ["https://www.aa.com.tr/tr/spor/ilkleri-dev-stadyumlari-ve-dikkat-ceken-istatistikleriyle-2026-fifa-dunya-kupasi/3938616"], "representative_title": "Dünya Kupası 2026 - Puan Durumu, Fikstür, Canlı Skor | Ensonhaber", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:26Z", "content_hash": "9e0a046abacd1db2ef40f05a9975edcb04c354f449afa452e8b345eaa666f342"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 0, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["ensonhaber.com"], "crawl_url": "https://www.ensonhaber.com", "homepage": "https://www.ensonhaber.com", "key": "ensonhaber", "language": "tr", "name": "Ensonhaber", "search_query": null, "source_type": "html"}}, {"analysis": {"analysis_version": "v2", "analyzer": "fallback_rules", "category": "saglik", "confidence": 0.59, "entities": {"locations": ["Türkiye"], "organizations": ["Venezuela", "Venezuelalı", "Arama-kurtarma", "Öte", "Yardım", "Çeşitli", "Söz", "Haziran", "Afet", "Acil Durum Yönetimi Başkanlığı"], "persons": ["Başkanı Ali Hamza Pehlivan"]}, "error": null, "event_type": "incident", "geography": ["Türkiye"], "importance": "high", "keywords": ["kurtarma", "arama", "venezuela", "yardım", "afad", "meydana", "ekip", "enkaz"], "language": "tr", "model": null, "risk_flags": ["public_safety"], "sentiment": "neutral", "subcategory": "incident", "summary": "Venezuela’da peş peşe meydana gelen depremlerde can kaybının 920’ye, yaralı sayısının 3 bin 360’a yükseldiğini açıkladı.", "topics": ["saglik", "incident", "kurtarma", "arama", "venezuela", "yardım", "afad", "türkiye", "public_safety"]}, "article": {"author": null, "content_text": "Venezuelalı yetkililer, ülkede meydana gelen depremlerdeki can kaybının arttığını bildirdi.\nArama-kurtarma ve enkaz kaldırma çalışmalarının hızla sürdüğünü belirten yetkililer, art arda meydana gelen 7.2 ve 7.5 büyüklüğündeki depremlerde hayatını kaybedenlerin sayısının 920’ye, yaralı sayısının ise 3 bin 360’a yükseldiğini açıkladı.\nÖte yandan uzmanlar, arama-kurtarma çalışmalarında kritik saatlere girildiğini belirtti.\nYardım kuruluşları, enkaz altındaki kişilerin kurtarılmasında ilk 48 ila 72 saatin hayati önem taşıdığını, ancak su ve gıdaya erişimin bulunması halinde bu sürenin uzayabileceğini ifade etti.\nÇeşitli kaynaklar, uluslararası yardım çalışmalarının çalışmaların hız kazandığını, dünyanın çeşitli ülkelerinden 20’den fazla kurtarma ekibinin kısa süre içinde ülkeye ulaşmasının beklendiğini bildirdi.\nSöz konusu depremler, 24 Haziran’da yerel saatle 18.05 sıralarında meydana gelmişti. Venezuela’nın Türkiye’den 7 saat geride olduğu biliniyor.\nAfet ve Acil Durum Yönetimi Başkanlığı (AFAD) Başkanı Ali Hamza Pehlivan, Venezuela’ya yardım ulaştırılması amacıyla Türkiye’nin de hareket geçtiğini bildirmişti.\nPehlivan , \"Bugün itibariyle uçak yola çıktı. A-400M tipinde kargo uçağı. İçinde bizim AFAD ekipleri var, 38 AFAD personeli var. Ayrıca Sağlık Bakanlığı'ndan UMKE ve diğer sağlık hizmetlerini yürütecek olan bir ekip var. Kızılay'dan bir ekip var. AFAD'ın hem kurtarma hem insani yardım çalışmaları yapacak ekibi var. Toplam 46 kişi bugün itibariyle yola çıktı. Tabii ekip ekipmanlarıyla birlikte çıktılar. Arama kurtarma araçları da uçağa konuldu. Orada başta arama kurtarma çalışmaları olmak üzere ki akut dönemde buna çok ihtiyaç var, yerine getirecekler. Bugüne kadar 84 ülkeyle insani yardım konularında çalışmalar yaptık. Dünyanın neresinde bir mağduriyet varsa oraya hem ekiplerimizi hem insani yardımları gönderiyoruz. En son Venezuela'da yaşandı ve oraya ekiplerimiz gitti. Bundan sonra da orayla irtibat halinde neye ihtiyaç varsa onu öğrenip ki biliyoruz temel ihtiyaçları ama öncelik, tabii ki arama-kurtarma. Depremde etkilenen insanların enkaz altından çıkarılması konusu\" demişti.", "published_at": "2026-06-26T22:06:00+03:00", "summary": "Venezuela’da peş peşe meydana gelen depremlerde can kaybının 920’ye, yaralı sayısının 3 bin 360’a yükseldiğini açıkladı.", "tags": [], "title": "Venezuela'daki çifte depremde can kaybı 920'ye yükseldi", "url": "https://www.ensonhaber.com/venezueladaki-cifte-depremde-can-kaybi-920ye-yukseldi-h1545426"}, "cluster": {"cluster_id": "cluster_9626ad99df", "cluster_size": 1, "common_terms": ["kurtarma", "yardım", "venezuela", "arama", "afad", "meydana", "çalışma", "ekip"], "method": "token_cosine_v1", "related_urls": [], "representative_title": "Venezuela'daki çifte depremde can kaybı 920'ye yükseldi", "similarity_threshold": 0.28}, "pipeline": {"collected_at": "2026-06-26T19:55:26Z", "content_hash": "b90c78043310a10ca7324d6f4c91c6bb6d1287c5ca77d5e9c7bd0c833952a81c"}, "schema_version": "news-item-v1", "scrape": {"raw_item": {"collector": "html_crawl", "content_chars": 2120, "source_type": "html", "title_strategy": "h1_or_meta"}}, "source": {"allowed_domains": ["ensonhaber.com"], "crawl_url": "https://www.ensonhaber.com", "homepage": "https://www.ensonhaber.com", "key": "ensonhaber", "language": "tr", "name": "Ensonhaber", "search_query": null, "source_type": "html"}}], "patterns": {"category_counts": [{"count": 5, "value": "saglik"}, {"count": 4, "value": "siyaset"}, {"count": 3, "value": "teknoloji"}, {"count": 3, "value": "spor"}, {"count": 3, "value": "dunya"}, {"count": 2, "value": "diger"}, {"count": 2, "value": "ekonomi"}, {"count": 2, "value": "hukuk"}], "cluster_rankings": [{"cluster_id": "cluster_ef573cb9d7", "cluster_size": 3, "dominant_category": "siyaset", "dominant_event_type": "social_discussion", "impact_level": "high", "impact_score": 73, "locations": ["Antalya", "Türkiye"], "representative_title": "Başkan Erdoğan ve siyasilerden Kadir İnanır için taziye mesajları: Büyük bir üzüntüyle öğrendim", "risk_flags": ["market_pressure", "political_tension", "public_safety"], "sources": ["haberturk", "milliyet", "sabah"]}, {"cluster_id": "cluster_aef21a4deb", "cluster_size": 2, "dominant_category": "saglik", "dominant_event_type": "incident", "impact_level": "medium", "impact_score": 42, "locations": [], "representative_title": "Niğde'de havai fişek fabrikasında patlama! Vali Akmeşe acı haberi duyurdu", "risk_flags": ["public_safety"], "sources": ["mynet_haber", "ntv"]}, {"cluster_id": "cluster_cd0d04bfab", "cluster_size": 2, "dominant_category": "dunya", "dominant_event_type": "policy_decision", "impact_level": "medium", "impact_score": 36, "locations": ["Türkiye"], "representative_title": "Hürmüz Boğazı'nda sıcak saatler! Trump: İran ateşkesi 'aptalca' ihlal etti", "risk_flags": [], "sources": ["bloomberg_ht", "milliyet"]}, {"cluster_id": "cluster_9ae04ecc5c", "cluster_size": 2, "dominant_category": "teknoloji", "dominant_event_type": "teknoloji_news", "impact_level": "medium", "impact_score": 35, "locations": ["Türkiye"], "representative_title": "Gündem", "risk_flags": [], "sources": ["trt_haber"]}, {"cluster_id": "cluster_07ee50572e", "cluster_size": 2, "dominant_category": "diger", "dominant_event_type": "general", "impact_level": "medium", "impact_score": 30, "locations": [], "representative_title": "Dünya Kupası 2026 - Puan Durumu, Fikstür, Canlı Skor | Ensonhaber", "risk_flags": [], "sources": ["anadolu_ajansi", "ensonhaber"]}], "clusters": [{"categories": ["saglik", "siyaset"], "cluster_id": "cluster_ef573cb9d7", "cluster_size": 3, "common_terms": ["nanır", "kadir", "başsağlığı", "vefat", "usta", "allah", "rahmet", "sanat"], "representative_title": "Başkan Erdoğan ve siyasilerden Kadir İnanır için taziye mesajları: Büyük bir üzüntüyle öğrendim", "sources": ["haberturk", "milliyet", "sabah"], "urls": ["https://www.haberturk.com/cumhurbaskani-recep-tayyip-erdogan-kadir-inanir-in-vefatini-buyuk-uzuntuyle-ogrendim-3894453", "https://www.milliyet.com.tr/magazin/son-dakika-olumuyle-yasa-bogdu-kadir-inanirin-cenaze-programi-belli-oldu-7612917", "https://www.sabah.com.tr/gundem/2026/06/26/siyasilerden-kadir-inanir-icin-pes-pese-taziye-mesajlari"]}, {"categories": ["diger", "spor"], "cluster_id": "cluster_07ee50572e", "cluster_size": 2, "common_terms": ["dünya", "kupası", "fifa", "lkleri", "dikkat", "2026", "durumu", "fikstür"], "representative_title": "Dünya Kupası 2026 - Puan Durumu, Fikstür, Canlı Skor | Ensonhaber", "sources": ["anadolu_ajansi", "ensonhaber"], "urls": ["https://www.aa.com.tr/tr/spor/ilkleri-dev-stadyumlari-ve-dikkat-ceken-istatistikleriyle-2026-fifa-dunya-kupasi/3938616", "https://www.ensonhaber.com/dunya-kupasi-2026"]}, {"categories": ["teknoloji"], "cluster_id": "cluster_9ae04ecc5c", "cluster_size": 2, "common_terms": ["haber", "dair", "türkiye", "gündem", "güncel", "teknoloji", "yerel", "alan"], "representative_title": "Gündem", "sources": ["trt_haber"], "urls": ["https://www.trthaber.com/haber/gundem/", "https://www.trthaber.com/haber/turkiye/"]}, {"categories": ["dunya"], "cluster_id": "cluster_cd0d04bfab", "cluster_size": 2, "common_terms": ["trump", "boğazı", "aptalca", "hürmüz", "ran", "hedef", "abd", "ndan"], "representative_title": "Hürmüz Boğazı'nda sıcak saatler! Trump: İran ateşkesi 'aptalca' ihlal etti", "sources": ["bloomberg_ht", "milliyet"], "urls": ["https://www.milliyet.com.tr/dunya/hurmuz-bogazinda-tansiyon-tekrar-yukseliyor-trump-iran-ateskesi-aptalca-ihlal-etti-7612907", "https://www.bloomberght.com/trump-iran-i-ateskesi-ihlal-etmekle-sucladi-3781345"]}, {"categories": ["saglik"], "cluster_id": "cluster_aef21a4deb", "cluster_size": 2, "common_terms": ["hayat", "havai", "fişek", "niğde", "patlama", "fabrikası", "meydana", "patlamada"], "representative_title": "Niğde'de havai fişek fabrikasında patlama! Vali Akmeşe acı haberi duyurdu", "sources": ["mynet_haber", "ntv"], "urls": ["https://www.ntv.com.tr/yerel-haberler/nigdede-havai-fisek-fabrikasinda-patlama-1730274", "https://haber.mynet.com/nigde-de-havai-fisek-fabrikasinda-patlama-yaralilar-var-110107299447"]}], "coverage_matrix": [{"category": "diger", "count": 1, "source": "anadolu_ajansi"}, {"category": "siyaset", "count": 1, "source": "anadolu_ajansi"}, {"category": "dunya", "count": 2, "source": "bloomberg_ht"}, {"category": "ekonomi", "count": 1, "source": "cumhuriyet"}, {"category": "hukuk", "count": 1, "source": "cumhuriyet"}, {"category": "saglik", "count": 1, "source": "ensonhaber"}, {"category": "spor", "count": 1, "source": "ensonhaber"}, {"category": "diger", "count": 1, "source": "haberturk"}, {"category": "siyaset", "count": 1, "source": "haberturk"}, {"category": "saglik", "count": 1, "source": "hurriyet"}, {"category": "spor", "count": 1, "source": "hurriyet"}, {"category": "dunya", "count": 1, "source": "milliyet"}, {"category": "saglik", "count": 1, "source": "milliyet"}, {"category": "saglik", "count": 1, "source": "mynet_haber"}, {"category": "teknoloji", "count": 1, "source": "mynet_haber"}, {"category": "saglik", "count": 1, "source": "ntv"}, {"category": "siyaset", "count": 1, "source": "ntv"}, {"category": "ekonomi", "count": 1, "source": "sabah"}, {"category": "siyaset", "count": 1, "source": "sabah"}, {"category": "hukuk", "count": 1, "source": "sozcu"}, {"category": "spor", "count": 1, "source": "sozcu"}, {"category": "teknoloji", "count": 2, "source": "trt_haber"}], "entity_network": {"edges": [{"count": 3, "source": "ABD Başkanı Donald Trump", "target": "Trump"}, {"count": 3, "source": "ABD", "target": "ABD Başkanı Donald Trump"}, {"count": 3, "source": "ABD", "target": "Trump"}, {"count": 2, "source": "diger", "target": "general"}, {"count": 2, "source": "teknoloji", "target": "teknoloji_news"}, {"count": 2, "source": "Bor Devlet", "target": "Niğde Eğitim"}, {"count": 2, "source": "Bor Devlet", "target": "Emniyet Genel Müdürlüğü Özel Güvenlik"}, {"count": 2, "source": "Bor Devlet", "target": "Niğde"}, {"count": 2, "source": "Bor", "target": "Bor Devlet"}, {"count": 2, "source": "Emniyet Genel Müdürlüğü Özel Güvenlik", "target": "Niğde Eğitim"}, {"count": 2, "source": "Niğde", "target": "Niğde Eğitim"}, {"count": 2, "source": "Bor", "target": "Niğde Eğitim"}, {"count": 2, "source": "Emniyet Genel Müdürlüğü Özel Güvenlik", "target": "Niğde"}, {"count": 2, "source": "Bor", "target": "Emniyet Genel Müdürlüğü Özel Güvenlik"}, {"count": 2, "source": "Bor", "target": "Niğde"}, {"count": 2, "source": "Atatürk Kültür Merkezi", "target": "Kadir İnanır"}, {"count": 2, "source": "Barbaros Hayrettin Paşa Camii", "target": "Kadir İnanır"}, {"count": 2, "source": "Kadir İnanır", "target": "Ulus Mezarlığı"}, {"count": 2, "source": "Atatürk Kültür Merkezi", "target": "Barbaros Hayrettin Paşa Camii"}, {"count": 2, "source": "Atatürk Kültür Merkezi", "target": "Ulus Mezarlığı"}, {"count": 2, "source": "Barbaros Hayrettin Paşa Camii", "target": "Ulus Mezarlığı"}, {"count": 2, "source": "ABD Başkanı Donald Trump", "target": "Hürmüz Boğazı"}, {"count": 2, "source": "Hürmüz Boğazı", "target": "Trump"}, {"count": 2, "source": "Hürmüz Boğazı", "target": "İran"}], "nodes": [{"count": 4, "id": "ABD", "kind": "location"}, {"count": 3, "id": "Kadir İnanır", "kind": "entity"}, {"count": 3, "id": "ABD Başkanı Donald Trump", "kind": "entity"}, {"count": 3, "id": "Trump", "kind": "location"}, {"count": 2, "id": "diger", "kind": "topic"}, {"count": 2, "id": "general", "kind": "topic"}, {"count": 2, "id": "teknoloji", "kind": "topic"}, {"count": 2, "id": "teknoloji_news", "kind": "topic"}, {"count": 2, "id": "Anadolu Ajansı", "kind": "entity"}, {"count": 2, "id": "Venezuela", "kind": "location"}, {"count": 2, "id": "Bor Devlet", "kind": "entity"}, {"count": 2, "id": "Niğde Eğitim", "kind": "entity"}, {"count": 2, "id": "Emniyet Genel Müdürlüğü Özel Güvenlik", "kind": "entity"}, {"count": 2, "id": "Niğde", "kind": "location"}, {"count": 2, "id": "Bor", "kind": "location"}, {"count": 2, "id": "Güncelleme Tarihi", "kind": "entity"}, {"count": 2, "id": "Atatürk Kültür Merkezi", "kind": "entity"}, {"count": 2, "id": "Barbaros Hayrettin Paşa Camii", "kind": "entity"}, {"count": 2, "id": "Ulus Mezarlığı", "kind": "entity"}, {"count": 2, "id": "Hürmüz Boğazı", "kind": "entity"}, {"count": 2, "id": "İran", "kind": "location"}, {"count": 2, "id": "Diğer", "kind": "location"}, {"count": 2, "id": "Açıkçası", "kind": "location"}, {"count": 2, "id": "Başkan Erdoğan", "kind": "entity"}]}, "event_type_counts": [{"count": 5, "value": "incident"}, {"count": 4, "value": "legal_case"}, {"count": 3, "value": "social_discussion"}, {"count": 3, "value": "sports_result"}, {"count": 3, "value": "policy_decision"}, {"count": 2, "value": "general"}, {"count": 2, "value": "teknoloji_news"}, {"count": 2, "value": "statement"}], "geography_counts": [{"count": 8, "value": "Türkiye"}, {"count": 1, "value": "Antalya"}, {"count": 1, "value": "Konya"}, {"count": 1, "value": "Ankara"}, {"count": 1, "value": "Kocaeli"}], "insight_cards": [{"detail": "Başkan Erdoğan ve siyasilerden Kadir İnanır için taziye mesajları: Büyük bir üzüntüyle öğrendim başlığı etrafında 3 kaynak ve 3 risk sinyali var.", "label": "haber", "metric": "3", "severity": "high", "title": "En güçlü gündem kümesi"}, {"detail": "Bu çalıştırmada saglik kategorisi öne çıkıyor.", "label": "saglik", "metric": "%21", "severity": "low", "title": "Baskın kategori"}, {"detail": "Kontrol edilmesi gereken kaynaklar: reddit_turkey, twitter_turkey_news.", "label": "problem", "metric": "2", "severity": "high", "title": "Kaynak sağlığı"}, {"detail": "public_safety sinyali haberlerde tekrar ediyor.", "label": "public_safety", "metric": "10", "severity": "medium", "title": "Risk sinyali"}, {"detail": "Lokasyon bazında Türkiye daha görünür.", "label": "Türkiye", "metric": "8", "severity": "low", "title": "Lokasyon odağı"}], "observations": ["Benzer haber kümeleri bulundu; aynı olay farklı kaynaklarda tekrar ediyor olabilir.", "Lokasyon bazında en sık geçen yer Türkiye.", "Öne çıkan risk/pattern sinyali public_safety."], "pattern_version": "patterns-v1", "pipeline": {"errors": [{"error": "Client error '403 Blocked' for url 'https://old.reddit.com/r/Turkey/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403", "source": "reddit_turkey", "stage": "html_crawl"}, {"error": "Twitter/X public HTML did not expose post text. Set X_BEARER_TOKEN for the official API, or use a browser/Selenium-style session.", "source": "twitter_turkey_news", "stage": "html_crawl"}], "generated_at": "2026-06-26T19:55:27Z", "payloads": 24, "sources_enabled": 14}, "risk_flag_counts": [{"count": 10, "value": "public_safety"}, {"count": 6, "value": "market_pressure"}, {"count": 5, "value": "legal_process"}, {"count": 2, "value": "political_tension"}, {"count": 1, "value": "international_conflict"}], "source_counts": [{"count": 2, "value": "haberturk"}, {"count": 2, "value": "trt_haber"}, {"count": 2, "value": "anadolu_ajansi"}, {"count": 2, "value": "ntv"}, {"count": 2, "value": "hurriyet"}, {"count": 2, "value": "milliyet"}, {"count": 2, "value": "sabah"}, {"count": 2, "value": "cumhuriyet"}, {"count": 2, "value": "sozcu"}, {"count": 2, "value": "bloomberg_ht"}, {"count": 2, "value": "mynet_haber"}, {"count": 2, "value": "ensonhaber"}], "source_health": [{"documents": 0, "errors": ["Client error '403 Blocked' for url 'https://old.reddit.com/r/Turkey/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"], "key": "reddit_turkey", "name": "Reddit r/Turkey", "source_type": "reddit", "status": "blocked"}, {"documents": 0, "errors": ["Twitter/X public HTML did not expose post text. Set X_BEARER_TOKEN for the official API, or use a browser/Selenium-style session."], "key": "twitter_turkey_news", "name": "Twitter/X Türkiye Gündemi", "source_type": "twitter", "status": "blocked"}, {"documents": 2, "errors": [], "key": "anadolu_ajansi", "name": "Anadolu Ajansı", "source_type": "html", "status": "ok"}, {"documents": 2, "errors": [], "key": "bloomberg_ht", "name": "Bloomberg HT", "source_type": "html", "status": "ok"}, {"documents": 2, "errors": [], "key": "cumhuriyet", "name": "Cumhuriyet", "source_type": "html", "status": "ok"}, {"documents": 2, "errors": [], "key": "ensonhaber", "name": "Ensonhaber", "source_type": "html", "status": "ok"}, {"documents": 2, "errors": [], "key": "haberturk", "name": "Habertürk", "source_type": "html", "status": "ok"}, {"documents": 2, "errors": [], "key": "hurriyet", "name": "Hürriyet", "source_type": "html", "status": "ok"}, {"documents": 2, "errors": [], "key": "milliyet", "name": "Milliyet", "source_type": "html", "status": "ok"}, {"documents": 2, "errors": [], "key": "mynet_haber", "name": "Mynet Haber", "source_type": "html", "status": "ok"}, {"documents": 2, "errors": [], "key": "ntv", "name": "NTV", "source_type": "html", "status": "ok"}, {"documents": 2, "errors": [], "key": "sabah", "name": "Sabah", "source_type": "html", "status": "ok"}, {"documents": 2, "errors": [], "key": "sozcu", "name": "Sözcü", "source_type": "html", "status": "ok"}, {"documents": 2, "errors": [], "key": "trt_haber", "name": "TRT Haber", "source_type": "html", "status": "ok"}], "top_entities": {"locations": [{"count": 8, "value": "Türkiye"}, {"count": 1, "value": "Antalya"}, {"count": 1, "value": "Türkiye Türkiye"}, {"count": 1, "value": "TRT Haber Türkiye"}, {"count": 1, "value": "Türkiye İhracatçılar Meclisinin"}, {"count": 1, "value": "Başkan Erdoğan Türkiye"}, {"count": 1, "value": "Konya"}, {"count": 1, "value": "Ankara"}, {"count": 1, "value": "Ankara İl Emniyet Müdürlüğünden"}, {"count": 1, "value": "Ankara Cumhuriyet Başsavcılığı"}, {"count": 1, "value": "Ankara İl Tarım"}, {"count": 1, "value": "Kocaeli"}], "organizations": [{"count": 5, "value": "ABD"}, {"count": 5, "value": "Haziran"}, {"count": 3, "value": "Türk"}, {"count": 3, "value": "İnanır"}, {"count": 3, "value": "Trump"}, {"count": 2, "value": "Allah"}, {"count": 2, "value": "Seni"}, {"count": 2, "value": "Venezuela"}, {"count": 2, "value": "Niğde"}, {"count": 2, "value": "Patlamada"}, {"count": 2, "value": "Bor"}, {"count": 2, "value": "İhbar"}, {"count": 2, "value": "Yaralılar"}, {"count": 2, "value": "Araştırma"}, {"count": 2, "value": "Patlamanın"}], "persons": [{"count": 3, "value": "Kadir İnanır"}, {"count": 3, "value": "ABD Başkanı Donald Trump"}, {"count": 2, "value": "Anadolu Ajansı"}, {"count": 2, "value": "Bor Devlet"}, {"count": 2, "value": "Niğde Eğitim"}, {"count": 2, "value": "Emniyet Genel Müdürlüğü Özel Güvenlik"}, {"count": 2, "value": "Güncelleme Tarihi"}, {"count": 2, "value": "Atatürk Kültür Merkezi"}, {"count": 2, "value": "Barbaros Hayrettin Paşa Camii"}, {"count": 2, "value": "Ulus Mezarlığı"}, {"count": 2, "value": "Hürmüz Boğazı"}, {"count": 2, "value": "Başkan Erdoğan"}, {"count": 2, "value": "Başkan Recep Tayyip Erdoğan"}, {"count": 2, "value": "Mega Ajans"}, {"count": 2, "value": "Dünya Kupası"}]}, "top_topics": [{"count": 10, "value": "public_safety"}, {"count": 8, "value": "türkiye"}, {"count": 6, "value": "market_pressure"}, {"count": 5, "value": "incident"}, {"count": 5, "value": "saglik"}, {"count": 5, "value": "legal_process"}, {"count": 4, "value": "siyaset"}, {"count": 4, "value": "legal_case"}, {"count": 3, "value": "social_discussion"}, {"count": 3, "value": "nanır"}, {"count": 3, "value": "kadir"}, {"count": 3, "value": "teknoloji"}, {"count": 3, "value": "spor"}, {"count": 3, "value": "sports_result"}, {"count": 3, "value": "policy_decision"}, {"count": 3, "value": "dunya"}, {"count": 3, "value": "trump"}, {"count": 2, "value": "diger"}, {"count": 2, "value": "general"}, {"count": 2, "value": "başsağlığı"}], "total_documents": 24}};
+    const payloads = DASHBOARD_DATA.payloads || [];
+    const patterns = DASHBOARD_DATA.patterns || {};
+    const pipeline = patterns.pipeline || {};
+    const clusterRankingById = Object.fromEntries((patterns.cluster_rankings || []).map(row => [row.cluster_id, row]));
+    const cityCoords = {
+      "Türkiye": [50, 48],
+      "İstanbul": [26, 43],
+      "Ankara": [49, 47],
+      "İzmir": [22, 60],
+      "Bursa": [30, 48],
+      "Antalya": [36, 74],
+      "Adana": [59, 70],
+      "Gaziantep": [68, 67],
+      "Diyarbakır": [77, 57],
+      "Samsun": [59, 31],
+      "Trabzon": [75, 27],
+      "Van": [87, 51],
+      "Konya": [47, 64],
+      "Kayseri": [60, 55],
+      "Mersin": [56, 73],
+      "Edirne": [15, 37],
+      "Kocaeli": [30, 43],
+      "Muğla": [25, 70],
+      "Erzurum": [79, 42],
+      "Malatya": [68, 56]
+    };
+
+    function byId(id) {
+      return document.getElementById(id);
+    }
+
+    function esc(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function records(name) {
+      return Array.isArray(patterns[name]) ? patterns[name] : [];
+    }
+
+    function unique(values) {
+      return [...new Set(values.filter(Boolean))];
+    }
+
+    function countRecordsFromPayloads(pathFn) {
+      const counts = {};
+      payloads.forEach(payload => {
+        const values = pathFn(payload);
+        (Array.isArray(values) ? values : [values]).filter(Boolean).forEach(value => {
+          counts[value] = (counts[value] || 0) + 1;
+        });
+      });
+      return Object.entries(counts)
+        .map(([value, count]) => ({ value, count }))
+        .sort((left, right) => right.count - left.count || left.value.localeCompare(right.value));
+    }
+
+    function optionList(rows, label) {
+      return `<option value="">${esc(label)}</option>` + rows.map(row => `<option value="${esc(row.value || row.key)}">${esc(row.value || row.key)}</option>`).join("");
+    }
+
+    function metricCard(label, value, note) {
+      return `<div class="kpi"><div class="kpi-label">${esc(label)}</div><div class="kpi-value">${esc(value)}</div><div class="kpi-note">${esc(note || "")}</div></div>`;
+    }
+
+    function insightCard(card) {
+      return `<article class="insight-card ${esc(card.severity || "low")}">
+        <div class="insight-title">${esc(card.title)}</div>
+        <div class="insight-metric">${esc(card.metric)}</div>
+        <div class="insight-label">${esc(card.label || "")}</div>
+        <div class="insight-detail">${esc(card.detail || "")}</div>
+      </article>`;
+    }
+
+    function renderBars(targetId, rows, color) {
+      const target = byId(targetId);
+      if (!rows.length) {
+        target.innerHTML = `<div class="empty">Veri yok</div>`;
+        return;
+      }
+      const max = Math.max(...rows.map(row => Number(row.count || 0)), 1);
+      target.innerHTML = rows.map(row => {
+        const width = Math.max(4, Number(row.count || 0) / max * 100);
+        return `<div class="bar-row">
+          <div class="bar-label" title="${esc(row.value)}">${esc(row.value)}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${width}%;background:${color || "var(--teal)"}"></div></div>
+          <div class="count">${esc(row.count)}</div>
+        </div>`;
+      }).join("");
+    }
+
+    function renderChips(targetId, rows, className) {
+      const target = byId(targetId);
+      if (!rows.length) {
+        target.innerHTML = `<div class="empty">Veri yok</div>`;
+        return;
+      }
+      target.innerHTML = rows.map(row => `<span class="chip ${className || ""}">${esc(row.value)} · ${esc(row.count)}</span>`).join("");
+    }
+
+    function renderOverview() {
+      const clusters = patterns.clusters || [];
+      const categoryCount = records("category_counts").length || unique(payloads.map(p => p.analysis?.category)).length;
+      const sourceCount = records("source_counts").length || unique(payloads.map(p => p.source?.key)).length;
+      const errors = pipeline.errors || [];
+      const highClusters = (patterns.cluster_rankings || []).filter(row => row.impact_level === "high").length;
+      byId("kpis").innerHTML = [
+        metricCard("Haber", payloads.length, "JSONB payload"),
+        metricCard("Cluster", clusters.length, "Benzer haber grubu"),
+        metricCard("Kategori", categoryCount, "Aktif sınıf"),
+        metricCard("Kaynak", sourceCount, errors.length ? `${errors.length} hata` : "Temiz"),
+        metricCard("Yüksek Etki", highClusters, "Öncelikli cluster"),
+        metricCard("Entity", (patterns.entity_network?.nodes || []).length, "Ağ düğümü"),
+        metricCard("Risk", records("risk_flag_counts").length, "Sinyal tipi"),
+        metricCard("Harita", records("geography_counts").length, "Lokasyon")
+      ].join("");
+
+      const insightCards = patterns.insight_cards || [];
+      byId("overviewInsightCards").innerHTML = insightCards.length
+        ? insightCards.slice(0, 5).map(insightCard).join("")
+        : `<div class="empty">İçgörü kartı yok</div>`;
+
+      byId("observations").innerHTML = (patterns.observations || []).length
+        ? `<div class="chips">${patterns.observations.map(item => `<span class="chip warn">${esc(item)}</span>`).join("")}</div>`
+        : `<div class="empty">Pattern notu yok</div>`;
+
+      byId("latestArticles").innerHTML = payloads.slice(0, 8).map(payload => {
+        const article = payload.article || {};
+        const analysis = payload.analysis || {};
+        const source = payload.source || {};
+        return `<div class="article-row">
+          <div>
+            <div class="article-title" title="${esc(article.title)}">${esc(article.title)}</div>
+            <div class="article-meta">${esc(source.name || source.key)} · ${esc(analysis.event_type || "general")}</div>
+          </div>
+          <span class="chip">${esc(analysis.category || "diger")}</span>
+          <span class="chip ${payload.cluster?.cluster_size > 1 ? "warn" : ""}">cluster ${esc(payload.cluster?.cluster_size || 1)}</span>
+        </div>`;
+      }).join("") || `<div class="empty">Haber yok</div>`;
+    }
+
+    function clusterCard(cluster) {
+      const ranking = clusterRankingById[cluster.cluster_id] || {};
+      const terms = (cluster.common_terms || []).map(term => `<span class="chip">${esc(term)}</span>`).join("");
+      const sources = (cluster.sources || []).map(source => `<span class="chip warn">${esc(source)}</span>`).join("");
+      const links = (cluster.urls || []).slice(0, 5).map(url => `<li><a href="${esc(url)}" target="_blank" rel="noreferrer">${esc(url)}</a></li>`).join("");
+      const score = Number(ranking.impact_score || 0);
+      const scoreWidth = Math.max(5, Math.min(100, score));
+      return `<article class="cluster-card" data-search="${esc(JSON.stringify(cluster).toLowerCase())}">
+        <div class="cluster-head">
+          <div class="cluster-title">${esc(cluster.representative_title || cluster.cluster_id)}</div>
+          <div class="cluster-size">${esc(cluster.cluster_size || 1)} haber · ${esc(ranking.impact_level || "low")}</div>
+        </div>
+        <div class="chips">${sources}</div>
+        <div class="chips" style="margin-top:8px">${terms}</div>
+        <div class="score-line">
+          <span>Etki skoru</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${scoreWidth}%;background:var(--amber)"></div></div>
+          <span class="count">${esc(score)}</span>
+        </div>
+        <div class="chips" style="margin-top:8px">
+          ${ranking.dominant_category ? `<span class="chip">${esc(ranking.dominant_category)}</span>` : ""}
+          ${ranking.dominant_event_type ? `<span class="chip">${esc(ranking.dominant_event_type)}</span>` : ""}
+          ${(ranking.risk_flags || []).map(flag => `<span class="chip red">${esc(flag)}</span>`).join("")}
+        </div>
+        ${links ? `<ul class="link-list">${links}</ul>` : ""}
+      </article>`;
+    }
+
+    function renderClusters(filterText = "") {
+      const clusters = patterns.clusters || [];
+      const normalized = filterText.trim().toLowerCase();
+      const filtered = normalized
+        ? clusters.filter(cluster => JSON.stringify(cluster).toLowerCase().includes(normalized))
+        : clusters;
+      byId("clusterList").innerHTML = filtered.length
+        ? filtered.map(clusterCard).join("")
+        : `<div class="empty">Eşleşen cluster yok</div>`;
+    }
+
+    function renderIntelligence() {
+      const insightCards = patterns.insight_cards || [];
+      byId("insightCards").innerHTML = insightCards.length
+        ? insightCards.map(insightCard).join("")
+        : `<div class="empty">İçgörü kartı yok</div>`;
+
+      const clusterMap = Object.fromEntries((patterns.clusters || []).map(cluster => [cluster.cluster_id, cluster]));
+      const priority = (patterns.cluster_rankings || [])
+        .slice(0, 5)
+        .map(row => clusterMap[row.cluster_id])
+        .filter(Boolean);
+      byId("priorityClusters").innerHTML = priority.length
+        ? priority.map(clusterCard).join("")
+        : `<div class="empty">Öncelikli cluster yok</div>`;
+
+      renderSourceHealth();
+    }
+
+    function renderSourceHealth(targetId = "sourceHealth") {
+      const rows = patterns.source_health || [];
+      const html = rows.map(row => `<div class="health-row">
+        <div>
+          <div class="article-title">${esc(row.name || row.key)}</div>
+          <div class="article-meta">${esc(row.source_type || "html")}${row.errors?.length ? " · " + esc(row.errors[0]) : ""}</div>
+        </div>
+        <span class="status-dot ${esc(row.status)}">${esc(row.status)}</span>
+        <div class="count">${esc(row.documents)} haber</div>
+      </div>`).join("");
+      byId(targetId).innerHTML = html ? `<div class="source-health">${html}</div>` : `<div class="empty">Kaynak bilgisi yok</div>`;
+    }
+
+    function renderNetwork() {
+      const network = patterns.entity_network || { nodes: [], edges: [] };
+      const canvas = byId("networkCanvas");
+      canvas.innerHTML = "";
+      if (!network.nodes.length) {
+        canvas.innerHTML = `<div class="empty" style="margin:16px">Ağ verisi yok</div>`;
+        byId("networkNodes").innerHTML = `<div class="empty">Entity/topic yok</div>`;
+        return;
+      }
+
+      const width = 900;
+      const height = 470;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = 175;
+      const positions = {};
+      network.nodes.forEach((node, index) => {
+        const angle = (Math.PI * 2 * index) / network.nodes.length - Math.PI / 2;
+        const weight = Math.min(1, Number(node.count || 1) / Math.max(...network.nodes.map(item => Number(item.count || 1))));
+        positions[node.id] = {
+          x: centerX + Math.cos(angle) * (radius - weight * 35),
+          y: centerY + Math.sin(angle) * (radius - weight * 35),
+          size: 34 + weight * 30
+        };
+      });
+
+      const edgeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      edgeSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      (network.edges || []).forEach(edge => {
+        const source = positions[edge.source];
+        const target = positions[edge.target];
+        if (!source || !target) {
+          return;
+        }
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", source.x);
+        line.setAttribute("y1", source.y);
+        line.setAttribute("x2", target.x);
+        line.setAttribute("y2", target.y);
+        line.setAttribute("stroke", "#b8c9d6");
+        line.setAttribute("stroke-width", Math.min(6, 1 + Number(edge.count || 1)));
+        line.setAttribute("opacity", "0.72");
+        edgeSvg.appendChild(line);
+      });
+      canvas.appendChild(edgeSvg);
+
+      network.nodes.forEach(node => {
+        const position = positions[node.id];
+        const element = document.createElement("div");
+        element.className = `network-node ${node.kind || "topic"}`;
+        element.style.left = `${position.x / width * 100}%`;
+        element.style.top = `${position.y / height * 100}%`;
+        element.style.width = `${position.size}px`;
+        element.style.height = `${position.size}px`;
+        element.title = `${node.id} · ${node.count}`;
+        element.textContent = node.id.length > 14 ? node.id.slice(0, 13) + "…" : node.id;
+        canvas.appendChild(element);
+      });
+
+      byId("networkNodes").innerHTML = network.nodes
+        .map(node => `<span class="chip ${node.kind === "entity" ? "warn" : ""}">${esc(node.id)} · ${esc(node.count)}</span>`)
+        .join("");
+    }
+
+    function renderArticleFilters() {
+      const categories = records("category_counts").length
+        ? records("category_counts")
+        : countRecordsFromPayloads(payload => payload.analysis?.category);
+      const sources = records("source_counts").length
+        ? records("source_counts")
+        : countRecordsFromPayloads(payload => payload.source?.key);
+      byId("categoryFilter").innerHTML = optionList(categories, "Tüm kategoriler");
+      byId("sourceFilter").innerHTML = optionList(sources, "Tüm kaynaklar");
+    }
+
+    function renderArticles() {
+      const query = byId("articleSearch").value.trim().toLowerCase();
+      const category = byId("categoryFilter").value;
+      const source = byId("sourceFilter").value;
+      const filtered = payloads.filter(payload => {
+        const haystack = JSON.stringify({
+          title: payload.article?.title,
+          source: payload.source?.key,
+          category: payload.analysis?.category,
+          topics: payload.analysis?.topics,
+          entities: payload.analysis?.entities
+        }).toLowerCase();
+        return (!query || haystack.includes(query))
+          && (!category || payload.analysis?.category === category)
+          && (!source || payload.source?.key === source);
+      });
+      byId("articleTable").innerHTML = filtered.slice(0, 80).map(payload => {
+        const article = payload.article || {};
+        const analysis = payload.analysis || {};
+        const sourceInfo = payload.source || {};
+        return `<div class="article-row">
+          <div>
+            <div class="article-title" title="${esc(article.title)}">${esc(article.title)}</div>
+            <div class="article-meta">${esc(article.url || "")}</div>
+          </div>
+          <span class="chip">${esc(analysis.category || "diger")}</span>
+          <span class="chip warn">${esc(sourceInfo.key || "unknown")}</span>
+          <span class="chip ${payload.cluster?.cluster_size > 1 ? "warn" : ""}">${esc(payload.cluster?.cluster_size || 1)} cluster</span>
+        </div>`;
+      }).join("") || `<div class="empty">Filtreye uyan haber yok</div>`;
+    }
+
+    function renderMap() {
+      renderBars("geoBars", records("geography_counts"), "var(--blue)");
+      const canvas = byId("mapCanvas");
+      canvas.querySelectorAll(".marker,.marker-label").forEach(node => node.remove());
+      const rows = records("geography_counts");
+      if (!rows.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.style.position = "absolute";
+        empty.style.left = "16px";
+        empty.style.right = "16px";
+        empty.style.bottom = "16px";
+        empty.textContent = "Lokasyon verisi yok";
+        canvas.appendChild(empty);
+        return;
+      }
+      const max = Math.max(...rows.map(row => Number(row.count || 0)), 1);
+      rows.forEach((row, index) => {
+        const coords = cityCoords[row.value] || [18 + (index * 13) % 70, 35 + (index * 11) % 42];
+        const size = 18 + Number(row.count || 1) / max * 22;
+        const marker = document.createElement("div");
+        marker.className = "marker";
+        marker.style.left = coords[0] + "%";
+        marker.style.top = coords[1] + "%";
+        marker.style.width = size + "px";
+        marker.style.height = size + "px";
+        marker.textContent = row.count;
+        const label = document.createElement("div");
+        label.className = "marker-label";
+        label.style.left = coords[0] + "%";
+        label.style.top = coords[1] + "%";
+        label.textContent = row.value;
+        canvas.appendChild(marker);
+        canvas.appendChild(label);
+      });
+    }
+
+    function renderSources() {
+      renderBars("sourceBars", records("source_counts"), "var(--amber)");
+      const errors = pipeline.errors || [];
+      byId("sourceErrors").innerHTML = errors.length
+        ? `<div class="error-list">${errors.map(error => `<div class="error-item"><strong>${esc(error.source)}</strong><br>${esc(error.error)}</div>`).join("")}</div>`
+        : `<div class="empty">Kaynak hatası yok</div>`;
+      renderSourceHealth("sourceHealthSources");
+    }
+
+    function renderAll() {
+      const generatedAt = pipeline.generated_at || payloads[0]?.pipeline?.collected_at || "";
+      byId("runMeta").innerHTML = generatedAt
+        ? `Son çalışma<br><strong>${esc(generatedAt)}</strong>`
+        : `Yerel dashboard`;
+      renderOverview();
+      renderClusters();
+      renderIntelligence();
+      renderBars("categoryBars", records("category_counts"), "var(--teal)");
+      renderBars("eventBars", records("event_type_counts"), "var(--blue)");
+      renderBars("riskBars", records("risk_flag_counts"), "var(--red)");
+      renderChips("topicChips", records("top_topics"));
+      renderNetwork();
+      renderArticleFilters();
+      renderArticles();
+      renderMap();
+      renderSources();
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(item => item.classList.remove("active"));
+        document.querySelectorAll(".view").forEach(item => item.classList.remove("active"));
+        tab.classList.add("active");
+        byId(tab.dataset.view).classList.add("active");
+      });
+    });
+
+    byId("clusterSearch").addEventListener("input", event => {
+      renderClusters(event.target.value);
+    });
+
+    ["articleSearch", "categoryFilter", "sourceFilter"].forEach(id => {
+      byId(id).addEventListener("input", renderArticles);
+      byId(id).addEventListener("change", renderArticles);
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
