@@ -183,25 +183,23 @@ make dashboard
 outputs/dashboard.html
 ```
 
-Dashboard içinde şu ekranlar var:
+Dashboard içinde son durumda şu ekranlar var:
 
-- Genel özet
-- Otomatik insight kartları
-- Öncelikli clusterlar ve cluster etki skoru
-- Ekonomi/siyaset etki ekranı
-- TL, büyüme, enflasyon, faiz baskısı ve piyasa güveni için -5/+5 skorlar
-- Google Trends benzeri trend görünümü
-- Büyük kırılımlar için kısa analiz
-- Hesap dışı bırakılan yüzeysel haberler
-- Cluster listesi
-- Kategori ve olay tipi dağılımı
-- Topic ve risk sinyalleri
-- Entity/topic ağı
-- Filtreli haber inceleme tablosu
-- Lokasyon/harita görünümü
-- Kaynak sağlığı, kaynak dağılımı ve kaynak hataları
+- Karar: ana karar etiketi, odak noktası, temel KPI'lar
+- Outlier: güçlü clusterlar, trend kırılımları, gösterge outlierları
+- Etki: TL, büyüme, enflasyon, faiz baskısı ve piyasa güveni için -5/+5 skorlar
+- Drilldown: cluster arama, kategori/olay/risk/lokasyon dağılımı, haber kanıtı
+- Kaynaklar: kaynak sağlığı, kaynak dağılımı ve kaynak hataları
 
 Bunun amacı şu: "Bu sistem neyi çözüyor?" sorusuna daha ürün gibi cevap vermek. Haberleri topluyor, etiketliyor, benzerlerini grupluyor, hangi gündemin daha önemli göründüğünü skorlayıp tek ekranda inceletiyor.
+
+Hocanın gönderdiği İstanbul cafe analiz projesinde dashboard bir gösterim ekranı gibi değil, karar filtresi gibi düşünülmüş. Önce genel durum, sonra fırsat/outlier, sonra karar matrisi vardı. Bizim projede de aynı mantığı haber tarafına çevirdim:
+
+```text
+Karar özeti -> outlier gündemler -> etki analizi -> drilldown -> kaynak sağlığı
+```
+
+Bu yüzden tekil haberleri ana ekrandan çıkardım. Tekil haberler tek başına önemli değil; sadece bir cluster veya trend kırılımını açıklamak için kanıt olarak duruyor.
 
 ## 9. Ekonomi/Siyaset Etki Analizi Ne Ekledi?
 

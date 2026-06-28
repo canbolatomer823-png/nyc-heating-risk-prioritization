@@ -13,7 +13,8 @@ Bu klasör haber toplama işi için ilk taslak. Bitmiş bir uygulama değil; hoc
 - Ekonomi/siyaset haberleri için TL, büyüme, enflasyon, faiz baskısı ve piyasa güveni etkisini -5/+5 aralığında hesaplıyor.
 - Magazin, spor, kategori sayfası veya zayıf makro ilişkili yüzeysel haberleri etki hesabına almıyor.
 - Haberlerde Google Trends benzeri zaman/topic trendi ve büyük kırılım kısa analizleri üretiyor.
-- Pattern, cluster, trend ve makro etki sonuçlarını insight kartları olan tek HTML dashboard olarak gösteriyor.
+- Pattern, cluster, trend ve makro etki sonuçlarını sadeleştirilmiş karar/outlier/drilldown dashboard'unda gösteriyor.
+- Server deploy için Nginx + Docker Compose dosyaları var.
 - API key yoksa akışı test etmek için basit fallback analyzer çalışıyor.
 - Sonucu Postgres'te tek `payload jsonb` alanına yazacak şekilde tasarlandı.
 
@@ -135,18 +136,15 @@ outputs/dashboard.html
 
 ## Dashboard
 
-Dashboard tek dosyalık HTML olarak üretilir. İçinde şu ekranlar var:
+Dashboard tek dosyalık HTML olarak üretilir. Son sürümde akış kalabalık görünmemesi için genelden özele doğru sadeleştirildi:
 
-- Genel özet: haber, cluster, kategori, kaynak ve yüksek etki sayısı
-- İçgörü: otomatik insight kartları, öncelikli clusterlar ve kaynak sağlığı
+- Karar: çalıştırmanın ana kararı, odak noktası, temel KPI'lar ve izlenecek drilldown sırası
+- Outlier: çok kaynaklı clusterlar, gösterge outlierları, trend kırılımları ve sadece kanıt amaçlı haberler
 - Etki: ekonomi/siyaset haberlerinin TL, ekonomik büyüme, enflasyon, faiz baskısı ve piyasa güveni etkisi
-- Trend: Google Trends benzeri topic/sinyal yoğunluğu ve büyük kırılım yorumları
-- Kümeler: benzer haber grupları, etki skoru, kaynaklar, ortak terimler ve linkler
-- Kategoriler: kategori, olay tipi, topic ve risk sinyali dağılımları
-- Ağ: entity/topic ilişkileri
-- Harita: lokasyon sayımları ve harita benzeri görünüm
-- Haberler: kategori/kaynak/arama filtreli haber inceleme tablosu
+- Drilldown: cluster arama, kategori/olay/risk/lokasyon dağılımı ve filtreli haber kanıtı
 - Kaynaklar: kaynak sağlığı, kaynak dağılımı ve Twitter/Reddit gibi hata veren kaynaklar
+
+Bu akışta tekil haberler ana karar noktası değildir. Tekil haberler sadece bir outlier veya cluster'ın kanıtı olarak kullanılır.
 
 ## OpenAI ile Çalıştırma
 
@@ -197,6 +195,23 @@ Kayıtları kontrol et:
 
 ```bash
 psql "$DATABASE_URL" -c "select id, payload #>> '{analysis,category}' as category, payload #>> '{article,title}' as title from news_documents order by id desc limit 10;"
+```
+
+## Server Deploy
+
+Server deploy notu: [DEPLOY_SERVER.md](DEPLOY_SERVER.md)
+
+Kısa lokal/server yayın komutu:
+
+```bash
+make dry-run dashboard
+NEWS_DASHBOARD_PORT=8080 make dashboard-up
+```
+
+Sonra dashboard:
+
+```text
+http://SERVER_IP:8080/
 ```
 
 ## JSONB Payload Örneği

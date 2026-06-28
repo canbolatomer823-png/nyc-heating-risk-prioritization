@@ -2,7 +2,7 @@ PYTHON ?= python3
 PYTHONPATH := src
 DATABASE_URL ?= postgresql://news:news@localhost:54329/news
 
-.PHONY: install test dry-run dry-run-llm dashboard db-up db-down init-db run-db
+.PHONY: install test dry-run dry-run-llm dashboard dashboard-up dashboard-down db-up db-down init-db run-db
 
 install:
 	$(PYTHON) -m pip install -r requirements.txt
@@ -29,6 +29,12 @@ dashboard:
 		--payloads outputs/latest_payloads.jsonl \
 		--patterns outputs/latest_patterns.json \
 		--output outputs/dashboard.html
+
+dashboard-up:
+	docker compose -f deploy/server/compose.yaml up -d
+
+dashboard-down:
+	docker compose -f deploy/server/compose.yaml down
 
 db-up:
 	docker compose up -d postgres

@@ -43,11 +43,15 @@ class InsightsTest(unittest.TestCase):
         self.assertIn("source_health", enriched)
         self.assertIn("cluster_rankings", enriched)
         self.assertIn("entity_network", enriched)
+        self.assertIn("outlier_report", enriched)
+        self.assertIn("decision_summary", enriched)
         self.assertIn("insight_cards", enriched)
         self.assertEqual(enriched["source_health"][0]["key"], "twitter_turkey_news")
         self.assertEqual(enriched["source_health"][0]["status"], "blocked")
         self.assertEqual(enriched["cluster_rankings"][0]["cluster_size"], 2)
         self.assertGreater(enriched["cluster_rankings"][0]["impact_score"], 0)
+        self.assertGreaterEqual(len(enriched["outlier_report"]["cluster_outliers"]), 1)
+        self.assertIn("decision_label", enriched["decision_summary"])
         self.assertGreaterEqual(len(enriched["insight_cards"]), 2)
 
     def payload_for(self, source: NewsSource, title: str, url: str):

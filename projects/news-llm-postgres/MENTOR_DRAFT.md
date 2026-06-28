@@ -12,11 +12,14 @@ Bu klasör, haber toplama işi için hazırladığım ilk taslak. Bitmiş bir uy
 | Siyaset, ekonomi vb. ayırma | Kategori listesi var: siyaset, ekonomi, dünya, teknoloji, spor, sağlık, kültür, hukuk, eğitim, diğer |
 | Kapsamlı etiketleme | Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem ve risk/pattern sinyalleri ekledim |
 | Haberlerde pattern bulma | Benzer haberleri basit metin benzerliğiyle cluster'a ayıran ve genel pattern raporu çıkaran yapı ekledim |
-| Dashboard | Insight kartları, cluster önem skoru, entity/topic ağı, filtreli haber tablosu, harita/lokasyon ve kaynak sağlığı ekranları olan tek HTML dashboard ekledim |
+| Dashboard | Karar özeti, outlier ekranı, etki analizi, drilldown ve kaynak sağlığı olan daha sade tek HTML dashboard ekledim |
 | Ekonomi/siyaset etki analizi | TL, ekonomik büyüme, enflasyon, faiz baskısı ve piyasa güveni için -5/+5 skorlayan ilk katmanı ekledim |
 | Google Trends benzeri trend | Zamana göre kategori/topic/sinyal yoğunluğunu 0-100 trend index mantığıyla dashboard'a ekledim |
 | Büyük kırılım yorumu | Öne çıkan trend veya yüksek etki haberleri için 2-3 cümlelik kısa analiz saklanıyor |
 | Yüzeysel haberleri ayırma | Kadir İnanır örneği gibi magazin/kültür ağırlıklı haberleri makro etki hesabına almıyorum |
+| Genelden özele akış | İlk ekranda karar özeti, sonra outlier, sonra drilldown mantığına çevirdim |
+| Tekil haberleri azaltma | Tekil haberleri ana ekran yerine sadece kanıt/evidence olarak gösteriyorum |
+| Server deploy hazırlığı | Nginx + Docker Compose deploy dosyası ve server kurulum notu ekledim |
 | Twitter/X denemesi | Public HTML ve resmi API token yolunu ayırdım; token yoksa neden alınamadığını kaynak hatası olarak raporluyor |
 | Postgres'e JSONB kaydetme | `news_documents` tablosunda tek `payload jsonb` alanı var |
 | Yapı değişebilir | Yeni alanlar tabloyu değiştirmeden `payload` içine eklenebilir |
@@ -57,11 +60,15 @@ Temel kategoriye ek olarak daha kapsamlı etiketleme de ekledim. Şu an her habe
 
 Clustering tarafında ilk sürüm basit metin benzerliğiyle çalışıyor. Aynı olayı anlatan haberler benzer kelimeler, başlıklar ve topic'ler üzerinden aynı cluster'a düşüyor. Bunu özellikle ilk taslakta anlaşılır tutmak istedim; sonraki adımda embedding tabanlı benzerlik veya KMeans/DBSCAN/HDBSCAN gibi yöntemlerle daha düzgün hale getirilebilir.
 
-Dashboard tarafında tek HTML dosyası üretiyorum. İçinde genel özet, otomatik insight kartları, öncelikli clusterlar, cluster önem skoru, kategori dağılımı, topic/risk sinyalleri, entity/topic ağı, filtreli haber tablosu, lokasyon haritası ve kaynak sağlığı ekranı var. Böylece işi sadece kod olarak değil, bakılabilecek küçük bir ürün ekranı gibi gösterebiliyoruz.
+Dashboard tarafında tek HTML dosyası üretiyorum. Son güncellemede ekranı kalabalıktan uzaklaştırıp genelden özele giden bir akışa çevirdim. İlk ekran artık tekil haber listesi değil; karar etiketi, ana odak, temel KPI'lar ve drilldown sırasını gösteriyor. Sonra outlier ekranında çok kaynaklı clusterlar, trend kırılımları ve güçlü gösterge sinyalleri öne çıkıyor. Tekil haberleri ana karar noktası yapmıyorum; sadece bu outlierların kanıtı olarak gösteriyorum.
 
 Son güncellemede ekonomi/siyaset haberleri için ayrı bir etki analizi katmanı ekledim. Haber makro analiz için uygunsa TL, ekonomik büyüme, enflasyon, faiz baskısı ve piyasa güveni göstergelerine -5 ile +5 arasında skor veriyor. Magazin, spor, kategori sayfası veya Kadir İnanır örneği gibi makro göstergeyle zayıf ilişkili haberleri hesap dışı bırakıyor; bunu da payload içinde nedeniyle saklıyor.
 
 Trend tarafında Google Trends'e benzer şekilde kategori, topic ve sinyal yoğunluğunu günlük bucket'larda 0-100 index mantığıyla gösteriyorum. Büyük kırılım gördüğü yerlerde de kısa analiz metni saklıyor. API key varsa bu kısa kırılım analizini OpenAI ile zenginleştirecek yol var; key yoksa aynı alan fallback kurallarla doluyor.
+
+Hocanın gönderdiği İstanbul cafe analiz projesine de baktım. Orada hoşuma giden taraf, her görselin bir karar filtresi olarak düşünülmesiydi: önce genel pazar, sonra fırsat, sonra karar matrisi. Bunu bizim projeye şöyle çevirdim: önce genel karar özeti, sonra sadece outlier gündemler, sonra gerektiğinde drilldown. Böylece dashboard her şeyi aynı anda göstermeye çalışmıyor.
+
+Server deploy tarafı için de ilk aşamada Nginx + Docker Compose dosyası ekledim. Server verildiğinde dashboard'u `outputs/dashboard.html` olarak üretip container üzerinden yayınlayabiliriz. Notları `DEPLOY_SERVER.md` içine koydum.
 
 ## LLM ile Deneme
 
@@ -119,9 +126,11 @@ Hocam haber toplama işi için ilk taslağı hazırladım.
 
 Etiketleme tarafını da sadece kategori seviyesinde bırakmadım. Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem seviyesi ve risk/pattern sinyalleri çıkacak şekilde genişlettim. Benzer haberleri de basit metin benzerliğiyle cluster'a ayıran ilk yapıyı ekledim. Çıktıları Postgres'te tek payload jsonb alanında tutuyorum; çünkü ileride bu alanlar değişebilir.
 
-Bunları görebilmek için de tek dosyalık bir dashboard ekledim. Genel özet, insight kartları, cluster önem skoru, entity/topic ağı, kategori dağılımı, filtreli haber tablosu, lokasyon/harita ve kaynak sağlığı ekranları var.
+Bunları görebilmek için de tek dosyalık bir dashboard ekledim. Son önerilerinizden sonra dashboard'u biraz sadeleştirdim. Artık ilk ekran karar özeti gibi çalışıyor; sonra outlier gündemlere, oradan da drilldown'a gidiliyor. Tekil haberleri ana ekranda kalabalık yapacak şekilde göstermiyorum, sadece outlierları açıklayan kanıt olarak bıraktım.
 
 Son konuştuğumuz ekonomi/siyaset etki analizi tarafını da ekledim. Ayrı bir Etki ekranı var. Burada TL, ekonomik büyüme, enflasyon, faiz baskısı ve piyasa güveni için -5/+5 skorlar görünüyor. Ayrıca Google Trends gibi topic/sinyal yoğunluğu, büyük kırılımlar için kısa yorumlar ve hesap dışı bırakılan yüzeysel haberler de ayrı görünüyor. Örneğin Kadir İnanır gibi magazin/kültür ağırlıklı haberleri makro etki hesabına almıyorum.
+
+Server deploy için de Nginx + Docker Compose dosyalarını ekledim. Server bilgisi gelince bunu orada ayağa kaldırıp deploy adımlarını da birlikte netleştirebilirim.
 
 Bitmiş ürün değil, beraber güncellemek için ilk iskelet.
 ```

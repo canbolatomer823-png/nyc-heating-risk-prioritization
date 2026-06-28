@@ -15,10 +15,12 @@ def enrich_pattern_report(
 ) -> dict[str, Any]:
     enriched = dict(patterns)
     enriched["source_health"] = build_source_health(payloads, sources, errors)
+    enriched["macro_impact"] = build_macro_impact_report(payloads)
     enriched["cluster_rankings"] = rank_clusters(payloads, enriched.get("clusters", []))
     enriched["entity_network"] = build_entity_network(payloads)
     enriched["coverage_matrix"] = build_coverage_matrix(payloads)
-    enriched["macro_impact"] = build_macro_impact_report(payloads)
+    enriched["outlier_report"] = build_outlier_report(enriched, payloads)
+    enriched["decision_summary"] = build_decision_summary(enriched, payloads)
     enriched["insight_cards"] = build_insight_cards(enriched, payloads)
     return enriched
 
@@ -175,15 +177,148 @@ def build_coverage_matrix(payloads: list[dict[str, Any]]) -> list[dict[str, Any]
     return sorted(rows, key=lambda row: (row["source"], row["category"]))
 
 
+def build_outlier_report(patterns: dict[str, Any], payloads: list[dict[str, Any]]) -> dict[str, Any]:
+    cluster_rows = [
+        {
+            **cluster,
+            "why": cluster_outlier_reason(cluster),
+        }
+        for cluster in patterns.get("cluster_rankings", [])
+        if int(cluster.get("cluster_size", 0)) > 1
+        and (
+            cluster.get("impact_level") in {"high", "medium"}
+            or int(cluster.get("macro_documents", 0)) > 0
+        )
+    ][:5]
+
+    macro_impact = patterns.get("macro_impact", {})
+    indicator_rows = [
+        {
+            **indicator,
+            "direction": "positive" if float(indicator.get("average_score", 0)) > 0 else "negative",
+            "why": indicator_outlier_reason(indicator),
+        }
+        for indicator in sorted(
+            macro_impact.get("indicator_summary", []),
+            key=lambda row: -float(row.get("absolute_average", 0)),
+        )
+        if float(indicator.get("absolute_average", 0)) >= 0.75
+    ][:5]
+
+    trend_rows = [
+        {
+            **row,
+            "why": trend_outlier_reason(row),
+        }
+        for row in macro_impact.get("major_breaks", [])
+        if row.get("kind") != "article_impact"
+        and abs(int(row.get("change", 0))) >= 2
+    ][:5]
+
+    evidence_rows = [
+        row
+        for row in macro_impact.get("top_impact_articles", [])
+        if int(row.get("net_abs_impact", 0)) >= 6
+    ][:6]
+
+    return {
+        "outlier_version": "outliers-v1",
+        "cluster_outliers": cluster_rows,
+        "indicator_outliers": indicator_rows,
+        "trend_outliers": trend_rows,
+        "article_evidence": evidence_rows,
+        "excluded_examples": macro_impact.get("excluded_examples", [])[:6],
+        "single_article_note": "Tekil haberler karar noktası değil; sadece outlier ve cluster için kanıt olarak kullanılır.",
+    }
+
+
+def build_decision_summary(patterns: dict[str, Any], payloads: list[dict[str, Any]]) -> dict[str, Any]:
+    macro_impact = patterns.get("macro_impact", {})
+    outliers = patterns.get("outlier_report", {})
+    source_health = patterns.get("source_health", [])
+    active_sources = sum(1 for source in source_health if int(source.get("documents", 0)) > 0)
+    blocked_sources = sum(1 for source in source_health if source.get("status") in {"blocked", "partial"})
+    top_indicator = first_or_none(outliers.get("indicator_outliers", []))
+    top_cluster = first_or_none(outliers.get("cluster_outliers", []))
+    top_trend = first_or_none(outliers.get("trend_outliers", []))
+
+    if top_indicator:
+        direction = "baskı" if float(top_indicator.get("average_score", 0)) < 0 else "destek"
+        headline = f"{top_indicator.get('label')} tarafında {direction} sinyali öne çıkıyor"
+    elif top_cluster:
+        headline = f"{top_cluster.get('dominant_category', 'gündem')} clusterı izlenmeli"
+    elif top_trend:
+        headline = f"{top_trend.get('key')} trendi yükseliyor"
+    else:
+        headline = "Bu çalıştırmada belirgin makro outlier düşük"
+
+    outlier_count = (
+        len(outliers.get("cluster_outliers", []))
+        + len(outliers.get("indicator_outliers", []))
+        + len(outliers.get("trend_outliers", []))
+    )
+    if outlier_count >= 6:
+        decision_label = "Yakından izle"
+        priority = "high"
+    elif outlier_count >= 2:
+        decision_label = "İzle ve drilldown yap"
+        priority = "medium"
+    else:
+        decision_label = "Düşük öncelik"
+        priority = "low"
+
+    focus_parts = []
+    if top_cluster:
+        focus_parts.append(f"{top_cluster.get('representative_title', '')[:90]}")
+    if top_trend:
+        focus_parts.append(f"{top_trend.get('key')} trend kırılımı")
+    if top_indicator:
+        focus_parts.append(f"{top_indicator.get('label')} {float(top_indicator.get('average_score', 0)):+.2f}")
+
+    return {
+        "summary_version": "decision-summary-v1",
+        "headline": headline,
+        "decision_label": decision_label,
+        "priority": priority,
+        "focus": " · ".join(part for part in focus_parts if part) or "Belirgin odak yok",
+        "why": build_decision_why(top_indicator, top_cluster, top_trend),
+        "recommended_next_steps": [
+            "Önce outlier cluster ve trend kırılımlarına bak.",
+            "Tekil haberleri sadece kanıt olarak kontrol et.",
+            "Server deploy sonrası scheduled run ile trend geçmişi biriktir.",
+        ],
+        "metrics": {
+            "total_documents": len(payloads),
+            "macro_documents": macro_impact.get("eligible_documents", 0),
+            "excluded_documents": macro_impact.get("excluded_documents", 0),
+            "outlier_count": outlier_count,
+            "active_sources": active_sources,
+            "blocked_sources": blocked_sources,
+        },
+    }
+
+
 def build_insight_cards(patterns: dict[str, Any], payloads: list[dict[str, Any]]) -> list[dict[str, Any]]:
     cards = []
     total_documents = len(payloads)
+    decision_summary = patterns.get("decision_summary", {})
     clusters = patterns.get("cluster_rankings", [])
     source_health = patterns.get("source_health", [])
     categories = patterns.get("category_counts", [])
     risks = patterns.get("risk_flag_counts", [])
     geo = patterns.get("geography_counts", [])
     macro_impact = patterns.get("macro_impact", {})
+
+    if decision_summary:
+        cards.append(
+            {
+                "title": "Karar etiketi",
+                "metric": decision_summary.get("decision_label", "İzle"),
+                "label": decision_summary.get("priority", "medium"),
+                "severity": decision_summary.get("priority", "medium"),
+                "detail": decision_summary.get("headline", ""),
+            }
+        )
 
     if clusters:
         top_cluster = clusters[0]
@@ -324,3 +459,45 @@ def infer_node_kind(value: str) -> str:
     if value[:1].isupper():
         return "location"
     return "topic"
+
+
+def first_or_none(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
+    return rows[0] if rows else None
+
+
+def cluster_outlier_reason(cluster: dict[str, Any]) -> str:
+    parts = [
+        f"{cluster.get('cluster_size', 0)} haber",
+        f"{len(cluster.get('sources', []))} kaynak",
+    ]
+    if cluster.get("risk_flags"):
+        parts.append(f"{len(cluster.get('risk_flags', []))} risk sinyali")
+    if int(cluster.get("macro_documents", 0)):
+        parts.append(f"{cluster.get('macro_documents')} makro haber")
+    return ", ".join(parts)
+
+
+def indicator_outlier_reason(indicator: dict[str, Any]) -> str:
+    score = float(indicator.get("average_score", 0))
+    return f"Ortalama etki {score:+.2f}; {indicator.get('interpretation', 'belirgin yön yok')}."
+
+
+def trend_outlier_reason(row: dict[str, Any]) -> str:
+    return f"{row.get('key')} başlığı {row.get('change', 0):+} değişim ve {row.get('count', 0)} haberle ayrışıyor."
+
+
+def build_decision_why(
+    indicator: dict[str, Any] | None,
+    cluster: dict[str, Any] | None,
+    trend: dict[str, Any] | None,
+) -> str:
+    parts = []
+    if indicator:
+        parts.append(indicator_outlier_reason(indicator))
+    if cluster:
+        parts.append(f"En güçlü cluster: {cluster_outlier_reason(cluster)}.")
+    if trend:
+        parts.append(trend_outlier_reason(trend))
+    if not parts:
+        return "Kayda değer outlier az; daha anlamlı trend için scheduled run gerekir."
+    return " ".join(parts)

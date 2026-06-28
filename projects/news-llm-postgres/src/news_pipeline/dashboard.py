@@ -198,7 +198,7 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
     }
 
     .grid.two {
-      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
     }
 
     .grid.three {
@@ -300,6 +300,131 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       margin-top: 8px;
       color: var(--muted);
       font-size: 12px;
+    }
+
+    .decision-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .decision-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .decision-title {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.2;
+      font-weight: 780;
+    }
+
+    .decision-detail {
+      margin-top: 8px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .decision-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      border-radius: 999px;
+      padding: 6px 12px;
+      background: #e7f5f1;
+      color: #0b5f59;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    .decision-badge.high {
+      background: #ffe8e5;
+      color: var(--red);
+    }
+
+    .decision-badge.medium {
+      background: #fff4df;
+      color: #8a4b00;
+    }
+
+    .decision-badge.low {
+      background: #e7f7ed;
+      color: var(--green);
+    }
+
+    .decision-path {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .path-step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fbfdff;
+    }
+
+    .path-index {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .path-text {
+      margin-top: 4px;
+      line-height: 1.35;
+      font-weight: 650;
+    }
+
+    .outlier-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .outlier-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      min-height: 128px;
+    }
+
+    .outlier-card h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .outlier-value {
+      font-size: 24px;
+      font-weight: 780;
+      line-height: 1.1;
+    }
+
+    .outlier-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .analysis-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin: -6px 0 12px;
     }
 
     .panel {
@@ -526,10 +651,13 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
     .cluster-list {
       display: grid;
       gap: 12px;
+      min-width: 0;
     }
 
     .cluster-card {
       padding: 14px;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .cluster-head {
@@ -538,11 +666,15 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       gap: 12px;
       align-items: flex-start;
       margin-bottom: 10px;
+      min-width: 0;
     }
 
     .cluster-title {
       font-weight: 700;
       line-height: 1.35;
+      min-width: 0;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .cluster-size {
@@ -576,6 +708,11 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       overflow-wrap: anywhere;
     }
 
+    .link-list a {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
     .article-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 118px 110px;
@@ -600,7 +737,7 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
 
     .filters {
       display: grid;
-      grid-template-columns: minmax(220px, 1fr) 180px 180px;
+      grid-template-columns: minmax(160px, 1fr) repeat(2, minmax(110px, 0.6fr));
       gap: 10px;
       margin-bottom: 12px;
     }
@@ -623,89 +760,6 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
 
     .article-table .article-row {
       grid-template-columns: minmax(0, 1fr) 120px 140px 110px;
-    }
-
-    .map-canvas {
-      position: relative;
-      min-height: 360px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #eaf1f7;
-      overflow: hidden;
-    }
-
-    .map-canvas svg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .marker {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      display: grid;
-      place-items: center;
-      border-radius: 999px;
-      background: rgba(15, 118, 110, 0.86);
-      color: #fff;
-      border: 2px solid #fff;
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .marker-label {
-      position: absolute;
-      transform: translate(-50%, 16px);
-      padding: 3px 6px;
-      border-radius: 6px;
-      background: rgba(255, 255, 255, 0.92);
-      color: var(--text);
-      font-size: 12px;
-      white-space: nowrap;
-      border: 1px solid var(--line);
-    }
-
-    .network-canvas {
-      position: relative;
-      min-height: 470px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #f8fbff;
-      overflow: hidden;
-    }
-
-    .network-canvas svg {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .network-node {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      border-radius: 999px;
-      display: grid;
-      place-items: center;
-      background: var(--blue);
-      color: #fff;
-      border: 2px solid #fff;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
-      font-size: 11px;
-      font-weight: 700;
-      text-align: center;
-      padding: 4px;
-      overflow: hidden;
-    }
-
-    .network-node.entity {
-      background: var(--teal);
-    }
-
-    .network-node.location {
-      background: var(--amber);
     }
 
     .source-health {
@@ -788,9 +842,12 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
 
     @media (max-width: 900px) {
       .title-row,
+      .decision-head,
+      .decision-path,
       .grid.two,
       .grid.three,
       .insight-grid,
+      .outlier-grid,
       .impact-grid,
       .kpis,
       .indicator-row,
@@ -818,19 +875,15 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
         <div class="title-row">
           <div>
             <h1>News Pattern Dashboard</h1>
-            <div class="subtitle">Kümeleme, kategori, lokasyon ve kaynak sinyalleri</div>
+            <div class="subtitle">Karar özeti, outlier gündemler ve drilldown analizi</div>
           </div>
           <div class="run-meta" id="runMeta"></div>
         </div>
         <nav class="tabs" aria-label="Dashboard views">
-          <button class="tab active" data-view="overview">Genel</button>
-          <button class="tab" data-view="intelligence">İçgörü</button>
+          <button class="tab active" data-view="overview">Karar</button>
+          <button class="tab" data-view="intelligence">Outlier</button>
           <button class="tab" data-view="impact">Etki</button>
-          <button class="tab" data-view="clusters">Kümeler</button>
-          <button class="tab" data-view="categories">Kategoriler</button>
-          <button class="tab" data-view="network">Ağ</button>
-          <button class="tab" data-view="map">Harita</button>
-          <button class="tab" data-view="articles">Haberler</button>
+          <button class="tab" data-view="clusters">Drilldown</button>
           <button class="tab" data-view="sources">Kaynaklar</button>
         </nav>
       </div>
@@ -838,31 +891,41 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
 
     <main>
       <section class="view active" id="overview">
+        <div id="decisionPanel"></div>
         <div class="kpis" id="kpis"></div>
-        <div class="insight-grid" id="overviewInsightCards"></div>
+        <div class="outlier-grid" id="overviewOutliers"></div>
         <div class="grid two">
           <div class="panel">
-            <h2>Öne Çıkan Pattern Notları</h2>
-            <div id="observations"></div>
+            <h2>Drilldown Sırası</h2>
+            <div id="decisionPath"></div>
           </div>
           <div class="panel">
-            <h2>Son Haberler</h2>
-            <div id="latestArticles"></div>
+            <h2>Karar Notları</h2>
+            <div id="observations"></div>
           </div>
         </div>
       </section>
 
       <section class="view" id="intelligence">
-        <div class="insight-grid" id="insightCards"></div>
+        <div class="outlier-grid" id="outlierCards"></div>
         <div class="grid two">
           <div class="panel">
-            <h2>Öncelikli Clusterlar</h2>
+            <h2>Outlier Clusterlar</h2>
+            <p class="analysis-note">Tekil haberler burada ana karar noktası değil; aynı olayın birden fazla kaynakta ve güçlü sinyalle görünmesi öne çıkarılır.</p>
             <div class="cluster-list" id="priorityClusters"></div>
           </div>
           <div class="panel">
-            <h2>Kaynak Sağlığı</h2>
-            <div id="sourceHealth"></div>
+            <h2>Trend Kırılımları</h2>
+            <div id="outlierTrends"></div>
+            <div style="height:14px"></div>
+            <h2>Gösterge Outlierları</h2>
+            <div id="outlierIndicators"></div>
           </div>
+        </div>
+        <div class="panel" style="margin-top:16px">
+          <h2>Kanıt Haberleri</h2>
+          <p class="analysis-note">Bu bölüm, outlier kararını açıklamak için tutulur; tekil haber tek başına karar verdirmez.</p>
+          <div id="articleEvidence"></div>
         </div>
       </section>
 
@@ -894,72 +957,34 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
 
       <section class="view" id="clusters">
         <input class="search" id="clusterSearch" placeholder="Cluster, kaynak veya ortak terim ara">
-        <div class="cluster-list" id="clusterList"></div>
-      </section>
-
-      <section class="view" id="categories">
         <div class="grid two">
           <div class="panel">
-            <h2>Kategori Dağılımı</h2>
-            <div id="categoryBars"></div>
+            <h2>Cluster Drilldown</h2>
+            <div class="cluster-list" id="clusterList"></div>
           </div>
           <div class="panel">
-            <h2>Olay Tipleri</h2>
+            <h2>Olay ve Risk Dağılımı</h2>
             <div id="eventBars"></div>
+            <div style="height:14px"></div>
+            <div id="riskBars"></div>
           </div>
         </div>
         <div class="grid two" style="margin-top:16px">
           <div class="panel">
-            <h2>Topic Yoğunluğu</h2>
-            <div id="topicChips" class="chips"></div>
-          </div>
-          <div class="panel">
-            <h2>Risk Sinyalleri</h2>
-            <div id="riskBars"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="view" id="network">
-        <div class="grid two">
-          <div class="panel">
-            <h2>Entity / Topic Ağı</h2>
-            <div class="network-canvas" id="networkCanvas"></div>
-          </div>
-          <div class="panel">
-            <h2>En Görünür Entity ve Topicler</h2>
-            <div id="networkNodes" class="chips"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="view" id="map">
-        <div class="grid two">
-          <div class="panel">
-            <h2>Lokasyon Haritası</h2>
-            <div class="map-canvas" id="mapCanvas">
-              <svg viewBox="0 0 900 360" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M74 180 L118 140 L204 132 L270 104 L348 120 L438 98 L542 124 L650 116 L780 152 L830 202 L752 236 L620 250 L510 234 L414 260 L306 236 L210 242 L132 218 Z" fill="#d8e7f0" stroke="#9db4c4" stroke-width="3"></path>
-                <path d="M152 242 L210 274 L318 286 L428 278 L536 294 L690 268 L776 236" fill="none" stroke="#b8c9d6" stroke-width="2"></path>
-              </svg>
-            </div>
-          </div>
-          <div class="panel">
-            <h2>Lokasyon Sayımları</h2>
+            <h2>Kategori ve Lokasyon</h2>
+            <div id="categoryBars"></div>
+            <div style="height:14px"></div>
             <div id="geoBars"></div>
           </div>
-        </div>
-      </section>
-
-      <section class="view" id="articles">
-        <div class="panel">
-          <h2>Haber İnceleme</h2>
-          <div class="filters">
-            <input id="articleSearch" placeholder="Başlık, kaynak, kategori veya topic ara">
-            <select id="categoryFilter"></select>
-            <select id="sourceFilter"></select>
+          <div class="panel">
+            <h2>Haber Kanıtı</h2>
+            <div class="filters">
+              <input id="articleSearch" placeholder="Başlık, kaynak, kategori veya topic ara">
+              <select id="categoryFilter"></select>
+              <select id="sourceFilter"></select>
+            </div>
+            <div class="article-table" id="articleTable"></div>
           </div>
-          <div class="article-table" id="articleTable"></div>
         </div>
       </section>
 
@@ -989,28 +1014,8 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
     const pipeline = patterns.pipeline || {};
     const clusterRankingById = Object.fromEntries((patterns.cluster_rankings || []).map(row => [row.cluster_id, row]));
     const macroImpact = patterns.macro_impact || {};
-    const cityCoords = {
-      "Türkiye": [50, 48],
-      "İstanbul": [26, 43],
-      "Ankara": [49, 47],
-      "İzmir": [22, 60],
-      "Bursa": [30, 48],
-      "Antalya": [36, 74],
-      "Adana": [59, 70],
-      "Gaziantep": [68, 67],
-      "Diyarbakır": [77, 57],
-      "Samsun": [59, 31],
-      "Trabzon": [75, 27],
-      "Van": [87, 51],
-      "Konya": [47, 64],
-      "Kayseri": [60, 55],
-      "Mersin": [56, 73],
-      "Edirne": [15, 37],
-      "Kocaeli": [30, 43],
-      "Muğla": [25, 70],
-      "Erzurum": [79, 42],
-      "Malatya": [68, 56]
-    };
+    const outlierReport = patterns.outlier_report || {};
+    const decisionSummary = patterns.decision_summary || {};
 
     function byId(id) {
       return document.getElementById(id);
@@ -1061,6 +1066,52 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
         <div class="insight-label">${esc(card.label || "")}</div>
         <div class="insight-detail">${esc(card.detail || "")}</div>
       </article>`;
+    }
+
+    function decisionPanel() {
+      const metrics = decisionSummary.metrics || {};
+      return `<section class="decision-panel">
+        <div class="decision-head">
+          <div>
+            <h2 class="decision-title">${esc(decisionSummary.headline || "Karar özeti yok")}</h2>
+            <div class="decision-detail">${esc(decisionSummary.why || "Outlier üretmek için daha fazla veri gerekiyor.")}</div>
+          </div>
+          <span class="decision-badge ${esc(decisionSummary.priority || "medium")}">${esc(decisionSummary.decision_label || "İzle")}</span>
+        </div>
+        <div class="decision-detail"><strong>Odak:</strong> ${esc(decisionSummary.focus || "Belirgin odak yok")}</div>
+        <div class="article-meta" style="margin-top:12px">${esc(metrics.active_sources || 0)} aktif kaynak · ${esc(metrics.blocked_sources || 0)} problemli kaynak · ${esc(metrics.outlier_count || 0)} outlier sinyali</div>
+      </section>`;
+    }
+
+    function outlierSummaryCard(title, value, note) {
+      return `<article class="outlier-card">
+        <h3>${esc(title)}</h3>
+        <div class="outlier-value">${esc(value)}</div>
+        <div class="outlier-note">${esc(note || "")}</div>
+      </article>`;
+    }
+
+    function renderOutlierCards(targetId) {
+      const indicator = (outlierReport.indicator_outliers || [])[0];
+      const cluster = (outlierReport.cluster_outliers || [])[0];
+      const trend = (outlierReport.trend_outliers || [])[0];
+      byId(targetId).innerHTML = [
+        outlierSummaryCard(
+          "Gösterge",
+          indicator ? `${indicator.label} ${Number(indicator.average_score || 0) > 0 ? "+" : ""}${indicator.average_score}` : "-",
+          indicator ? indicator.why : "Belirgin gösterge outlierı yok"
+        ),
+        outlierSummaryCard(
+          "Cluster",
+          cluster ? `${cluster.cluster_size} haber` : "-",
+          cluster ? cluster.why : "Çok kaynaklı yüksek etki clusterı yok"
+        ),
+        outlierSummaryCard(
+          "Trend",
+          trend ? `${trend.key} ${Number(trend.change || 0) >= 0 ? "+" : ""}${trend.change}` : "-",
+          trend ? trend.why : "Belirgin trend kırılımı yok"
+        ),
+      ].join("");
     }
 
     function scoreClass(score) {
@@ -1128,8 +1179,8 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       }).join("")}</div>`;
     }
 
-    function renderMajorBreaks() {
-      const breaks = macroImpact.major_breaks || [];
+    function renderMajorBreaks(rows) {
+      const breaks = rows || macroImpact.major_breaks || [];
       if (!breaks.length) {
         return `<div class="empty">Şu an belirgin kırılım yok</div>`;
       }
@@ -1168,43 +1219,29 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
 
     function renderOverview() {
       const clusters = patterns.clusters || [];
-      const categoryCount = records("category_counts").length || unique(payloads.map(p => p.analysis?.category)).length;
-      const sourceCount = records("source_counts").length || unique(payloads.map(p => p.source?.key)).length;
-      const errors = pipeline.errors || [];
-      const highClusters = (patterns.cluster_rankings || []).filter(row => row.impact_level === "high").length;
+      const metrics = decisionSummary.metrics || {};
+      const highClusters = (outlierReport.cluster_outliers || []).length;
+      byId("decisionPanel").innerHTML = decisionPanel();
       byId("kpis").innerHTML = [
-        metricCard("Haber", payloads.length, "JSONB payload"),
-        metricCard("Cluster", clusters.length, "Benzer haber grubu"),
-        metricCard("Kategori", categoryCount, "Aktif sınıf"),
-        metricCard("Kaynak", sourceCount, errors.length ? `${errors.length} hata` : "Temiz"),
-        metricCard("Yüksek Etki", highClusters, "Öncelikli cluster"),
-        metricCard("Entity", (patterns.entity_network?.nodes || []).length, "Ağ düğümü"),
-        metricCard("Risk", records("risk_flag_counts").length, "Sinyal tipi"),
-        metricCard("Harita", records("geography_counts").length, "Lokasyon")
+        metricCard("Makro Haber", metrics.macro_documents || macroImpact.eligible_documents || 0, "Etki hesabına giren"),
+        metricCard("Outlier", metrics.outlier_count || 0, "Öne çıkan sinyal"),
+        metricCard("Cluster", highClusters, "Öncelikli grup"),
+        metricCard("Hesap Dışı", metrics.excluded_documents || macroImpact.excluded_documents || 0, "Yüzeysel/düşük ilişkili"),
       ].join("");
 
-      const insightCards = patterns.insight_cards || [];
-      byId("overviewInsightCards").innerHTML = insightCards.length
-        ? insightCards.slice(0, 5).map(insightCard).join("")
-        : `<div class="empty">İçgörü kartı yok</div>`;
+      renderOutlierCards("overviewOutliers");
+
+      const steps = decisionSummary.recommended_next_steps || [];
+      byId("decisionPath").innerHTML = steps.length
+        ? steps.slice(0, 3).map((step, index) => `<div class="path-step">
+            <div class="path-index">Adım ${index + 1}</div>
+            <div class="path-text">${esc(step)}</div>
+          </div>`).join("")
+        : `<div class="empty">Drilldown adımı yok</div>`;
 
       byId("observations").innerHTML = (patterns.observations || []).length
         ? `<div class="chips">${patterns.observations.map(item => `<span class="chip warn">${esc(item)}</span>`).join("")}</div>`
         : `<div class="empty">Pattern notu yok</div>`;
-
-      byId("latestArticles").innerHTML = payloads.slice(0, 8).map(payload => {
-        const article = payload.article || {};
-        const analysis = payload.analysis || {};
-        const source = payload.source || {};
-        return `<div class="article-row">
-          <div>
-            <div class="article-title" title="${esc(article.title)}">${esc(article.title)}</div>
-            <div class="article-meta">${esc(source.name || source.key)} · ${esc(analysis.event_type || "general")}</div>
-          </div>
-          <span class="chip">${esc(analysis.category || "diger")}</span>
-          <span class="chip ${payload.cluster?.cluster_size > 1 ? "warn" : ""}">cluster ${esc(payload.cluster?.cluster_size || 1)}</span>
-        </div>`;
-      }).join("") || `<div class="empty">Haber yok</div>`;
     }
 
     function clusterCard(cluster) {
@@ -1247,21 +1284,25 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
     }
 
     function renderIntelligence() {
-      const insightCards = patterns.insight_cards || [];
-      byId("insightCards").innerHTML = insightCards.length
-        ? insightCards.map(insightCard).join("")
-        : `<div class="empty">İçgörü kartı yok</div>`;
+      renderOutlierCards("outlierCards");
 
       const clusterMap = Object.fromEntries((patterns.clusters || []).map(cluster => [cluster.cluster_id, cluster]));
-      const priority = (patterns.cluster_rankings || [])
-        .slice(0, 5)
-        .map(row => clusterMap[row.cluster_id])
+      const priority = (outlierReport.cluster_outliers || [])
+        .map(row => ({ ...(clusterMap[row.cluster_id] || {}), ...row }))
         .filter(Boolean);
       byId("priorityClusters").innerHTML = priority.length
         ? priority.map(clusterCard).join("")
         : `<div class="empty">Öncelikli cluster yok</div>`;
 
-      renderSourceHealth();
+      byId("outlierTrends").innerHTML = renderMajorBreaks(outlierReport.trend_outliers || []);
+      const indicators = outlierReport.indicator_outliers || [];
+      byId("outlierIndicators").innerHTML = indicators.length
+        ? indicators.map(indicatorScale).join("")
+        : `<div class="empty">Gösterge outlierı yok</div>`;
+      const evidence = outlierReport.article_evidence || [];
+      byId("articleEvidence").innerHTML = evidence.length
+        ? evidence.map(impactArticleCard).join("")
+        : `<div class="empty">Kanıt haber yok</div>`;
     }
 
     function renderImpact() {
@@ -1315,70 +1356,6 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       byId(targetId).innerHTML = html ? `<div class="source-health">${html}</div>` : `<div class="empty">Kaynak bilgisi yok</div>`;
     }
 
-    function renderNetwork() {
-      const network = patterns.entity_network || { nodes: [], edges: [] };
-      const canvas = byId("networkCanvas");
-      canvas.innerHTML = "";
-      if (!network.nodes.length) {
-        canvas.innerHTML = `<div class="empty" style="margin:16px">Ağ verisi yok</div>`;
-        byId("networkNodes").innerHTML = `<div class="empty">Entity/topic yok</div>`;
-        return;
-      }
-
-      const width = 900;
-      const height = 470;
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const radius = 175;
-      const positions = {};
-      network.nodes.forEach((node, index) => {
-        const angle = (Math.PI * 2 * index) / network.nodes.length - Math.PI / 2;
-        const weight = Math.min(1, Number(node.count || 1) / Math.max(...network.nodes.map(item => Number(item.count || 1))));
-        positions[node.id] = {
-          x: centerX + Math.cos(angle) * (radius - weight * 35),
-          y: centerY + Math.sin(angle) * (radius - weight * 35),
-          size: 34 + weight * 30
-        };
-      });
-
-      const edgeSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      edgeSvg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-      (network.edges || []).forEach(edge => {
-        const source = positions[edge.source];
-        const target = positions[edge.target];
-        if (!source || !target) {
-          return;
-        }
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", source.x);
-        line.setAttribute("y1", source.y);
-        line.setAttribute("x2", target.x);
-        line.setAttribute("y2", target.y);
-        line.setAttribute("stroke", "#b8c9d6");
-        line.setAttribute("stroke-width", Math.min(6, 1 + Number(edge.count || 1)));
-        line.setAttribute("opacity", "0.72");
-        edgeSvg.appendChild(line);
-      });
-      canvas.appendChild(edgeSvg);
-
-      network.nodes.forEach(node => {
-        const position = positions[node.id];
-        const element = document.createElement("div");
-        element.className = `network-node ${node.kind || "topic"}`;
-        element.style.left = `${position.x / width * 100}%`;
-        element.style.top = `${position.y / height * 100}%`;
-        element.style.width = `${position.size}px`;
-        element.style.height = `${position.size}px`;
-        element.title = `${node.id} · ${node.count}`;
-        element.textContent = node.id.length > 14 ? node.id.slice(0, 13) + "…" : node.id;
-        canvas.appendChild(element);
-      });
-
-      byId("networkNodes").innerHTML = network.nodes
-        .map(node => `<span class="chip ${node.kind === "entity" ? "warn" : ""}">${esc(node.id)} · ${esc(node.count)}</span>`)
-        .join("");
-    }
-
     function renderArticleFilters() {
       const categories = records("category_counts").length
         ? records("category_counts")
@@ -1422,43 +1399,6 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       }).join("") || `<div class="empty">Filtreye uyan haber yok</div>`;
     }
 
-    function renderMap() {
-      renderBars("geoBars", records("geography_counts"), "var(--blue)");
-      const canvas = byId("mapCanvas");
-      canvas.querySelectorAll(".marker,.marker-label").forEach(node => node.remove());
-      const rows = records("geography_counts");
-      if (!rows.length) {
-        const empty = document.createElement("div");
-        empty.className = "empty";
-        empty.style.position = "absolute";
-        empty.style.left = "16px";
-        empty.style.right = "16px";
-        empty.style.bottom = "16px";
-        empty.textContent = "Lokasyon verisi yok";
-        canvas.appendChild(empty);
-        return;
-      }
-      const max = Math.max(...rows.map(row => Number(row.count || 0)), 1);
-      rows.forEach((row, index) => {
-        const coords = cityCoords[row.value] || [18 + (index * 13) % 70, 35 + (index * 11) % 42];
-        const size = 18 + Number(row.count || 1) / max * 22;
-        const marker = document.createElement("div");
-        marker.className = "marker";
-        marker.style.left = coords[0] + "%";
-        marker.style.top = coords[1] + "%";
-        marker.style.width = size + "px";
-        marker.style.height = size + "px";
-        marker.textContent = row.count;
-        const label = document.createElement("div");
-        label.className = "marker-label";
-        label.style.left = coords[0] + "%";
-        label.style.top = coords[1] + "%";
-        label.textContent = row.value;
-        canvas.appendChild(marker);
-        canvas.appendChild(label);
-      });
-    }
-
     function renderSources() {
       renderBars("sourceBars", records("source_counts"), "var(--amber)");
       const errors = pipeline.errors || [];
@@ -1480,11 +1420,9 @@ DASHBOARD_TEMPLATE = r"""<!doctype html>
       renderBars("categoryBars", records("category_counts"), "var(--teal)");
       renderBars("eventBars", records("event_type_counts"), "var(--blue)");
       renderBars("riskBars", records("risk_flag_counts"), "var(--red)");
-      renderChips("topicChips", records("top_topics"));
-      renderNetwork();
+      renderBars("geoBars", records("geography_counts"), "var(--blue)");
       renderArticleFilters();
       renderArticles();
-      renderMap();
       renderSources();
     }
 
