@@ -1,0 +1,6 @@
+# DNS dashboard.example.com -> server IP adresine yönlenirse Caddy otomatik HTTPS alabilir.
+# Mevcut Caddyfile varsa ezme; ilgili host bloğunu ekle.
+
+dashboard.example.com {
+    reverse_proxy 127.0.0.1:18080
+}

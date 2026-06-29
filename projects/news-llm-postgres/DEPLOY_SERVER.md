@@ -1,19 +1,35 @@
-# Server Deploy Notu
+# Server Deploy Runbook
 
-Bu dashboard tek dosyalık HTML ürettiği için ilk server deploy'u basit tutuldu:
+Bu proje tek dosyalık `outputs/dashboard.html` üretiyor. Server deploy tarafı bilerek küçük ve izole tutuldu:
 
-1. Python pipeline `outputs/dashboard.html` üretir.
-2. Nginx container bu dosyayı yayınlar.
-3. Daha sonra cron ile belli aralıklarla `make dry-run-llm dashboard` çalıştırılabilir.
+- Mevcut servisleri durdurmaz.
+- Varsayılan olarak sadece `127.0.0.1:18080` üstünden yayın yapar.
+- Dış erişim için mevcut Nginx/Caddy arkasına reverse proxy eklenir.
+- DNS gelirse domain reverse proxy'ye bağlanır.
 
-## Server Gereksinimleri
+## 1. Server'a Girince Önce Kontrol Et
 
-- Ubuntu server
-- Docker ve Docker Compose plugin
-- Git
-- Python 3.10+ veya sistemde kurulu uygun Python
+Root yetkisiyle girildiği için ilk adım sadece okuma/kontrol olmalı:
 
-## İlk Kurulum
+```bash
+cd projects/news-llm-postgres
+make server-preflight
+```
+
+Bu script şunlara bakar:
+
+- İşletim sistemi
+- Disk ve memory
+- Dinleyen portlar
+- Docker ve Docker Compose durumu
+- Çalışan containerlar
+- Nginx/Apache/Caddy var mı
+- Firewall durumu
+- Seçilen port dolu mu
+
+Script bilinçli olarak `apt install`, `reboot`, `docker prune`, `systemctl stop` veya firewall değişikliği yapmaz.
+
+## 2. Projeyi Hazırla
 
 ```bash
 git clone https://github.com/canbolatomer823-png/nyc-heating-risk-prioritization.git
@@ -26,15 +42,13 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-## Dashboard Üret
-
-API key yoksa fallback analyzer ile:
+Dashboard üret:
 
 ```bash
 make PYTHON=.venv/bin/python dry-run dashboard
 ```
 
-OpenAI ile:
+OpenAI key varsa:
 
 ```bash
 export OPENAI_API_KEY="..."
@@ -42,45 +56,88 @@ export OPENAI_MODEL="gpt-4o-mini"
 make PYTHON=.venv/bin/python dry-run-llm dashboard
 ```
 
-## Nginx ile Yayınla
+## 3. İzole Şekilde Yayına Al
+
+Varsayılan port `18080`. Bu port sadece localhost'a bind edilir:
 
 ```bash
-NEWS_DASHBOARD_PORT=8080 docker compose -f deploy/server/compose.yaml up -d
+make dashboard-up
+```
+
+Farklı port gerekiyorsa:
+
+```bash
+NEWS_DASHBOARD_PORT=18081 make dashboard-up
 ```
 
 Kontrol:
 
 ```bash
-curl http://localhost:8080/health
-curl -I http://localhost:8080/
+curl http://127.0.0.1:18080/health
+curl -I http://127.0.0.1:18080/
 ```
 
-## Domain veya Reverse Proxy
-
-Serverda ayrıca Nginx varsa domaini container'a yönlendirmek için örnek:
-
-```nginx
-server {
-    listen 80;
-    server_name dashboard.example.com;
-
-    location / {
-        proxy_pass http://127.0.0.1:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-## Güncelleme Akışı
+Log:
 
 ```bash
-git pull
-source .venv/bin/activate
-make PYTHON=.venv/bin/python dry-run-llm dashboard
-docker compose -f deploy/server/compose.yaml restart news-dashboard
+make dashboard-logs
 ```
 
-Not: Dashboard HTML dosyası volume olarak bağlandığı için çoğu durumda container restart gerekmez; sayfayı yenilemek yeterlidir. Restart komutu sadece garanti kontrol için yazıldı.
+Durdurma:
+
+```bash
+make dashboard-down
+```
+
+## 4. DNS Gelirse
+
+DNS kaydı örnek:
+
+```text
+dashboard.example.com A 78.135.87.56
+```
+
+Sonra server'daki mevcut reverse proxy düzenine göre sadece yeni site eklenir. Mevcut dosyalar ezilmez.
+
+Nginx örneği:
+
+```bash
+deploy/server/nginx-reverse-proxy.example.conf
+```
+
+Caddy örneği:
+
+```bash
+deploy/server/Caddyfile.example
+```
+
+## 5. Paketli Taşıma
+
+Repo klonlamak yerine sadece dashboard ve server dosyalarını taşımak için:
+
+```bash
+make server-package
+```
+
+Bu komut `outputs/server-bundle/` altında `.tar.gz` üretir.
+
+## 6. Dikkat Edilecekler
+
+Bu komutları düşünmeden çalıştırma:
+
+```bash
+docker system prune
+docker compose down
+systemctl stop nginx
+systemctl restart nginx
+ufw reset
+apt upgrade -y
+reboot
+kill -9 ...
+```
+
+Eğer gerekirse önce mevcut servislerin kime ait olduğu ve hangi portu kullandığı netleştirilmeli.
+
+## Hocaya Kısa Teknik Açıklama
+
+Bu deploy yaklaşımında dashboard container'ı dış dünyaya doğrudan açılmıyor. Önce localhost'ta izole çalışıyor, sonra DNS verilirse mevcut Nginx/Caddy üzerinden domain'e bağlanıyor. Böylece server'daki diğer servislerin portları ve configleri ezilmemiş oluyor.

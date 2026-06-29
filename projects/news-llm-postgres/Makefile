@@ -2,7 +2,7 @@ PYTHON ?= python3
 PYTHONPATH := src
 DATABASE_URL ?= postgresql://news:news@localhost:54329/news
 
-.PHONY: install test dry-run dry-run-llm dashboard dashboard-up dashboard-down db-up db-down init-db run-db
+.PHONY: install test dry-run dry-run-llm dashboard server-preflight server-package dashboard-up dashboard-down dashboard-logs db-up db-down init-db run-db
 
 install:
 	$(PYTHON) -m pip install -r requirements.txt
@@ -30,11 +30,20 @@ dashboard:
 		--patterns outputs/latest_patterns.json \
 		--output outputs/dashboard.html
 
+server-preflight:
+	deploy/server/preflight.sh
+
+server-package:
+	deploy/server/package_static.sh
+
 dashboard-up:
-	docker compose -f deploy/server/compose.yaml up -d
+	deploy/server/deploy_static.sh
 
 dashboard-down:
-	docker compose -f deploy/server/compose.yaml down
+	docker compose -p $${NEWS_DASHBOARD_PROJECT:-omer-news-dashboard} -f deploy/server/compose.yaml down
+
+dashboard-logs:
+	docker compose -p $${NEWS_DASHBOARD_PROJECT:-omer-news-dashboard} -f deploy/server/compose.yaml logs --tail=80
 
 db-up:
 	docker compose up -d postgres

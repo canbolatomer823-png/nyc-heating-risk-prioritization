@@ -19,7 +19,7 @@ Bu klasör, haber toplama işi için hazırladığım ilk taslak. Bitmiş bir uy
 | Yüzeysel haberleri ayırma | Kadir İnanır örneği gibi magazin/kültür ağırlıklı haberleri makro etki hesabına almıyorum |
 | Genelden özele akış | İlk ekranda karar özeti, sonra outlier, sonra drilldown mantığına çevirdim |
 | Tekil haberleri azaltma | Tekil haberleri ana ekran yerine sadece kanıt/evidence olarak gösteriyorum |
-| Server deploy hazırlığı | Nginx + Docker Compose deploy dosyası ve server kurulum notu ekledim |
+| Server deploy hazırlığı | Mevcut servisleri bozmamak için preflight kontrolü, localhost'a izole Docker deploy, Nginx/Caddy reverse proxy ve DNS notları ekledim |
 | Twitter/X denemesi | Public HTML ve resmi API token yolunu ayırdım; token yoksa neden alınamadığını kaynak hatası olarak raporluyor |
 | Postgres'e JSONB kaydetme | `news_documents` tablosunda tek `payload jsonb` alanı var |
 | Yapı değişebilir | Yeni alanlar tabloyu değiştirmeden `payload` içine eklenebilir |
@@ -68,7 +68,7 @@ Trend tarafında Google Trends'e benzer şekilde kategori, topic ve sinyal yoğu
 
 Hocanın gönderdiği İstanbul cafe analiz projesine de baktım. Orada hoşuma giden taraf, her görselin bir karar filtresi olarak düşünülmesiydi: önce genel pazar, sonra fırsat, sonra karar matrisi. Bunu bizim projeye şöyle çevirdim: önce genel karar özeti, sonra sadece outlier gündemler, sonra gerektiğinde drilldown. Böylece dashboard her şeyi aynı anda göstermeye çalışmıyor.
 
-Server deploy tarafı için de ilk aşamada Nginx + Docker Compose dosyası ekledim. Server verildiğinde dashboard'u `outputs/dashboard.html` olarak üretip container üzerinden yayınlayabiliriz. Notları `DEPLOY_SERVER.md` içine koydum.
+Server deploy tarafını da biraz daha dikkatli hale getirdim. Serverda başka servisler olabileceği için doğrudan port açmak yerine önce `server-preflight` ile çalışan portları, containerları ve reverse proxy durumunu kontrol edecek bir adım ekledim. Dashboard container'ı varsayılan olarak sadece `127.0.0.1:18080` üstünde çalışıyor; dış erişim gerekiyorsa mevcut Nginx/Caddy arkasına ayrı bir reverse proxy config'iyle bağlanıyor. DNS verilirse domain'i bu yapıya bağlayabiliriz. Notları `DEPLOY_SERVER.md` içine koydum.
 
 ## LLM ile Deneme
 
@@ -130,7 +130,7 @@ Bunları görebilmek için de tek dosyalık bir dashboard ekledim. Son öneriler
 
 Son konuştuğumuz ekonomi/siyaset etki analizi tarafını da ekledim. Ayrı bir Etki ekranı var. Burada TL, ekonomik büyüme, enflasyon, faiz baskısı ve piyasa güveni için -5/+5 skorlar görünüyor. Ayrıca Google Trends gibi topic/sinyal yoğunluğu, büyük kırılımlar için kısa yorumlar ve hesap dışı bırakılan yüzeysel haberler de ayrı görünüyor. Örneğin Kadir İnanır gibi magazin/kültür ağırlıklı haberleri makro etki hesabına almıyorum.
 
-Server deploy için de Nginx + Docker Compose dosyalarını ekledim. Server bilgisi gelince bunu orada ayağa kaldırıp deploy adımlarını da birlikte netleştirebilirim.
+Server deploy için de daha güvenli bir akış ekledim. Önce serverdaki port/container/servis durumunu kontrol eden preflight var. Dashboard'u ayrı container adıyla ve sadece localhost portunda ayağa kaldırıyorum; DNS verilirse mevcut Nginx/Caddy üzerinden domain'e bağlanacak şekilde örnek configleri de ekledim. Böylece serverdaki diğer servislere dokunmadan ilerleyebiliriz.
 
 Bitmiş ürün değil, beraber güncellemek için ilk iskelet.
 ```

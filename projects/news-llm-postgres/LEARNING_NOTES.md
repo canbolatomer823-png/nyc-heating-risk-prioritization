@@ -266,7 +266,37 @@ Twitter/X public HTML did not expose post text
 
 Bu kötü değil; hocanın "orası baya zor" dediği şeyin teknik sebebini göstermiş oluyor. Diğer kaynaklar çalışmaya devam ediyor. Sonraki adımda ya resmi API token alınır ya da Selenium/browser session ile ayrı bir deneme yapılır.
 
-## 12. JSONB Neden Önemli?
+## 12. Server Deploy Neden Dikkatli?
+
+Hocanın server için "başka servisler de var, dikkatli ol" demesi şu anlama geliyor:
+
+```text
+Bu makine boş değil. Yanlış port, yanlış docker komutu veya yanlış nginx ayarı başka çalışan işleri bozabilir.
+```
+
+Bu yüzden deploy akışını şöyle kurdum:
+
+1. Önce `make server-preflight` ile sadece okuma/kontrol yapılıyor.
+2. Hangi portların dolu olduğu, Docker containerları ve reverse proxy durumu görülüyor.
+3. Dashboard container'ı varsayılan olarak `127.0.0.1:18080` üstünde çalışıyor.
+4. Yani dış dünyaya doğrudan açılmıyor.
+5. Dış erişim gerekiyorsa mevcut Nginx/Caddy üzerinden ayrı bir reverse proxy ekleniyor.
+6. DNS verilirse domain bu reverse proxy'ye bağlanıyor.
+
+Buradaki önemli nokta şu: deploy sadece "çalıştırmak" değil, mevcut sistemi bozmadan çalıştırmak.
+
+Riskli komut örnekleri:
+
+```bash
+docker system prune
+systemctl stop nginx
+ufw reset
+reboot
+```
+
+Bunları bilmeden çalıştırmak serverdaki başka servisleri bozabilir.
+
+## 13. JSONB Neden Önemli?
 
 Hocanın söylediği en önemli nokta buydu:
 
@@ -312,7 +342,7 @@ Payload içinde de kabaca şu bölümler var:
 }
 ```
 
-## 11. JSONB'nin Kötü Tarafı Var mı?
+## 14. JSONB'nin Kötü Tarafı Var mı?
 
 Var.
 
@@ -327,7 +357,7 @@ CREATE INDEX idx_news_documents_category
 
 Yani veri esnek kalıyor ama kategoriye göre sorgu da hızlanabiliyor.
 
-## 12. `content_hash` Neden Var?
+## 15. `content_hash` Neden Var?
 
 Aynı haber tekrar gelirse Postgres'e tekrar tekrar eklenmesin diye.
 
@@ -339,7 +369,7 @@ kaynak + haber linki -> hash
 
 Bu hash unique. Aynı haber tekrar gelirse yeni kayıt açmak yerine mevcut kayıt güncellenir.
 
-## 13. Şu Ana Kadar Ne Çalıştı?
+## 16. Şu Ana Kadar Ne Çalıştı?
 
 Test:
 
@@ -350,7 +380,7 @@ make test
 Sonuç:
 
 ```text
-Ran 13 tests
+Ran 16 tests
 OK
 ```
 
@@ -376,7 +406,7 @@ Son crawler denemesinde:
 - Dashboard `outputs/dashboard.html` dosyasına yazılıyor.
 - Pattern raporunda `insight_cards`, `cluster_rankings`, `source_health`, `entity_network` ve `coverage_matrix` alanları oluşuyor.
 
-## 14. Şu An Eksikler
+## 17. Şu An Eksikler
 
 - Docker Desktop kapalı olduğu için Postgres yazma adımını canlı denemedim.
 - OpenAI API key ile gerçek LLM çıktısını henüz denemedim.
@@ -386,10 +416,12 @@ Son crawler denemesinde:
 - Clustering şu an basit kelime benzerliğiyle çalışıyor; embedding tabanlı hale getirilebilir.
 - Dashboard şu an tek HTML; ileride FastAPI veya React ekranına çevrilebilir.
 - Cluster önem skoru şu an kural bazlı; ileride embedding/LLM skoru ile daha iyi hale getirilebilir.
+- Verilen Linux server üzerinde preflight sonrası gerçek deploy denenmeli.
+- DNS verilirse domain + HTTPS bağlantısı yapılmalı.
 - Kaynakların kullanım şartlarına bakmak lazım.
 - Kategoriler hocayla konuşup netleşmeli.
 
-## 15. Hocaya Nasıl Anlatırım?
+## 18. Hocaya Nasıl Anlatırım?
 
 Kısa anlatım:
 
@@ -400,18 +432,22 @@ Twitter/X tarafını da denedim. Orası normal HTML vermediği için token'sız 
 
 Etiketleme tarafını da genişlettim. Kategoriye ek olarak olay tipi, konu başlıkları, kişi/kurum/yer, lokasyon, önem seviyesi ve risk/pattern sinyalleri çıkıyor. Benzer haberleri de basit metin benzerliğiyle cluster'a ayıran ilk yapıyı ekledim. Sonucu Postgres'te tek payload jsonb alanında tutuyorum. Böyle yaptım çünkü ileride çıkarılacak alanlar değişirse tabloyu sürekli değiştirmek gerekmeyecek.
 
-Bunları görebilmek için de dashboard ekledim. Genel özet, insight kartları, cluster önem skoru, entity/topic ağı, kategori dağılımı, filtreli haber tablosu, lokasyon/harita ve kaynak sağlığı ekranları var.
+Bunları görebilmek için de dashboard ekledim. Son önerilerinizden sonra ekranı daha sade hale getirdim: karar özeti, outlier, etki analizi, drilldown ve kaynak sağlığı akışı var. Tekil haberleri ana karar ekranından çıkardım; sadece cluster/outlier kanıtı olarak kullanıyorum.
+
+Server deploy tarafında da mevcut servisleri bozmamak için preflight kontrolü ekledim. Dashboard container'ı varsayılan olarak sadece localhost'ta çalışıyor. DNS verilirse mevcut Nginx/Caddy üzerinden domain'e bağlanabilecek örnek configleri de ekledim.
 ```
 
-## 16. Bir Sonraki Adım
+## 19. Bir Sonraki Adım
 
 Sıradaki iş bence şu:
 
-1. Docker Desktop açıp Postgres yazmayı denemek.
-2. OpenAI API key ile `make dry-run-llm` çalıştırmak.
-3. LLM'in 2-3 haber için doğru kategori verip vermediğine bakmak.
-4. Clustering sonucunda aynı olayların doğru gruplanıp gruplanmadığına bakmak.
-5. Dashboard'daki ekranları hocayla konuşup hangi metrikler gerekli netleştirmek.
-6. Twitter/X için API token veya Selenium/browser session kararını vermek.
-7. Hocayla kategori ve pattern alanlarını netleştirmek.
-8. JSONB üzerinden örnek SQL sorguları eklemek.
+1. Serverda `make server-preflight` çalıştırıp mevcut servisleri görmek.
+2. Uygun port seçip `make dashboard-up` ile izole deploy yapmak.
+3. DNS verilirse Nginx/Caddy reverse proxy ve HTTPS bağlantısını yapmak.
+4. Docker Desktop açıp Postgres yazmayı denemek.
+5. OpenAI API key ile `make dry-run-llm` çalıştırmak.
+6. LLM'in 2-3 haber için doğru kategori verip vermediğine bakmak.
+7. Clustering sonucunda aynı olayların doğru gruplanıp gruplanmadığına bakmak.
+8. Twitter/X için API token veya Selenium/browser session kararını vermek.
+9. Hocayla kategori ve pattern alanlarını netleştirmek.
+10. JSONB üzerinden örnek SQL sorguları eklemek.

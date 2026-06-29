@@ -14,7 +14,7 @@ Bu klasör haber toplama işi için ilk taslak. Bitmiş bir uygulama değil; hoc
 - Magazin, spor, kategori sayfası veya zayıf makro ilişkili yüzeysel haberleri etki hesabına almıyor.
 - Haberlerde Google Trends benzeri zaman/topic trendi ve büyük kırılım kısa analizleri üretiyor.
 - Pattern, cluster, trend ve makro etki sonuçlarını sadeleştirilmiş karar/outlier/drilldown dashboard'unda gösteriyor.
-- Server deploy için Nginx + Docker Compose dosyaları var.
+- Server deploy için mevcut servisleri bozmayan preflight, Nginx + Docker Compose ve DNS/reverse proxy notları var.
 - API key yoksa akışı test etmek için basit fallback analyzer çalışıyor.
 - Sonucu Postgres'te tek `payload jsonb` alanına yazacak şekilde tasarlandı.
 
@@ -201,18 +201,31 @@ psql "$DATABASE_URL" -c "select id, payload #>> '{analysis,category}' as categor
 
 Server deploy notu: [DEPLOY_SERVER.md](DEPLOY_SERVER.md)
 
-Kısa lokal/server yayın komutu:
+Serverda başka servisler olabileceği için önce sadece kontrol:
+
+```bash
+make server-preflight
+```
+
+Dashboard üret:
 
 ```bash
 make dry-run dashboard
-NEWS_DASHBOARD_PORT=8080 make dashboard-up
 ```
 
-Sonra dashboard:
+İzole şekilde localhost'ta yayınla:
 
-```text
-http://SERVER_IP:8080/
+```bash
+NEWS_DASHBOARD_PORT=18080 make dashboard-up
 ```
+
+Kontrol:
+
+```bash
+curl http://127.0.0.1:18080/health
+```
+
+Varsayılan compose ayarı portu sadece `127.0.0.1` adresine bind eder. Dış erişim gerekiyorsa mevcut Nginx/Caddy arkasına reverse proxy eklenir; DNS verilirse domain o reverse proxy'ye bağlanır. Örnekler `deploy/server/nginx-reverse-proxy.example.conf` ve `deploy/server/Caddyfile.example` içinde.
 
 ## JSONB Payload Örneği
 
