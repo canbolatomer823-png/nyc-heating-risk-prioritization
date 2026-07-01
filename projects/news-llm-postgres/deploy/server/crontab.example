@@ -1,0 +1,9 @@
+# Örnek cron. Direkt ezmeden önce `crontab -l` ile mevcut kayıtlar kontrol edilmeli.
+# Proje yolu serverdaki gerçek clone path'e göre değiştirilmeli.
+
+SHELL=/bin/bash
+NEWS_DASHBOARD_PORT=18080
+NEWS_ANALYZER=fallback
+NEWS_LIMIT_PER_SOURCE=2
+
+*/30 * * * * cd /opt/omer-news-dashboard/projects/news-llm-postgres && deploy/server/refresh_dashboard.sh

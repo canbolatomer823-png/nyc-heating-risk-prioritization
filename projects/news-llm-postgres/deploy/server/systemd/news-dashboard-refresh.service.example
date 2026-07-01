@@ -1,0 +1,13 @@
+[Unit]
+Description=Refresh Omer news dashboard data
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/omer-news-dashboard/projects/news-llm-postgres
+Environment=NEWS_DASHBOARD_PORT=18080
+Environment=NEWS_ANALYZER=fallback
+Environment=NEWS_LIMIT_PER_SOURCE=2
+ExecStart=/opt/omer-news-dashboard/projects/news-llm-postgres/deploy/server/refresh_dashboard.sh
+

@@ -223,6 +223,13 @@ Kontrol:
 
 ```bash
 curl http://127.0.0.1:18080/health
+make server-verify
+```
+
+Güncel tutmak için:
+
+```bash
+make server-refresh
 ```
 
 Varsayılan compose ayarı portu sadece `127.0.0.1` adresine bind eder. Dış erişim gerekiyorsa mevcut Nginx/Caddy arkasına reverse proxy eklenir; DNS verilirse domain o reverse proxy'ye bağlanır. Örnekler `deploy/server/nginx-reverse-proxy.example.conf` ve `deploy/server/Caddyfile.example` içinde.

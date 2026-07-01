@@ -2,7 +2,7 @@ PYTHON ?= python3
 PYTHONPATH := src
 DATABASE_URL ?= postgresql://news:news@localhost:54329/news
 
-.PHONY: install test dry-run dry-run-llm dashboard server-preflight server-package dashboard-up dashboard-down dashboard-logs db-up db-down init-db run-db
+.PHONY: install test dry-run dry-run-llm dashboard server-preflight server-package server-refresh server-verify dashboard-up dashboard-down dashboard-logs db-up db-down init-db run-db
 
 install:
 	$(PYTHON) -m pip install -r requirements.txt
@@ -35,6 +35,12 @@ server-preflight:
 
 server-package:
 	deploy/server/package_static.sh
+
+server-refresh:
+	deploy/server/refresh_dashboard.sh
+
+server-verify:
+	deploy/server/verify_deploy.sh
 
 dashboard-up:
 	deploy/server/deploy_static.sh

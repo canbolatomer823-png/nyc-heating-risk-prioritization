@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Omer news dashboard refresh every 30 minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=30min
+Unit=news-dashboard-refresh.service
+
+[Install]
+WantedBy=timers.target
+

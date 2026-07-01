@@ -75,6 +75,7 @@ Kontrol:
 ```bash
 curl http://127.0.0.1:18080/health
 curl -I http://127.0.0.1:18080/
+make server-verify
 ```
 
 Log:
@@ -89,7 +90,39 @@ Durdurma:
 make dashboard-down
 ```
 
-## 4. DNS Gelirse
+`make server-verify` sonucu `outputs/deploy-proof.json` dosyasına yazılır. Bu dosya deploy sonrası kanıt olarak saklanabilir.
+
+## 4. Dashboard'u Güncel Tut
+
+Manuel refresh:
+
+```bash
+make server-refresh
+```
+
+Varsayılan olarak fallback analyzer çalışır. LLM ile güncellemek için:
+
+```bash
+export OPENAI_API_KEY="..."
+NEWS_ANALYZER=auto make server-refresh
+```
+
+Cron örneği:
+
+```bash
+deploy/server/crontab.example
+```
+
+Systemd timer örneği:
+
+```bash
+deploy/server/systemd/news-dashboard-refresh.service.example
+deploy/server/systemd/news-dashboard-refresh.timer.example
+```
+
+Not: Bu örnekler otomatik kurulmaz. Mevcut crontab veya systemd dosyaları önce kontrol edilmeli, sonra yeni kayıt eklenmeli.
+
+## 5. DNS Gelirse
 
 DNS kaydı örnek:
 
@@ -111,7 +144,16 @@ Caddy örneği:
 deploy/server/Caddyfile.example
 ```
 
-## 5. Paketli Taşıma
+DNS bağlandıktan sonra dışarıdan kontrol:
+
+```bash
+curl -I http://dashboard.example.com/
+curl http://dashboard.example.com/health
+```
+
+HTTPS gerekiyorsa Caddy otomatik sertifika alabilir. Nginx kullanılacaksa serverdaki mevcut certbot/SSL düzeni bozulmadan yeni domain için sertifika eklenmeli.
+
+## 6. Paketli Taşıma
 
 Repo klonlamak yerine sadece dashboard ve server dosyalarını taşımak için:
 
@@ -121,7 +163,7 @@ make server-package
 
 Bu komut `outputs/server-bundle/` altında `.tar.gz` üretir.
 
-## 6. Dikkat Edilecekler
+## 7. Dikkat Edilecekler
 
 Bu komutları düşünmeden çalıştırma:
 

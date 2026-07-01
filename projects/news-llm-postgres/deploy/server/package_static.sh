@@ -19,8 +19,12 @@ tar -czf "$bundle" \
   deploy/server/nginx.conf \
   deploy/server/preflight.sh \
   deploy/server/deploy_static.sh \
+  deploy/server/refresh_dashboard.sh \
+  deploy/server/verify_deploy.sh \
   deploy/server/nginx-reverse-proxy.example.conf \
   deploy/server/Caddyfile.example \
+  deploy/server/crontab.example \
+  deploy/server/systemd \
   DEPLOY_SERVER.md \
   Makefile
 

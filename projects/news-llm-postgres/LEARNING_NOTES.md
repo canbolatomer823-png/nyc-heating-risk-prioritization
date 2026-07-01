@@ -282,6 +282,9 @@ Bu yüzden deploy akışını şöyle kurdum:
 4. Yani dış dünyaya doğrudan açılmıyor.
 5. Dış erişim gerekiyorsa mevcut Nginx/Caddy üzerinden ayrı bir reverse proxy ekleniyor.
 6. DNS verilirse domain bu reverse proxy'ye bağlanıyor.
+7. `make server-verify` ile health ve index kontrol edilip `outputs/deploy-proof.json` yazılıyor.
+8. `make server-refresh` ile dashboard verisi yeniden üretiliyor.
+9. Cron veya systemd timer örnekleriyle bu refresh belli aralıklarla çalıştırılabiliyor.
 
 Buradaki önemli nokta şu: deploy sadece "çalıştırmak" değil, mevcut sistemi bozmadan çalıştırmak.
 
@@ -443,11 +446,13 @@ Sıradaki iş bence şu:
 
 1. Serverda `make server-preflight` çalıştırıp mevcut servisleri görmek.
 2. Uygun port seçip `make dashboard-up` ile izole deploy yapmak.
-3. DNS verilirse Nginx/Caddy reverse proxy ve HTTPS bağlantısını yapmak.
-4. Docker Desktop açıp Postgres yazmayı denemek.
-5. OpenAI API key ile `make dry-run-llm` çalıştırmak.
-6. LLM'in 2-3 haber için doğru kategori verip vermediğine bakmak.
-7. Clustering sonucunda aynı olayların doğru gruplanıp gruplanmadığına bakmak.
-8. Twitter/X için API token veya Selenium/browser session kararını vermek.
-9. Hocayla kategori ve pattern alanlarını netleştirmek.
-10. JSONB üzerinden örnek SQL sorguları eklemek.
+3. `make server-verify` ile deploy proof almak.
+4. `make server-refresh` veya cron/systemd timer ile güncel kalmasını sağlamak.
+5. DNS verilirse Nginx/Caddy reverse proxy ve HTTPS bağlantısını yapmak.
+6. Docker Desktop açıp Postgres yazmayı denemek.
+7. OpenAI API key ile `make dry-run-llm` çalıştırmak.
+8. LLM'in 2-3 haber için doğru kategori verip vermediğine bakmak.
+9. Clustering sonucunda aynı olayların doğru gruplanıp gruplanmadığına bakmak.
+10. Twitter/X için API token veya Selenium/browser session kararını vermek.
+11. Hocayla kategori ve pattern alanlarını netleştirmek.
+12. JSONB üzerinden örnek SQL sorguları eklemek.
