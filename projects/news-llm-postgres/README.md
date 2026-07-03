@@ -232,7 +232,7 @@ Güncel tutmak için:
 make server-refresh
 ```
 
-Mentor serverında Apache hazır olduğu için ana deploy yöntemi `uvicorn` servisini `127.0.0.1:8011` üstünde çalıştırıp Apache'de sadece yeni bir reverse proxy path'i eklemek. Örnekler `deploy/server/asgi_dashboard.py`, `deploy/server/apache-uvicorn-proxy.example.conf` ve `deploy/server/systemd/omer-news-dashboard.service.example` içinde. Docker Compose dosyası yedek lokal/alternatif yol olarak duruyor.
+Mentor serverında Apache hazır olduğu için ana deploy yöntemi `uvicorn` servisini `127.0.0.1:8011` üstünde çalıştırıp Apache'de sadece yeni bir reverse proxy path'i eklemek. Örnekler `deploy/server/asgi_dashboard.py`, `deploy/server/apache-uvicorn-proxy.example.conf` ve `deploy/server/systemd/omer-news-dashboard.service.example` içinde. Canlı serviste `/health`, `/ready`, `/metadata` ve `/proof` endpointleriyle deploy durumu kontrol edilebilir. Docker Compose dosyası yedek lokal/alternatif yol olarak duruyor.
 
 ## JSONB Payload Örneği
 

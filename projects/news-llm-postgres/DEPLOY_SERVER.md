@@ -77,9 +77,13 @@ Ayrı terminalden kontrol:
 
 ```bash
 curl http://127.0.0.1:8011/health
+curl http://127.0.0.1:8011/ready
 curl -I http://127.0.0.1:8011/
 curl http://127.0.0.1:8011/metadata
+curl http://127.0.0.1:8011/proof
 ```
+
+Burada `health` sadece uvicorn servisinin ayakta olduğunu, `ready` dashboard dosyasının hazır olduğunu, `proof` ise Apache arkası uvicorn deploy bilgisini JSON olarak gösterir.
 
 Kalıcı servis örneği:
 
@@ -201,6 +205,8 @@ DNS bağlandıktan sonra dışarıdan kontrol:
 ```bash
 curl -I http://dashboard.example.com/
 curl http://dashboard.example.com/health
+curl http://dashboard.example.com/ready
+curl http://dashboard.example.com/proof
 ```
 
 HTTPS gerekiyorsa Caddy otomatik sertifika alabilir. Nginx kullanılacaksa serverdaki mevcut certbot/SSL düzeni bozulmadan yeni domain için sertifika eklenmeli.

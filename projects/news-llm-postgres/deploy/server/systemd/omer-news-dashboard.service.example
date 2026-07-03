@@ -9,6 +9,10 @@ User=www-data
 Group=www-data
 WorkingDirectory=/opt/omer-news-dashboard
 Environment=NEWS_DASHBOARD_HTML=/opt/omer-news-dashboard/dashboard.html
+Environment=NEWS_PUBLIC_BASE_URL=https://www.dunyacongress.com/omer-news-dashboard-live
+Environment=NEWS_PROXY_PATH=/omer-news-dashboard-live/
+Environment=NEWS_DEPLOY_MODE=apache_reverse_proxy_uvicorn
+Environment=NEWS_LOCAL_BIND=127.0.0.1:8011
 ExecStart=/usr/local/bin/uvicorn asgi_dashboard:app --host 127.0.0.1 --port 8011
 Restart=always
 RestartSec=5
