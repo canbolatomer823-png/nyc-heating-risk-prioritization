@@ -14,7 +14,7 @@ Bu klasör haber toplama işi için ilk taslak. Bitmiş bir uygulama değil; hoc
 - Magazin, spor, kategori sayfası veya zayıf makro ilişkili yüzeysel haberleri etki hesabına almıyor.
 - Haberlerde Google Trends benzeri zaman/topic trendi ve büyük kırılım kısa analizleri üretiyor.
 - Pattern, cluster, trend ve makro etki sonuçlarını sadeleştirilmiş karar/outlier/drilldown dashboard'unda gösteriyor.
-- Server deploy için mevcut servisleri bozmayan preflight, Nginx + Docker Compose ve DNS/reverse proxy notları var.
+- Server deploy için mevcut servisleri bozmayan preflight, uvicorn + Apache reverse proxy ve DNS notları var.
 - API key yoksa akışı test etmek için basit fallback analyzer çalışıyor.
 - Sonucu Postgres'te tek `payload jsonb` alanına yazacak şekilde tasarlandı.
 
@@ -232,7 +232,7 @@ Güncel tutmak için:
 make server-refresh
 ```
 
-Varsayılan compose ayarı portu sadece `127.0.0.1` adresine bind eder. Dış erişim gerekiyorsa mevcut Nginx/Caddy arkasına reverse proxy eklenir; DNS verilirse domain o reverse proxy'ye bağlanır. Örnekler `deploy/server/nginx-reverse-proxy.example.conf` ve `deploy/server/Caddyfile.example` içinde.
+Mentor serverında Apache hazır olduğu için ana deploy yöntemi `uvicorn` servisini `127.0.0.1:8011` üstünde çalıştırıp Apache'de sadece yeni bir reverse proxy path'i eklemek. Örnekler `deploy/server/asgi_dashboard.py`, `deploy/server/apache-uvicorn-proxy.example.conf` ve `deploy/server/systemd/omer-news-dashboard.service.example` içinde. Docker Compose dosyası yedek lokal/alternatif yol olarak duruyor.
 
 ## JSONB Payload Örneği
 

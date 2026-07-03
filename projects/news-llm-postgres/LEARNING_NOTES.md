@@ -277,10 +277,10 @@ Bu makine boş değil. Yanlış port, yanlış docker komutu veya yanlış nginx
 Bu yüzden deploy akışını şöyle kurdum:
 
 1. Önce `make server-preflight` ile sadece okuma/kontrol yapılıyor.
-2. Hangi portların dolu olduğu, Docker containerları ve reverse proxy durumu görülüyor.
-3. Dashboard container'ı varsayılan olarak `127.0.0.1:18080` üstünde çalışıyor.
+2. Hangi portların dolu olduğu, Docker containerları ve Apache/reverse proxy durumu görülüyor.
+3. Dashboard küçük bir `uvicorn` servisi olarak `127.0.0.1:8011` üstünde çalışıyor.
 4. Yani dış dünyaya doğrudan açılmıyor.
-5. Dış erişim gerekiyorsa mevcut Nginx/Caddy üzerinden ayrı bir reverse proxy ekleniyor.
+5. Dış erişim için mevcut Apache'ye sadece yeni bir reverse proxy path'i ekleniyor.
 6. DNS verilirse domain bu reverse proxy'ye bağlanıyor.
 7. `make server-verify` ile health ve index kontrol edilip `outputs/deploy-proof.json` yazılıyor.
 8. `make server-refresh` ile dashboard verisi yeniden üretiliyor.
@@ -437,7 +437,7 @@ Etiketleme tarafını da genişlettim. Kategoriye ek olarak olay tipi, konu baş
 
 Bunları görebilmek için de dashboard ekledim. Son önerilerinizden sonra ekranı daha sade hale getirdim: karar özeti, outlier, etki analizi, drilldown ve kaynak sağlığı akışı var. Tekil haberleri ana karar ekranından çıkardım; sadece cluster/outlier kanıtı olarak kullanıyorum.
 
-Server deploy tarafında da mevcut servisleri bozmamak için preflight kontrolü ekledim. Dashboard container'ı varsayılan olarak sadece localhost'ta çalışıyor. DNS verilirse mevcut Nginx/Caddy üzerinden domain'e bağlanabilecek örnek configleri de ekledim.
+Server deploy tarafında da mevcut servisleri bozmamak için preflight kontrolü ekledim. Apache hazır olduğu için dashboard'u küçük bir uvicorn servisi olarak localhost'ta çalıştırıp Apache arkasına proxy edecek şekilde hazırladım. DNS verilirse aynı Apache proxy yapısına bağlanabilir.
 ```
 
 ## 19. Bir Sonraki Adım
@@ -445,10 +445,10 @@ Server deploy tarafında da mevcut servisleri bozmamak için preflight kontrolü
 Sıradaki iş bence şu:
 
 1. Serverda `make server-preflight` çalıştırıp mevcut servisleri görmek.
-2. Uygun port seçip `make dashboard-up` ile izole deploy yapmak.
+2. Uygun port seçip uvicorn servisini localhost'ta ayağa kaldırmak.
 3. `make server-verify` ile deploy proof almak.
 4. `make server-refresh` veya cron/systemd timer ile güncel kalmasını sağlamak.
-5. DNS verilirse Nginx/Caddy reverse proxy ve HTTPS bağlantısını yapmak.
+5. DNS verilirse Apache reverse proxy ve HTTPS bağlantısını yapmak.
 6. Docker Desktop açıp Postgres yazmayı denemek.
 7. OpenAI API key ile `make dry-run-llm` çalıştırmak.
 8. LLM'in 2-3 haber için doğru kategori verip vermediğine bakmak.

@@ -1,0 +1,16 @@
+[Unit]
+Description=Omer news dashboard uvicorn service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/omer-news-dashboard
+Environment=NEWS_DASHBOARD_HTML=/opt/omer-news-dashboard/dashboard.html
+ExecStart=/usr/local/bin/uvicorn asgi_dashboard:app --host 127.0.0.1 --port 8011
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

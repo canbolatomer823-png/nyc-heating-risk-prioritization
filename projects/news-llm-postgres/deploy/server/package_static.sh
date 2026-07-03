@@ -15,6 +15,7 @@ bundle="outputs/server-bundle/news-dashboard-server-$(date +%Y%m%d-%H%M%S).tar.g
 
 tar -czf "$bundle" \
   outputs/dashboard.html \
+  deploy/server/asgi_dashboard.py \
   deploy/server/compose.yaml \
   deploy/server/nginx.conf \
   deploy/server/preflight.sh \
@@ -22,6 +23,7 @@ tar -czf "$bundle" \
   deploy/server/refresh_dashboard.sh \
   deploy/server/verify_deploy.sh \
   deploy/server/nginx-reverse-proxy.example.conf \
+  deploy/server/apache-uvicorn-proxy.example.conf \
   deploy/server/Caddyfile.example \
   deploy/server/crontab.example \
   deploy/server/systemd \

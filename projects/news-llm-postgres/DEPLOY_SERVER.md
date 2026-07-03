@@ -1,11 +1,11 @@
 # Server Deploy Runbook
 
-Bu proje tek dosyalık `outputs/dashboard.html` üretiyor. Server deploy tarafı bilerek küçük ve izole tutuldu:
+Bu proje tek dosyalık `outputs/dashboard.html` üretiyor. Server deploy tarafı bilerek küçük ve izole tutuldu.
+Mentorun verdiği serverda Apache zaten çalıştığı için ana deploy yöntemi:
 
-- Mevcut servisleri durdurmaz.
-- Varsayılan olarak sadece `127.0.0.1:18080` üstünden yayın yapar.
-- Dış erişim için mevcut Nginx/Caddy arkasına reverse proxy eklenir.
-- DNS gelirse domain reverse proxy'ye bağlanır.
+1. Dashboard'u küçük bir `uvicorn` servisiyle `127.0.0.1` üstünde çalıştır.
+2. Apache'ye sadece yeni bir reverse proxy path'i ekle.
+3. Mevcut Apache vhostlarını, Docker containerlarını ve servisleri bozma.
 
 ## 1. Server'a Girince Önce Kontrol Et
 
@@ -56,7 +56,53 @@ export OPENAI_MODEL="gpt-4o-mini"
 make PYTHON=.venv/bin/python dry-run-llm dashboard
 ```
 
-## 3. İzole Şekilde Yayına Al
+## 3. Apache Arkasında Uvicorn ile Yayına Al
+
+Paketli ve düşük disk kullanan yöntem:
+
+```bash
+mkdir -p /opt/omer-news-dashboard
+cp outputs/dashboard.html /opt/omer-news-dashboard/dashboard.html
+cp deploy/server/asgi_dashboard.py /opt/omer-news-dashboard/asgi_dashboard.py
+```
+
+Uvicorn'u önce elle dene:
+
+```bash
+cd /opt/omer-news-dashboard
+uvicorn asgi_dashboard:app --host 127.0.0.1 --port 8011
+```
+
+Ayrı terminalden kontrol:
+
+```bash
+curl http://127.0.0.1:8011/health
+curl -I http://127.0.0.1:8011/
+curl http://127.0.0.1:8011/metadata
+```
+
+Kalıcı servis örneği:
+
+```bash
+deploy/server/systemd/omer-news-dashboard.service.example
+```
+
+Apache proxy örneği:
+
+```bash
+deploy/server/apache-uvicorn-proxy.example.conf
+```
+
+Örnek dış URL:
+
+```text
+https://DOMAIN/omer-news-dashboard-live/
+```
+
+Bu yöntemde Apache sadece `/omer-news-dashboard-live/` path'ini `127.0.0.1:8011` adresine taşır.
+Mevcut siteler ve vhostlar değişmeden kalır.
+
+## 4. Docker Alternatifi
 
 Varsayılan port `18080`. Bu port sadece localhost'a bind edilir:
 
@@ -92,7 +138,7 @@ make dashboard-down
 
 `make server-verify` sonucu `outputs/deploy-proof.json` dosyasına yazılır. Bu dosya deploy sonrası kanıt olarak saklanabilir.
 
-## 4. Dashboard'u Güncel Tut
+## 5. Dashboard'u Güncel Tut
 
 Manuel refresh:
 
@@ -122,7 +168,7 @@ deploy/server/systemd/news-dashboard-refresh.timer.example
 
 Not: Bu örnekler otomatik kurulmaz. Mevcut crontab veya systemd dosyaları önce kontrol edilmeli, sonra yeni kayıt eklenmeli.
 
-## 5. DNS Gelirse
+## 6. DNS Gelirse
 
 DNS kaydı örnek:
 
@@ -144,6 +190,12 @@ Caddy örneği:
 deploy/server/Caddyfile.example
 ```
 
+Apache + uvicorn path proxy örneği:
+
+```bash
+deploy/server/apache-uvicorn-proxy.example.conf
+```
+
 DNS bağlandıktan sonra dışarıdan kontrol:
 
 ```bash
@@ -153,7 +205,7 @@ curl http://dashboard.example.com/health
 
 HTTPS gerekiyorsa Caddy otomatik sertifika alabilir. Nginx kullanılacaksa serverdaki mevcut certbot/SSL düzeni bozulmadan yeni domain için sertifika eklenmeli.
 
-## 6. Paketli Taşıma
+## 7. Paketli Taşıma
 
 Repo klonlamak yerine sadece dashboard ve server dosyalarını taşımak için:
 
@@ -163,15 +215,15 @@ make server-package
 
 Bu komut `outputs/server-bundle/` altında `.tar.gz` üretir.
 
-## 7. Dikkat Edilecekler
+## 8. Dikkat Edilecekler
 
 Bu komutları düşünmeden çalıştırma:
 
 ```bash
 docker system prune
 docker compose down
-systemctl stop nginx
-systemctl restart nginx
+systemctl stop apache2
+systemctl restart apache2
 ufw reset
 apt upgrade -y
 reboot
@@ -182,4 +234,4 @@ Eğer gerekirse önce mevcut servislerin kime ait olduğu ve hangi portu kulland
 
 ## Hocaya Kısa Teknik Açıklama
 
-Bu deploy yaklaşımında dashboard container'ı dış dünyaya doğrudan açılmıyor. Önce localhost'ta izole çalışıyor, sonra DNS verilirse mevcut Nginx/Caddy üzerinden domain'e bağlanıyor. Böylece server'daki diğer servislerin portları ve configleri ezilmemiş oluyor.
+Bu deploy yaklaşımında dashboard doğrudan dış dünyaya açılmıyor. Önce `uvicorn` ile `127.0.0.1:8011` üstünde çalışıyor, Apache de sadece yeni bir path'i bu servise proxy ediyor. Böylece mevcut Apache siteleri, Docker containerları ve servis portları ezilmemiş oluyor.
